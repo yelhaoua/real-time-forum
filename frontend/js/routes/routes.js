@@ -1,6 +1,11 @@
-import registerForm from "../componentes/register-form";
+import Heloo from "../componentes/heloo.js";
+import HomePage from "../componentes/home-page.js";
+import registerForm from "../componentes/register-form.js";
 
-export default routes = {
-  "/": mainPage(),
-  "/register": registerForm(),
+const routes = {
+  "/": HomePage,
+  "/helooo": Heloo,
+  "/register": registerForm,
 };
+
+export default routes;

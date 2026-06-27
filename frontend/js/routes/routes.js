@@ -4,7 +4,6 @@ import registerForm from "../componentes/register-form.js";
 
 const routes = {
   "/": HomePage,
-  "/helooo": Heloo,
   "/register": registerForm,
 };
 

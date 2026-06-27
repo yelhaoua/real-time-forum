@@ -50,7 +50,7 @@ export default function registerForm() {
           <h2 class="title">Sign in to your account</h2>
           <p class="subtitle">
             New to Talentswide?
-            <a href="/" class="nav-link">Create an account</a>
+            <a href="/login" class="nav-link">Create an account</a>
           </p>
 
           <form id="loginForm" novalidate>

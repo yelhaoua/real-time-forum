@@ -5,7 +5,6 @@ import loginforum from "../componentes/login-forum.js";
 
 const routes = {
   "/": HomePage,
-  "/helooo": Heloo,
   "/register": registerForm,
   "/login": loginforum,
 };

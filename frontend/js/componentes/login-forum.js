@@ -1,5 +1,5 @@
 export default function loginforum() {
-  document.getElementsByTagName("title")[0].innerHTML = "Login Page";
+  document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
   document.getElementsByTagName("nav")[0].classList = "hidden";
 
   return `
@@ -14,7 +14,7 @@ export default function loginforum() {
           </defs>
           <path d="M20 2c.7 6.4 1.9 9.7 4.6 12.4S31.6 18.3 38 19c-6.4.7-9.7 1.9-12.4 4.6S20.7 31.6 20 38c-.7-6.4-1.9-9.7-4.6-12.4S8.4 19.7 2 19c6.4-.7 9.7-1.9 12.4-4.6S19.3 8.4 20 2Z" fill="url(#g)"/>
         </svg>
-        <span class="wordmark">Talents<span>wide</span></span>
+        <span class="wordmark">01<span>Forum</span></span>
       </div>
 
       <div class="brand-body">
@@ -28,7 +28,7 @@ export default function loginforum() {
     <section class="form-wrap">
       <div class="form-inner">
         <h2 class="title">Sign in to your account</h2>
-        <p class="subtitle">New to Talentswide? <a href="#">Create an account</a></p>
+        <p class="subtitle">New to Talentswide? <a href="/register">Create an account</a></p>
 
         <form id="loginForm" method="POST" action="#">
           <div>

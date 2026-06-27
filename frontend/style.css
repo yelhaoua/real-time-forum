@@ -1,0 +1,416 @@
+    @font-face {
+      font-family: 'Plus Jakarta Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: local('Plus Jakarta Sans'), sans-serif;
+    }
+
+    * { 
+      box-sizing: border-box; 
+    }
+    
+    body { 
+      margin: 0; 
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #EBEDF0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 40px 20px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: 100%;
+      max-width: 1040px;
+      min-height: 640px;
+      background: #FFFFFF;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(31,45,61,0.10);
+    }
+
+    /* Left: Form Side */
+    .form-side {
+      padding: 56px 56px 48px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: auto;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1F2D3D;
+      letter-spacing: -0.01em;
+    }
+
+    .header-text {
+      margin-top: 40px;
+      margin-bottom: 32px;
+    }
+
+    .header-text h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      font-weight: 800;
+      color: #1F2D3D;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      margin: 0;
+      font-size: 15px;
+      color: #8A94A6;
+      line-height: 1.5;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-wrapper span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #5B6472;
+    }
+
+    .input-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #F4F6F9;
+      border: 1.5px solid #F4F6F9;
+      border-radius: 14px;
+      padding: 0 16px;
+      height: 52px;
+      transition: border-color .15s;
+    }
+
+    .input-field:focus-within {
+      border-color: #2D6FF3;
+    }
+
+    .input-field input {
+      border: none;
+      outline: none;
+      background: transparent;
+      flex: 1;
+      font-family: inherit;
+      font-size: 15px;
+      color: #1F2D3D;
+      height: 100%;
+    }
+
+    /* Pure CSS Password Toggle */
+    .password-container {
+      position: relative;
+    }
+
+    .password-toggle-input {
+      display: none;
+    }
+
+    /* When checkbox is checked, fake text transformation via font properties */
+    .password-toggle-input:checked ~ .input-field input {
+      -webkit-text-security: none;
+      text-security: none;
+      /* Fallback trick for standard browsers via hidden input duplicates */
+    }
+
+    .toggle-btn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #9AA3B2;
+      display: flex;
+      padding: 4px;
+    }
+
+    .toggle-btn:hover {
+      color: #2D6FF3;
+    }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: #5B6472;
+      font-weight: 500;
+    }
+
+    .remember-me input {
+      width: 16px;
+      height: 16px;
+      accent-color: #2D6FF3;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #2D6FF3;
+      text-decoration: none;
+    }
+
+    .submit-btn {
+      margin-top: 6px;
+      height: 52px;
+      border: none;
+      border-radius: 14px;
+      background: #2D6FF3;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(45,111,243,0.30);
+      transition: background .15s;
+    }
+
+    .submit-btn:hover {
+      background: #235ad0;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 26px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: #ECEFF3;
+    }
+
+    .divider-text {
+      font-size: 12.5px;
+      color: #9AA3B2;
+      font-weight: 500;
+    }
+
+    .social-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 48px;
+      border: 1.5px solid #ECEFF3;
+      border-radius: 14px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2D3D;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+
+    .social-btn:hover {
+      border-color: #D4DAE3;
+    }
+
+    .footer-text {
+      margin: auto 0 0;
+      padding-top: 28px;
+      text-align: center;
+      font-size: 14px;
+      color: #8A94A6;
+    }
+
+    .footer-text a {
+      color: #2D6FF3;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* Right: Visual Side */
+    .visual-side {
+      position: relative;
+      background: linear-gradient(160deg, #2D6FF3 0%, #1E54C7 100%);
+      padding: 56px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .circle-top {
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .circle-bottom {
+      position: absolute;
+      bottom: -60px;
+      left: -60px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .status-badge {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #7CFFB2;
+    }
+
+    .visual-content {
+      position: relative;
+    }
+
+    .visual-content h2 {
+      margin: 0 0 16px;
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .visual-content p {
+      margin: 0;
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.6;
+      max-width: 340px;
+    }
+
+    .mock-card {
+      margin-top: 32px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      max-width: 320px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .user-location {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12.5px;
+    }
+
+    .card-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .card-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .slider-indicators {
+      position: relative;
+      display: flex;
+      gap: 6px;
+    }
+
+    .indicator-active {
+      width: 24px;
+      height: 5px;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .indicator-inactive {
+      width: 8px;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .visual-side {
+        display: none;
+      }
+    }
+
+    .hidden {
+        display: none;
+    }

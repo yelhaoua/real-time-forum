@@ -2,6 +2,35 @@ export default function loginforum() {
   document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
   document.getElementsByTagName("nav")[0].classList = "hidden";
 
+  document.addEventListener("submit", async (e) => {
+    if (e.target.id == "loginForm") {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const pass = document.getElementById("password").value;
+      const PostData = {"email": email,"pass": pass }
+
+      try {
+        const res = await fetch("http://localhost:9090/api/login", {
+          method: "POST",
+          headers : {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(PostData)
+        })
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        if (res.ok) {
+          window.location.href = "/"
+        }
+      } catch (error) {
+        console.error('Error sending data:', error);
+      }
+    };
+    
+  });
+
   return `
    <main class="card">
     <section class="brand">
@@ -69,5 +98,5 @@ export default function loginforum() {
       </div>
     </section>
   </main>
-    `;
+  `;
 }

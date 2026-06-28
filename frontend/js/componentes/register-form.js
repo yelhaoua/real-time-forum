@@ -1,31 +1,64 @@
+import Baner from "./ui/baner.js";
+
 export default function registerForm() {
-  document.addEventListener("submit", async (e) => {
+  document.addEventListener("submit", (e) => {
+    let nameErr = document.getElementById("name-Err");
+    let emailErr = document.getElementById("email-Err");
+    let passErr = document.getElementById("pass-Err");
     if (e.target.id === "loginForm") {
       e.preventDefault();
+      e.stopPropagation();
+      nameErr.innerHTML = "";
+      emailErr.innerHTML = "";
+      passErr.innerHTML = "";
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
-      console.log(data);
+      const sendData = async () => {
+        try {
+          const response = await fetch("http://localhost:9090/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
 
-      try {
-        const response = await fetch("http://localhost:9090/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
+          if (!response.ok) {
+            console.log("Hna");
 
-        if (response.ok) {
-          console.log("تم إرسال بيانات التسجيل بنجاح إلى Go!", data);
+            const res = await response.json();
+            console.log(res);
+
+            if (res.Data) {
+              nameErr.innerHTML = res.Data.Name;
+              emailErr.innerHTML = res.Data.Email;
+              passErr.innerHTML = res.Data.Password;
+            }
+          } else {
+            const res = await response.json();
+            const bannerElement = Baner(res.Message, res.Message);
+            let succesMessage = document.getElementById("succes-Message");
+
+            if (succesMessage) {
+              succesMessage.remove();
+            }
+
+            document.body.appendChild(bannerElement);
+
+            e.target.reset();
+          }
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error("خطأ في الاتصال بالسيرفر:", error);
-      }
+      };
+
+      sendData();
     }
   });
 
-  // الـ HTML الرائع الخاص بك (مع الحفاظ على المعرف id="loginForm")
   return `
+  
    <main class="card">
       <!-- Brand side -->
+      
       <section class="brand">
         <div class="logo">
           <span class="wordmark">Zone01<span>Forum</span></span>
@@ -63,6 +96,7 @@ export default function registerForm() {
                   required
                 />
               </div>
+              <span id="name-Err" ></span>
             </div>
 
             <div>
@@ -78,6 +112,7 @@ export default function registerForm() {
                   required
                 />
               </div>
+              <span id="email-Err" ></span>
             </div>
 
             <div>
@@ -92,7 +127,9 @@ export default function registerForm() {
                   autocomplete="current-password"
                   required
                 />
+               
               </div>
+               <span id="pass-Err" ></span>
             </div>
 
 
@@ -104,5 +141,8 @@ export default function registerForm() {
           </div>
         </div>
       </section>
-    </main>`;
+      </main>
+      
+      
+      `;
 }

@@ -65,5 +65,10 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	json.NewEncoder(w).Encode(utils.ResponseApi{
+		Success: true,
+		Message: "you are registerd",
+	})
+
 	fmt.Println(data)
 }

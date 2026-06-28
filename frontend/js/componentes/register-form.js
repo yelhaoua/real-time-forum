@@ -47,11 +47,7 @@ export default function registerForm() {
           <h2 class="title">Register in to your account</h2>
           <p class="subtitle">
             Sign Ins to Your Account?
-<<<<<<< HEAD
             <a href="#/login" class="nav-link">Sign In</a>
-=======
-            <a href="/login" class="nav-link">Sign In</a>
->>>>>>> 51c313e795c2c07a6949ac2e931e47b15baab8b5
           </p>
 
           <form id="loginForm" novalidate>

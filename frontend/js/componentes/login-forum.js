@@ -58,7 +58,7 @@ export default function loginforum() {
               <span class="ic">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
               </span>
-              <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+              <input id="email" name="email" type="email" placeholder="name@mail.com" autocomplete="email" required>
             </div>
           </div>
 

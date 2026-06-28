@@ -43,7 +43,6 @@ export default function registerForm() {
 
             document.body.appendChild(bannerElement);
 
-            // Clear form fields
             e.target.reset();
           }
         } catch (error) {

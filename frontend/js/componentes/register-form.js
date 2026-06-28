@@ -1,20 +1,20 @@
 export default function registerForm() {
+  var FinleRes;
   document.addEventListener("submit", async (e) => {
     if (e.target.id === "loginForm") {
-      e.preventDefault(); 
+      e.preventDefault();
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
 
       try {
-      
         const response = await fetch("http://localhost:9090/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
 
-        if (response.ok) {
-          console.log("تم إرسال بيانات التسجيل بنجاح إلى Go!", data);
+        if (!response.ok) {
+          FinleRes = await response.json();
         }
       } catch (error) {
         console.error("خطأ في الاتصال بالسيرفر:", error);
@@ -26,6 +26,7 @@ export default function registerForm() {
   return `
    <main class="card">
       <!-- Brand side -->
+      <h1>${FinleRes}</h1>
       <section class="brand">
         <div class="logo">
           <span class="wordmark">Zone01<span>Forum</span></span>

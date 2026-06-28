@@ -1,12 +1,18 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
+type User struct {
+	Email string `json:email`
+	Pass  string `json:pass`
+}
+
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	
+	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
@@ -18,7 +24,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
+		var user User
 		fmt.Println("POST received")
+
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			http.Error(w, "Invalid JSON payload: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		if user.Email == "" || user.Pass == "" {
+			http.Error(w, "The login details not valid", http.StatusBadRequest)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		return
 	}

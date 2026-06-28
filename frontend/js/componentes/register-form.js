@@ -1,6 +1,11 @@
+import Baner from "./ui/baner.js";
+
 export default function registerForm() {
-  var FinleRes;
   document.addEventListener("submit", async (e) => {
+    let nameErr = document.getElementById("name-Err");
+    let emailErr = document.getElementById("email-Err");
+    let passErr = document.getElementById("pass-Err");
+    let succesMessage = document.getElementById("succes-Message");
     if (e.target.id === "loginForm") {
       e.preventDefault();
       const formData = new FormData(e.target);
@@ -14,19 +19,40 @@ export default function registerForm() {
         });
 
         if (!response.ok) {
-          FinleRes = await response.json();
+          console.log("Hna");
+
+          const res = await response.json();
+          console.log(res);
+
+          if (res.Data) {
+            nameErr.innerHTML = res.Data.Name;
+            emailErr.innerHTML = res.Data.Email;
+            passErr.innerHTML = res.Data.Password;
+          }
+        } else {
+          nameErr.innerHTML = "";
+          emailErr.innerHTML = "";
+          passErr.innerHTML = "";
+          const res = await response.json();
+          const bannerElement = Baner(res.Message, res.Message) || "text";
+          console.log(bannerElement);
+          if (succesMessage) {
+            succesMessage.remove();
+          }
+
+          document.body.appendChild(bannerElement);
         }
       } catch (error) {
-        console.error("خطأ في الاتصال بالسيرفر:", error);
+        console.error(error);
       }
     }
   });
 
-  // الـ HTML الرائع الخاص بك (مع الحفاظ على المعرف id="loginForm")
   return `
+  
    <main class="card">
       <!-- Brand side -->
-      <h1>${FinleRes}</h1>
+      
       <section class="brand">
         <div class="logo">
           <span class="wordmark">Zone01<span>Forum</span></span>
@@ -64,6 +90,7 @@ export default function registerForm() {
                   required
                 />
               </div>
+              <span id="name-Err" ></span>
             </div>
 
             <div>
@@ -79,6 +106,7 @@ export default function registerForm() {
                   required
                 />
               </div>
+              <span id="email-Err" ></span>
             </div>
 
             <div>
@@ -93,7 +121,9 @@ export default function registerForm() {
                   autocomplete="current-password"
                   required
                 />
+               
               </div>
+               <span id="pass-Err" ></span>
             </div>
 
 
@@ -105,5 +135,8 @@ export default function registerForm() {
           </div>
         </div>
       </section>
-    </main>`;
+      </main>
+      
+      
+      `;
 }

@@ -10,7 +10,7 @@ import (
 var Conn *sql.DB
 
 func DbConnect() {
-	DB, err := sql.Open("sqlite3", "../real-time-forum.db")
+	DB, err := sql.Open("sqlite3", "./real-time-forum.db")
 	if err != nil {
 		fmt.Println("Connect Err", err)
 		return

@@ -1,12 +1,12 @@
 export default function registerForm() {
   document.addEventListener("submit", async (e) => {
     if (e.target.id === "loginForm") {
-      e.preventDefault(); 
+      e.preventDefault();
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
+      console.log(data);
 
       try {
-      
         const response = await fetch("http://localhost:9090/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

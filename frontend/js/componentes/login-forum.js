@@ -1,19 +1,61 @@
+function validateEmail(email) {
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return regex.test(email);
+}
+
 export default function loginforum() {
   document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
-  document.getElementsByTagName("nav")[0].classList = "hidden";
+  const head = document.querySelector("head");
+
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "./assets/styles/login.css";
+  head.appendChild(link);
+
+  // document.getElementsByTagName("nav")[0].classList = "hidden";
+
+  document.addEventListener("submit", async (e) => {
+    if (e.target.id == "loginForm") {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      if (!validateEmail(email)) {
+        document.getElementById("error-email").classList.remove("hidden")
+        return
+      }
+
+      const pass = document.getElementById("password").value;
+      if (pass.length < 8 ) {
+        document.getElementById("error-password").classList.remove("hidden")
+        return
+      }
+
+      const PostData = { email: email, pass: pass };
+
+      try {
+        const res = await fetch("http://localhost:9090/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(PostData),
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        if (res.ok) {
+          window.location.href = "/";
+        }
+      } catch (error) {
+        console.error("Error sending data:", error);
+      }
+    }
+  });
 
   return `
    <main class="card">
     <section class="brand">
       <div class="logo">
-        <svg class="mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="g" x1="6" y1="4" x2="34" y2="36" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#6FBEFF"/><stop offset="1" stop-color="#1F6FE5"/>
-            </linearGradient>
-          </defs>
-          <path d="M20 2c.7 6.4 1.9 9.7 4.6 12.4S31.6 18.3 38 19c-6.4.7-9.7 1.9-12.4 4.6S20.7 31.6 20 38c-.7-6.4-1.9-9.7-4.6-12.4S8.4 19.7 2 19c6.4-.7 9.7-1.9 12.4-4.6S19.3 8.4 20 2Z" fill="url(#g)"/>
-        </svg>
         <span class="wordmark">01<span>Forum</span></span>
       </div>
 
@@ -37,8 +79,10 @@ export default function loginforum() {
               <span class="ic">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
               </span>
-              <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+              <input id="email" name="email" type="email" placeholder="name@mail.com" autocomplete="email" required>
+              
             </div>
+            <p id="error-email" class="field-label hidden" style="color: red" >Please enter valid email</p>
           </div>
 
           <div>
@@ -51,6 +95,7 @@ export default function loginforum() {
               <input class="pass-hidden" id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
               <input class="pass-visible" id="password-unmasked" name="password_unmasked" type="text" placeholder="Enter your password" autocomplete="off">
               
+              
               <div class="toggle-container">
                 <input type="checkbox" class="toggle-checkbox" aria-label="Toggle password visibility" role="switch" aria-checked="false">
                 <div class="toggle-icon">
@@ -59,6 +104,7 @@ export default function loginforum() {
                 </div>
               </div>
             </div>
+            <p id="error-password" class="field-label hidden" style="color: red" >Password must at least 8 characters</p>
           </div>
 
           <div class="row">
@@ -74,30 +120,8 @@ export default function loginforum() {
 
           <button class="btn" type="submit">Sign in</button>
         </form>
-
-        <div class="divider">or continue with</div>
-
-        <div class="socials">
-          <button class="social" type="button">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1 .7-2.4 1.2-4.1 1.2-3.1 0-5.8-2.1-6.7-5H1.3v3.1A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.3 14.3a7.2 7.2 0 0 1 0-4.6V6.6H1.3a12 12 0 0 0 0 10.8l4-3.1Z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.3 6.6l4 3.1c.9-2.9 3.6-4.9 6.7-4.9Z"/></svg>
-            Google
-          </button>
-          <button class="social" type="button">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="#111"><path d="M16.4 12.6c0-2.6 2.1-3.9 2.2-4-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.1 2.5-1.8 3-.5 7.5 1.2 10 .9 1.2 1.9 2.6 3.2 2.5 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8 2.2-1.2 3-2.4c1-1.4 1.3-2.7 1.4-2.8-.1 0-2.6-1-2.6-3.8ZM14 4.7c.7-.8 1.1-2 1-3.2-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.3Z"/></svg>
-            Apple
-          </button>
-        </div>
-
-        <footer class="foot">
-          <div class="foot-links">
-            <a href="#">Privacy Terms</a>
-            <a href="#">Advertising</a>
-            <a href="#">Cookies</a>
-          </div>
-          <div class="copy">Talentswide © 2026</div>
-        </footer>
       </div>
     </section>
   </main>
-    `;
+  `;
 }

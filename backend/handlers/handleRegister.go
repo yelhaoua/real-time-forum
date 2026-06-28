@@ -92,19 +92,20 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			if strings.Contains(err.Error(), "username") {
+				Errores.Name = "duplicated user name"
 				w.WriteHeader(http.StatusBadRequest)
 				json.NewEncoder(w).Encode(utils.ResponseApi{
 					Success: false,
-					Message: "duplicated user name",
-					Errore:  "input_error",
+					Data:    Errores,
 				})
 				return
-			} else if strings.Contains(err.Error(), "email") {
+			}
+			if strings.Contains(err.Error(), "email") {
 				w.WriteHeader(http.StatusBadRequest)
+				Errores.Email = "duplicated user email"
 				json.NewEncoder(w).Encode(utils.ResponseApi{
 					Success: false,
-					Message: "duplicated user email",
-					Errore:  "input_error",
+					Data:    Errores,
 				})
 				return
 			}

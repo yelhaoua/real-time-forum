@@ -84,7 +84,7 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
-.brand::after {
+/* .brand::after {
   content: "";
   position: absolute;
   width: 360px;
@@ -97,7 +97,7 @@ body {
     transparent 70%
   );
   border-radius: 50%;
-}
+} */
 
 .logo {
   display: flex;
@@ -149,8 +149,6 @@ body {
   line-height: 1.6;
   max-width: 34ch;
 }
-
-
 
 /* ---------- Right: form panel ---------- */
 .form-wrap {
@@ -259,9 +257,6 @@ form {
   background: rgba(0, 0, 0, 0.04);
 }
 
-
-
-
 .btn {
   margin-top: 6px;
   border: 0;
@@ -307,8 +302,6 @@ form {
   flex: 1;
   background: var(--line);
 }
-
-
 
 .foot {
   margin-top: 30px;

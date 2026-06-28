@@ -6,8 +6,12 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
+	"real-time-forum/config"
 	"real-time-forum/utils"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
@@ -22,7 +26,19 @@ func ValidateEmail(email string) bool {
 
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "method not allowed",
+		})
+		return
+	}
 	var data struct {
 		Name     string
 		Email    string
@@ -35,17 +51,13 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewDecoder(r.Body).Decode(&data)
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
 
 	hasErr := false
-	if len(data.Name) < 3 || len(data.Name) > 30 {
+	if len(strings.TrimSpace(data.Name)) < 3 || len(strings.TrimSpace(data.Name)) > 30 {
 		hasErr = true
 		Errores.Name = "please enter valid name"
 	}
-	if !ValidateEmail(data.Email) {
+	if !ValidateEmail(strings.TrimSpace(data.Email)) {
 		hasErr = true
 		Errores.Email = "please enter valid email"
 	}
@@ -64,11 +76,61 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "server error",
+			Errore:  "server_error",
+		})
+		return
+	}
+	fmt.Println(hashPassword)
+	_, err = config.Conn.Exec("INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)",
+		data.Name, data.Email, hashPassword, time.Now())
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			if strings.Contains(err.Error(), "username") {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(utils.ResponseApi{
+					Success: false,
+					Message: "duplicated user name",
+					Errore:  "input_error",
+				})
+				return
+			} else if strings.Contains(err.Error(), "email") {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(utils.ResponseApi{
+					Success: false,
+					Message: "duplicated user email",
+					Errore:  "input_error",
+				})
+				return
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "data base errore pleas try agin later",
+				Errore:  "data_base_error",
+			})
+			return
+
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "data base errore pleas try agin later",
+				Errore:  "data_base_error",
+			})
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
 		Message: "you are registerd",
 	})
-
-	fmt.Println(data)
 }

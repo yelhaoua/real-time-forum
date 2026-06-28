@@ -1,50 +1,57 @@
 import Baner from "./ui/baner.js";
 
 export default function registerForm() {
-  document.addEventListener("submit", async (e) => {
+  document.addEventListener("submit", (e) => {
     let nameErr = document.getElementById("name-Err");
     let emailErr = document.getElementById("email-Err");
     let passErr = document.getElementById("pass-Err");
-    let succesMessage = document.getElementById("succes-Message");
     if (e.target.id === "loginForm") {
       e.preventDefault();
+      e.stopPropagation();
+      nameErr.innerHTML = "";
+      emailErr.innerHTML = "";
+      passErr.innerHTML = "";
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
+      const sendData = async () => {
+        try {
+          const response = await fetch("http://localhost:9090/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
 
-      try {
-        const response = await fetch("http://localhost:9090/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
+          if (!response.ok) {
+            console.log("Hna");
 
-        if (!response.ok) {
-          console.log("Hna");
+            const res = await response.json();
+            console.log(res);
 
-          const res = await response.json();
-          console.log(res);
+            if (res.Data) {
+              nameErr.innerHTML = res.Data.Name;
+              emailErr.innerHTML = res.Data.Email;
+              passErr.innerHTML = res.Data.Password;
+            }
+          } else {
+            const res = await response.json();
+            const bannerElement = Baner(res.Message, res.Message);
+            let succesMessage = document.getElementById("succes-Message");
 
-          if (res.Data) {
-            nameErr.innerHTML = res.Data.Name;
-            emailErr.innerHTML = res.Data.Email;
-            passErr.innerHTML = res.Data.Password;
+            if (succesMessage) {
+              succesMessage.remove();
+            }
+
+            document.body.appendChild(bannerElement);
+
+            // Clear form fields
+            e.target.reset();
           }
-        } else {
-          nameErr.innerHTML = "";
-          emailErr.innerHTML = "";
-          passErr.innerHTML = "";
-          const res = await response.json();
-          const bannerElement = Baner(res.Message, res.Message) || "text";
-          console.log(bannerElement);
-          if (succesMessage) {
-            succesMessage.remove();
-          }
-
-          document.body.appendChild(bannerElement);
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+
+      sendData();
     }
   });
 

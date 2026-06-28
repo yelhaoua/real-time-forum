@@ -1,12 +1,14 @@
 package main
 
 import (
+	"log"
 	"net/http"
-	"real-time-forum/handlers"
+
+	"real-time-forum/routes"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/login", handler.LoginHandler)
-	http.ListenAndServe(":9090", mux)
+	mux := routes.Routes()
+
+	log.Fatal(http.ListenAndServe(":9090", mux))
 }

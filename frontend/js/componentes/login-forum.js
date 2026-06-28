@@ -1,34 +1,55 @@
+function validateEmail(email) {
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return regex.test(email);
+}
+
 export default function loginforum() {
   document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
-  document.getElementsByTagName("nav")[0].classList = "hidden";
+  const head = document.querySelector("head");
+
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "./assets/styles/login.css";
+  head.appendChild(link);
+
+  // document.getElementsByTagName("nav")[0].classList = "hidden";
 
   document.addEventListener("submit", async (e) => {
     if (e.target.id == "loginForm") {
       e.preventDefault();
 
       const email = document.getElementById("email").value;
+      if (!validateEmail(email)) {
+        document.getElementById("error-email").classList.remove("hidden")
+        return
+      }
+
       const pass = document.getElementById("password").value;
-      const PostData = {"email": email,"pass": pass }
+      if (pass.length < 8 ) {
+        document.getElementById("error-password").classList.remove("hidden")
+        return
+      }
+
+      const PostData = { email: email, pass: pass };
 
       try {
-        const res = await fetch("http://localhost:9090/api/login", {
+        const res = await fetch("http://localhost:9090/login", {
           method: "POST",
-          headers : {
-            'Content-Type': 'application/json'
+          headers: {
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(PostData)
-        })
+          body: JSON.stringify(PostData),
+        });
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
         }
         if (res.ok) {
-          window.location.href = "/"
+          window.location.href = "/";
         }
       } catch (error) {
-        console.error('Error sending data:', error);
+        console.error("Error sending data:", error);
       }
-    };
-    
+    }
   });
 
   return `
@@ -59,7 +80,9 @@ export default function loginforum() {
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
               </span>
               <input id="email" name="email" type="email" placeholder="name@mail.com" autocomplete="email" required>
+              
             </div>
+            <p id="error-email" class="field-label hidden" style="color: red" >Please enter valid email</p>
           </div>
 
           <div>
@@ -72,6 +95,7 @@ export default function loginforum() {
               <input class="pass-hidden" id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
               <input class="pass-visible" id="password-unmasked" name="password_unmasked" type="text" placeholder="Enter your password" autocomplete="off">
               
+              
               <div class="toggle-container">
                 <input type="checkbox" class="toggle-checkbox" aria-label="Toggle password visibility" role="switch" aria-checked="false">
                 <div class="toggle-icon">
@@ -80,6 +104,7 @@ export default function loginforum() {
                 </div>
               </div>
             </div>
+            <p id="error-password" class="field-label hidden" style="color: red" >Password must at least 8 characters</p>
           </div>
 
           <div class="row">

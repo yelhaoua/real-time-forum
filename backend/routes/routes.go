@@ -6,8 +6,11 @@ import (
 	handler "real-time-forum/handlers"
 )
 
-func Routes() {
+func Routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/", handler.HandleRoot)
 	mux.HandleFunc("/register", handler.HandleRegister)
+
+	return mux
 }

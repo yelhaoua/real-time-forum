@@ -49,7 +49,7 @@ export default function loginforum() {
     <section class="form-wrap">
       <div class="form-inner">
         <h2 class="title">Sign in to your account</h2>
-        <p class="subtitle">New to Talentswide? <a href="/register" class="nav-link" >Create an account</a></p>
+        <p class="subtitle">New to Talentswide? <a href="#/register" class="nav-link" >Create an account</a></p>
 
         <form id="loginForm" method="POST" action="#">
           <div>

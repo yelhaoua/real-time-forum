@@ -1,15 +1,12 @@
 export default function registerForm() {
-  // 1. أضفنا async للتعامل مع الـ fetch بشكل صحيح
   document.addEventListener("submit", async (e) => {
-    // 2. تصحيح الـ ID ليطابق المعرّف الموجود في الـ HTML بالأسفل (loginForm)
     if (e.target.id === "loginForm") {
-      e.preventDefault(); // منع إعادة تحميل الصفحة
-
+      e.preventDefault();
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
+      console.log(data);
 
       try {
-        // 3. أضفنا await لتأكيد الإرسال في الخلفية
         const response = await fetch("http://localhost:9090/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -31,11 +28,11 @@ export default function registerForm() {
       <!-- Brand side -->
       <section class="brand">
         <div class="logo">
-          <span class="wordmark">Talents<span>wide</span></span>
+          <span class="wordmark">Zone01<span>Forum</span></span>
         </div>
 
         <div class="brand-body">
-          <div class="eyebrow">Welcome back</div>
+          <div class="eyebrow">Welcome To Your Forum</div>
           <h1>Where your network gets to work.</h1>
           <p>
             Pick up the conversation, manage your pages and projects, and keep
@@ -47,13 +44,27 @@ export default function registerForm() {
       <!-- Form side -->
       <section class="form-wrap">
         <div class="form-inner">
-          <h2 class="title">Sign in to your account</h2>
+          <h2 class="title">Register in to your account</h2>
           <p class="subtitle">
-            New to Talentswide?
-            <a href="/login" class="nav-link">Create an account</a>
+            Sign Ins to Your Account?
+            <a href="#/login" class="nav-link">Sign In</a>
           </p>
 
           <form id="loginForm" novalidate>
+          <div>
+              <label class="field-label" for="name">Full Name</label>
+              <div class="field">
+              <span class="ic"><i class="fa-regular fa-user"></i></span>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Joe Deo"
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label class="field-label" for="email">Email address</label>
               <div class="field">
@@ -81,9 +92,6 @@ export default function registerForm() {
                   autocomplete="current-password"
                   required
                 />
-                <button type="button" class="toggle" id="toggle">
-                   <span class="ic"> <i class="fa-regular fa-eye"></i></span>
-                </button>
               </div>
             </div>
 

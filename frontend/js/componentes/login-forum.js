@@ -1,6 +1,15 @@
-function validateEmail(email) {
+function validateEmail(input) {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return regex.test(email);
+}
+
+function validateUsername(input) {
+  const regex = /^[a-zA-Z0-9_]{3,20}$/;
+  return regex.test(input);
+}
+
+function validateLogin(input) {
+  return validateEmail(input) || validateUsername(input);
 }
 
 export default function loginforum() {
@@ -18,8 +27,8 @@ export default function loginforum() {
     if (e.target.id == "loginForm") {
       e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      if (!validateEmail(email)) {
+      const input = document.getElementById("email").value;
+      if (!validateLogin(input)) {
         document.getElementById("error-email").classList.remove("hidden")
         return
       }
@@ -30,7 +39,7 @@ export default function loginforum() {
         return
       }
 
-      const PostData = { email: email, pass: pass };
+      const PostData = { email: input, pass: pass };
 
       try {
         const res = await fetch("http://localhost:9090/login", {
@@ -74,12 +83,12 @@ export default function loginforum() {
 
         <form id="loginForm" method="POST" action="#">
           <div>
-            <label class="field-label" for="email">Email address</label>
+            <label class="field-label" for="email">Email or Username</label>
             <div class="field">
               <span class="ic">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
               </span>
-              <input id="email" name="email" type="email" placeholder="name@mail.com" autocomplete="email" required>
+              <input id="email" name="email" type="" placeholder="name@mail.com or username" autocomplete="email" required>
               
             </div>
             <p id="error-email" class="field-label hidden" style="color: red" >Please enter valid email</p>

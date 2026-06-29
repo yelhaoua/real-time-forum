@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"real-time-forum/utils"
 )
 
 type User struct {
@@ -12,10 +14,7 @@ type User struct {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
+	utils.EnableCors(w)
 
 	if r.Method == http.MethodOptions {
 		fmt.Println("OPTIONS received")

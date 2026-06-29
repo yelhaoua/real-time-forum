@@ -65,7 +65,7 @@ export default function loginforum() {
    <main class="card">
     <section class="brand">
       <div class="logo">
-        <span class="wordmark">01<span>Forum</span></span>
+        <span class="wordmark">Zone01<span>Forum</span></span>
       </div>
 
       <div class="brand-body">
@@ -129,6 +129,10 @@ export default function loginforum() {
 
           <button class="btn" type="submit">Sign in</button>
         </form>
+                 <div class="foot">
+            
+            <div class="copy">Created At Zone01 Oujda © 2021</div>
+          </div>
       </div>
     </section>
   </main>

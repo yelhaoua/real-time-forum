@@ -1,6 +1,8 @@
+import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
 
 export default function registerForm() {
+  
   document.addEventListener("submit", (e) => {
     let nameErr = document.getElementById("name-Err");
     let emailErr = document.getElementById("email-Err");
@@ -22,8 +24,6 @@ export default function registerForm() {
           });
 
           if (!response.ok) {
-            console.log("Hna");
-
             const res = await response.json();
             console.log(res);
 
@@ -55,7 +55,7 @@ export default function registerForm() {
   });
 
   return `
-  
+  <div class="container">
    <main class="card">
       <!-- Brand side -->
       
@@ -142,7 +142,7 @@ export default function registerForm() {
         </div>
       </section>
       </main>
-      
+      </div>
       
       `;
 }

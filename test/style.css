@@ -1,0 +1,158 @@
+/* تنسيقات عامة للصندوق */
+.share-box {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 680px; /* ليتناسب بشكل ممتاز مع تصميم المنتدى */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 20px auto;
+}
+
+/* الجزء العلوي */
+.share-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+}
+
+.input-wrapper input {
+  flex: 1;
+  background-color: #f7f8fa;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  padding: 12px 45px 12px 20px;
+  font-size: 15px;
+  color: #333;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-wrapper input:focus {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.input-wrapper input::placeholder {
+  color: #94a3b8;
+}
+
+.emoji-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.emoji-btn:hover {
+  color: #64748b;
+}
+
+/* الخط الفاصل */
+.divider {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 16px 0;
+}
+
+/* الجزء السفلي الأزرار */
+.share-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: #f8fafc;
+}
+
+/* الألوان المطابقة للأيقونات حسب الصورة */
+.image-btn i {
+  color: #3b82f6;
+  font-size: 16px;
+} /* أزرق */
+.video-btn i {
+  color: #10b981;
+  font-size: 16px;
+} /* أخضر */
+.attach-btn i {
+  color: #f59e0b;
+  font-size: 16px;
+} /* برتقالي/بني خفيف */
+.hashtag-btn i {
+  color: #ef4444;
+  font-size: 16px;
+} /* أحمر */
+.mention-btn i {
+  color: #64748b;
+  font-size: 16px;
+} /* رمادي */
+
+/* قائمة الخصوصية من اليمين */
+.privacy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.privacy-btn:hover {
+  color: #64748b;
+}
+
+.privacy-btn i {
+  font-size: 11px;
+}

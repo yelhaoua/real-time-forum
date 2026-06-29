@@ -1,8 +1,6 @@
-import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
 
 export default function registerForm() {
-  
   document.addEventListener("submit", (e) => {
     let nameErr = document.getElementById("name-Err");
     let emailErr = document.getElementById("email-Err");

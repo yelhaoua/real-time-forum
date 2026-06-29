@@ -8,7 +8,6 @@ function router() {
   const currentHash = window.location.hash || "#/";
 
   const cleanPath = currentHash.replace("#", "");
-  console.log(cleanPath  ,"<");
   const renderComponente = routes[cleanPath] || NotFoundPage;
 
   page.innerHTML = renderComponente();

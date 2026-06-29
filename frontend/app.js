@@ -16,3 +16,8 @@ function router() {
 window.addEventListener("hashchange", router);
 
 window.addEventListener("DOMContentLoaded", router);
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", logout);
+}

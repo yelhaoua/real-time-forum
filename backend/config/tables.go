@@ -82,7 +82,7 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 	}
 	err = tx.Commit()
 	if err != nil {
-		fmt.Println("Error committing transaction:", err)
+		fmt.Println("Error commiting transaction:", err)
 	}
-	fmt.Println("ALlgode")
+	fmt.Println("All Good")
 }

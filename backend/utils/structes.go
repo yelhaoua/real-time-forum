@@ -6,3 +6,10 @@ type ResponseApi struct {
 	Data    interface{}
 	Errore  string
 }
+
+
+type LoginError struct {
+	UserNameErr string
+	LoginErr    string
+	PasswordErr string
+}

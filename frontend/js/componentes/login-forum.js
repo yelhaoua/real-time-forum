@@ -1,6 +1,15 @@
-function validateEmail(email) {
+function validateEmail(input) {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return regex.test(email);
+  return regex.test(input);
+}
+
+function validateUsername(input) {
+  const regex = /^[a-zA-Z0-9_]{3,20}$/;
+  return regex.test(input);
+}
+
+function validateLogin(input) {
+  return validateEmail(input) || validateUsername(input);
 }
 
 export default function loginforum() {
@@ -15,39 +24,39 @@ export default function loginforum() {
   // document.getElementsByTagName("nav")[0].classList = "hidden";
 
   document.addEventListener("submit", async (e) => {
-    if (e.target.id == "loginForm") {
+    if (e.target.id == "LoginForm") {
       e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      if (!validateEmail(email)) {
-        document.getElementById("error-email").classList.remove("hidden")
-        return
+      const input = document.getElementById("email").value;
+      if (!validateLogin(input)) {
+        document.getElementById("error-email").classList.remove("hidden");
+        return;
       }
 
       const pass = document.getElementById("password").value;
-      if (pass.length < 8 ) {
-        document.getElementById("error-password").classList.remove("hidden")
-        return
+      if (pass.length < 8) {
+        document.getElementById("error-password").classList.remove("hidden");
+        return;
       }
 
-      const PostData = { email: email, pass: pass };
+      const PostData = { email: input, pass: pass };
+      const res = await fetch("http://localhost:9090/login", {
+        method: "POST",
+        credentials: "include",
 
-      try {
-        const res = await fetch("http://localhost:9090/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(PostData),
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        if (res.ok) {
-          window.location.href = "/";
-        }
-      } catch (error) {
-        console.error("Error sending data:", error);
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(PostData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        document.getElementById("error-password").innerHTML = error.message;
+        document.getElementById("error-password").classList.remove("hidden");
+      }
+      if (res.ok) {
+        window.location.href = "/";
       }
     }
   });
@@ -56,7 +65,7 @@ export default function loginforum() {
    <main class="card">
     <section class="brand">
       <div class="logo">
-        <span class="wordmark">01<span>Forum</span></span>
+        <span class="wordmark">Zone01<span>Forum</span></span>
       </div>
 
       <div class="brand-body">
@@ -72,14 +81,14 @@ export default function loginforum() {
         <h2 class="title">Sign in to your account</h2>
         <p class="subtitle">New to Talentswide? <a href="#/register" class="nav-link" >Create an account</a></p>
 
-        <form id="loginForm" method="POST" action="#">
+        <form id="LoginForm" method="POST" action="#">
           <div>
-            <label class="field-label" for="email">Email address</label>
+            <label class="field-label" for="email">Email or Username</label>
             <div class="field">
               <span class="ic">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
               </span>
-              <input id="email" name="email" type="email" placeholder="name@mail.com" autocomplete="email" required>
+              <input id="email" name="email" type="" placeholder="name@mail.com or username" autocomplete="email" required>
               
             </div>
             <p id="error-email" class="field-label hidden" style="color: red" >Please enter valid email</p>
@@ -120,6 +129,10 @@ export default function loginforum() {
 
           <button class="btn" type="submit">Sign in</button>
         </form>
+                 <div class="foot">
+            
+            <div class="copy">Created At Zone01 Oujda © 2021</div>
+          </div>
       </div>
     </section>
   </main>

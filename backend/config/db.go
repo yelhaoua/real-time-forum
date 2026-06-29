@@ -20,5 +20,5 @@ func DbConnect() {
 
 	q := `CREATE TABLE users`
 	Conn.Exec(q)
-	fmt.Println("Conn")
+	fmt.Println("Connected")
 }

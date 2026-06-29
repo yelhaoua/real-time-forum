@@ -4,6 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
+
+	"real-time-forum/config"
+	"real-time-forum/utils"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -11,11 +18,19 @@ type User struct {
 	Pass  string `json:pass`
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func JsonEncoder(w http.ResponseWriter, message string) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": message,
+	})
+}
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	utils.EnableCors(w)
+
+	var UserID int
+	var UserPass string
 
 	if r.Method == http.MethodOptions {
 		fmt.Println("OPTIONS received")
@@ -29,14 +44,47 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
-			http.Error(w, "Invalid JSON payload: "+err.Error(), http.StatusBadRequest)
+			JsonEncoder(w, err.Error())
 			return
 		}
 		if user.Email == "" || user.Pass == "" {
-			http.Error(w, "The login details not valid", http.StatusBadRequest)
+			JsonEncoder(w, "The login details not valid")
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+
+		err = config.Conn.QueryRow(
+			"SELECT id, password FROM users WHERE username = ? OR email = ?",
+			user.Email,
+			user.Email,
+		).Scan(&UserID, &UserPass)
+		if err != nil {
+			JsonEncoder(w, "Invalid username or password")
+			return
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(UserPass), []byte(user.Pass))
+		if err != nil {
+			JsonEncoder(w, "Invalid username or password")
+			return
+		}
+
+		generatedToken := uuid.New().String()
+
+		_, err = config.Conn.Exec(`INSERT INTO sessions (user_id , token , expration_date) VALUES(? , ? , ?)`, UserID, generatedToken, time.Now().Add(24*time.Hour))
+		if err != nil {
+			JsonEncoder(w, "We can't create session token")
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "Form_Token",
+			Value:    generatedToken,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(24 * time.Hour),
+			MaxAge:   24 * 60 * 60,
+			SameSite: http.SameSiteLaxMode,
+		})
 		return
 	}
 

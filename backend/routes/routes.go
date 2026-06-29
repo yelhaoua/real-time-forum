@@ -12,6 +12,7 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/", handler.HandleRoot)
 	mux.HandleFunc("/register", handler.HandleRegister)
 	mux.HandleFunc("/login", handler.LoginHandler)
+	mux.HandleFunc("/logout", handler.LogoutHandler)
 
 	return mux
 }

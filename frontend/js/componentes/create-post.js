@@ -16,13 +16,12 @@ export default function CreatePost() {
       e.stopPropagation();
       console.log(e.target.id);
 
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+      let formData = new FormData(e.target);
+
       try {
-        const req = await fetch("http://localhost:9000/craet-post", {
+        const req = await fetch("http://localhost:9090/craet-post", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: formData,
         });
 
         const res = await req.json();
@@ -77,6 +76,7 @@ export default function CreatePost() {
             <input
               type="file"
               id="image-upload"
+              name="postimage"
               accept="image/*"
               style="display: none"
             />

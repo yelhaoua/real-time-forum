@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"real-time-forum/utils"
+
+	"github.com/google/uuid"
 )
 
 func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
@@ -27,16 +30,20 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseMultipartForm(10 << 20)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("parse err", err)
 		return
 	}
-	post := r.FormValue("newpost")
+	postTitle := r.FormValue("posttitle")
+	postDesc := r.FormValue("postdesc")
+
 	file, handler, err := r.FormFile("postimage")
 	if err != nil {
-		defer file.Close()
-		fmt.Println("err", err.Error())
+		fmt.Println("err", err)
 		return
 	}
+	defer file.Close()
 
-	fmt.Println(file, post, handler)
+	imageExt := filepath.Ext(handler.Filename)
+	newImagName := uuid.New().String() + imageExt
+	fmt.Println(postDesc, postTitle, newImagName)
 }

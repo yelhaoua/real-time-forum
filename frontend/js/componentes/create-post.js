@@ -60,12 +60,18 @@ export default function CreatePost() {
             alt="User Avatar"
             class="avatar"
           />
-          <div class="input-wrapper">
-            <input type="text" name="newpost" placeholder="Share something..." />
-            <button class="emoji-btn">
-              <i class="fa-regular fa-face-smile"></i>
-            </button>
-          </div>
+          <div class="input-container">
+            <div class="input-wrapper">
+              <input type="text" name="posttitle" placeholder="New Post Title" />
+              <button class="emoji-btn">
+                <i class="fa-regular fa-face-smile"></i>
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <textarea name="postdesc"  placeholder="New Post Description"></textarea>
+            </div>
+          <div>
+           
         </div>
 
         <hr class="divider" />

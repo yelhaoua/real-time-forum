@@ -18,7 +18,7 @@ type User struct {
 	Pass  string `json:pass`
 }
 
-func JsonEncoder(w http.ResponseWriter, message string) {
+func JsonEncoder(w http.ResponseWriter, message string, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
 	json.NewEncoder(w).Encode(map[string]string{
@@ -44,11 +44,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
-			JsonEncoder(w, err.Error())
+			JsonEncoder(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		if user.Email == "" || user.Pass == "" {
-			JsonEncoder(w, "The login details not valid")
+			JsonEncoder(w, "The login details not valid", http.StatusBadRequest)
 			return
 		}
 
@@ -58,13 +58,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			user.Email,
 		).Scan(&UserID, &UserPass)
 		if err != nil {
-			JsonEncoder(w, "Invalid username or password")
+			JsonEncoder(w, "Invalid username or password", http.StatusBadRequest)
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(UserPass), []byte(user.Pass))
 		if err != nil {
-			JsonEncoder(w, "Invalid username or password")
+			JsonEncoder(w, "Invalid username or password", http.StatusBadRequest)
 			return
 		}
 
@@ -72,7 +72,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		_, err = config.Conn.Exec(`INSERT INTO sessions (user_id , token , expration_date) VALUES(? , ? , ?)`, UserID, generatedToken, time.Now().Add(24*time.Hour))
 		if err != nil {
-			JsonEncoder(w, "We can't create session token")
+			JsonEncoder(w, "We can't create session token", http.StatusInternalServerError)
 			return
 		}
 
@@ -87,6 +87,5 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
-	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	JsonEncoder(w, "Method not allowed", http.StatusMethodNotAllowed)
 }

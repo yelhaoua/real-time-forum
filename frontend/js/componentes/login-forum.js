@@ -1,6 +1,6 @@
 function validateEmail(input) {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return regex.test(email);
+  return regex.test(input);
 }
 
 function validateUsername(input) {
@@ -24,39 +24,39 @@ export default function loginforum() {
   // document.getElementsByTagName("nav")[0].classList = "hidden";
 
   document.addEventListener("submit", async (e) => {
-    if (e.target.id == "loginForm") {
+    if (e.target.id == "LoginForm") {
       e.preventDefault();
 
       const input = document.getElementById("email").value;
       if (!validateLogin(input)) {
-        document.getElementById("error-email").classList.remove("hidden")
-        return
+        document.getElementById("error-email").classList.remove("hidden");
+        return;
       }
 
       const pass = document.getElementById("password").value;
-      if (pass.length < 8 ) {
-        document.getElementById("error-password").classList.remove("hidden")
-        return
+      if (pass.length < 8) {
+        document.getElementById("error-password").classList.remove("hidden");
+        return;
       }
 
       const PostData = { email: input, pass: pass };
+      const res = await fetch("http://localhost:9090/login", {
+        method: "POST",
+        credentials: "include",
 
-      try {
-        const res = await fetch("http://localhost:9090/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(PostData),
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        if (res.ok) {
-          window.location.href = "/";
-        }
-      } catch (error) {
-        console.error("Error sending data:", error);
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(PostData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        document.getElementById("error-password").innerHTML = error.message;
+        document.getElementById("error-password").classList.remove("hidden");
+      }
+      if (res.ok) {
+        window.location.href = "/";
       }
     }
   });
@@ -81,7 +81,7 @@ export default function loginforum() {
         <h2 class="title">Sign in to your account</h2>
         <p class="subtitle">New to Talentswide? <a href="#/register" class="nav-link" >Create an account</a></p>
 
-        <form id="loginForm" method="POST" action="#">
+        <form id="LoginForm" method="POST" action="#">
           <div>
             <label class="field-label" for="email">Email or Username</label>
             <div class="field">

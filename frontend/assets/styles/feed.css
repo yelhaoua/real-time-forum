@@ -1,0 +1,128 @@
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --tint: #f4f7fb;
+  --ink: #15181d;
+  --muted: #737b85;
+  --faint: #9aa1aa;
+  --line: #ebedf0;
+  --line-soft: #f8f8f8;
+  --field: #f4f6f8;
+  --blue: #2d7df6;
+  --blue-deep: #1e63d6;
+  --sky: #5fb6ff;
+  --red: #f0353d;
+  --green: #21a05a;
+  --orange: #f2994a;
+  --radius-card: 28px;
+  --radius-field: 999px;
+  --shadow-card:
+    0 30px 80px -30px rgba(20, 30, 55, 0.28),
+    0 8px 24px -12px rgba(20, 30, 55, 0.12);
+  --shadow-float:
+    0 18px 40px -18px rgba(20, 30, 55, 0.22),
+    0 4px 12px -6px rgba(20, 30, 55, 0.1);
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#nav-bar {
+  width: 100%;
+  height: 9vh;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+}
+nav {
+  display: flex;
+  gap: 20px;
+}
+
+.container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-content: space-around;
+  align-items: stretch;
+  background-color: var(--line-soft);
+}
+.feed-center {
+  padding: 38px 0 0 0;
+  display: flex;
+  gap: 25px;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.post-info {
+  background-color: var(--bg);
+  width: 60vw;
+  height: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  border-radius: 10px;
+  border-radius: 10px;
+  gap: 2rem;
+}
+#post-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+#post-head-info {
+  display: flex;
+  flex-direction: column;
+}
+
+#post-header img {
+  width: 50px;
+  height: 50px;
+  background-color: var(--bg);
+  border-radius: 50%;
+}
+
+#post-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+#post-like,
+#post-comments {
+  display: flex;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  flex-direction: row;
+  align-items: center;
+}
+#post-like img,
+#post-comments img {
+  width: 20px;
+  height: 20px;
+}

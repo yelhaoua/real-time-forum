@@ -65,7 +65,7 @@ body {
   display: none !important;
 }
 nav {
-    display: none;
+  display: none;
 }
 /* ---------- Main Card Container ---------- */
 .card {
@@ -548,7 +548,6 @@ form {
   font-size: 12.5px;
   color: var(--faint);
 }
-
 
 @media (max-width: 860px) {
   .card {

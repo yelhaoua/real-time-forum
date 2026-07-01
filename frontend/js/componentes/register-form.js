@@ -42,6 +42,9 @@ export default function registerForm() {
             document.body.appendChild(bannerElement);
 
             e.target.reset();
+            setTimeout(() => {
+              window.location.href = "/#/login";
+            }, 1000);
           }
         } catch (error) {
           console.error(error);

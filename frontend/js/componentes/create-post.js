@@ -17,7 +17,11 @@ export default function CreatePost() {
       console.log(e.target.id);
 
       const formData = new FormData(e.target);
+      console.log(formData.entries());
+
       const data = Object.fromEntries(formData.entries());
+      console.log(data);
+
       try {
         const req = await fetch("http://localhost:9000/craet-post", {
           method: "POST",
@@ -78,6 +82,7 @@ export default function CreatePost() {
               type="file"
               id="image-upload"
               accept="image/*"
+              name="imagepost"
               style="display: none"
             />
           </label>

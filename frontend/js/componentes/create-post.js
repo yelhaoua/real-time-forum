@@ -22,6 +22,7 @@ export default function CreatePost() {
         const req = await fetch("http://localhost:9090/craet-post", {
           method: "POST",
           body: formData,
+          credentials: "include",
         });
 
         const res = await req.json();

@@ -12,11 +12,8 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/", handler.HandleRoot)
 	mux.HandleFunc("/register", handler.HandleRegister)
 	mux.HandleFunc("/login", handler.LoginHandler)
-<<<<<<< HEAD
 	mux.HandleFunc("/logout", handler.LogoutHandler)
-=======
 	mux.HandleFunc("/craet-post", handler.HnadleCreatPost)
->>>>>>> register-api-register-form
 
 	return mux
 }

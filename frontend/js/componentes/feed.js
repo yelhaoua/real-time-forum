@@ -1,13 +1,18 @@
+
 export default function FeedPage() {
   let app = document.getElementById("app");
-  
+  const head = document.querySelector("head");
+
+//   document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+//     link.remove();
+//   });
+
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "./assets/styles/login.css";
-  head.appendChild(link);
+  link.href = "./assets/styles/feed.css";
+  document.head.appendChild(link);
 
-  app.innerHTML = `
-    <div id="nav-bar"></div>
+  return `
         <div class="container">
         <div class="left-said"></div>
         <div class="feed-center">
@@ -32,5 +37,4 @@ export default function FeedPage() {
         <div class="right-said"></div>
     </div>
     `;
-    
 }

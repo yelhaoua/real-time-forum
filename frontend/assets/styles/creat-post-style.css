@@ -12,7 +12,7 @@
 
 .share-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -26,10 +26,26 @@
 .input-wrapper {
   position: relative;
   display: flex;
+  flex-direction: column;
   flex: 1;
 }
-
-.input-wrapper input {
+.input-wrapper textarea {
+  min-width: 100%;
+  max-width: 100%;
+  resize: none;
+  min-height: 250px;
+  max-height: 250px;
+  position: relative;
+  display: flex;
+  flex: 1;
+}
+.input-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.input-wrapper input,
+.input-wrapper textarea {
   flex: 1;
   background-color: #f7f8fa;
   border: 1px solid transparent;
@@ -40,13 +56,17 @@
   outline: none;
   transition: all 0.2s ease;
 }
-
-.input-wrapper input:focus {
+.input-wrapper textarea {
+  margin-top: 8px;
+}
+.input-wrapper input:focus,
+.input-wrapper textarea {
   background-color: #ffffff;
   border-color: #e2e8f0;
 }
 
-.input-wrapper input::placeholder {
+.input-wrapper input::placeholder,
+.input-wrapper textarea::placeholder {
   color: #94a3b8;
 }
 
@@ -75,6 +95,7 @@
 
 .share-bottom {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;

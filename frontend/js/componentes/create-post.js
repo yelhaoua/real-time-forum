@@ -16,13 +16,13 @@ export default function CreatePost() {
       e.stopPropagation();
       console.log(e.target.id);
 
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+      let formData = new FormData(e.target);
+
       try {
-        const req = await fetch("http://localhost:9000/craet-post", {
+        const req = await fetch("http://localhost:9090/craet-post", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: formData,
+          credentials: "include",
         });
 
         const res = await req.json();
@@ -61,12 +61,18 @@ export default function CreatePost() {
             alt="User Avatar"
             class="avatar"
           />
-          <div class="input-wrapper">
-            <input type="text" name="newpost" placeholder="Share something..." />
-            <button class="emoji-btn">
-              <i class="fa-regular fa-face-smile"></i>
-            </button>
-          </div>
+          <div class="input-container">
+            <div class="input-wrapper">
+              <input type="text" name="posttitle" placeholder="New Post Title" />
+              <button class="emoji-btn">
+                <i class="fa-regular fa-face-smile"></i>
+              </button>
+            </div>
+            <div class="input-wrapper">
+              <textarea name="postdesc"  placeholder="New Post Description"></textarea>
+            </div>
+          <div>
+           
         </div>
 
         <hr class="divider" />
@@ -77,7 +83,9 @@ export default function CreatePost() {
             <input
               type="file"
               id="image-upload"
+              name="postimage"
               accept="image/*"
+              name="imagepost"
               style="display: none"
             />
           </label>

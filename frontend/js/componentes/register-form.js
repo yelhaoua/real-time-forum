@@ -1,6 +1,7 @@
 import Baner from "./ui/baner.js";
 
 export default function registerForm() {
+  document.getElementById("nav-bar").innerHTML = "";
   document.addEventListener("submit", (e) => {
     let nameErr = document.getElementById("name-Err");
     let emailErr = document.getElementById("email-Err");
@@ -42,6 +43,9 @@ export default function registerForm() {
             document.body.appendChild(bannerElement);
 
             e.target.reset();
+            setTimeout(() => {
+              window.location.href = "/#/login";
+            }, 1000);
           }
         } catch (error) {
           console.error(error);

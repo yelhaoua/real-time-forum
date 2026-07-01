@@ -8,7 +8,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
+	"real-time-forum/config"
 	"real-time-forum/utils"
 
 	"github.com/google/uuid"
@@ -16,15 +18,10 @@ import (
 
 func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
-	fmt.Println("hna")
 	if r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusOK)
-		utils.EnableCors(w)
 		return
 	}
-
-	id, err := utils.CheckSession(w, r)
-	fmt.Println(id)
 
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -34,6 +31,17 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	id, err := utils.CheckSession(w, r)
+	if err != nil {
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "you session is invalid pleas log in",
+			Errore:  "auth_err",
+		})
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
@@ -94,4 +102,22 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	imagpath = fmt.Sprintf("http://localhost:9090/%s", imagpath)
+
+	query := `INSERT INTO posts (user_id  ,title ,content ,image_url ,created_at) VALUES (? ,? ,? ,? ,?)`
+	res, err := config.Conn.Exec(query, id, postTitle, postDesc, imagpath, time.Now())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "errore while saving data",
+			Errore:  "server_error",
+		})
+		return
+	}
+	fmt.Println(res.LastInsertId())
+	json.NewEncoder(w).Encode(utils.ResponseApi{
+		Success: true,
+		Message: "post create succsesfuly",
+	})
 }

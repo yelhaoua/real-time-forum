@@ -1,6 +1,12 @@
 import NavBar from "./nave-bare.js";
+import CardPost from "./ui/card-post.js";
 
 export default function HomePage() {
-  NavBar()
-  return `<h1>Main Page</h1>`;
+  window.onload = function () {
+    const cardContainer = document.querySelector(".card-container");
+    cardContainer.innerHTML = CardPost();
+  };
+
+  NavBar();
+  return `<div class="card-container"></div>`;
 }

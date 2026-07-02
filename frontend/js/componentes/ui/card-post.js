@@ -7,6 +7,7 @@ export default function CardPost() {
   document.head.appendChild(link);
 
   return `
+
     <div class="card">
             <div class="post-header">
               <div class="post-author">
@@ -18,6 +19,7 @@ export default function CardPost() {
                   <h4>Alan Patterson</h4>
                   <span>2 hours ago</span>
                 </div>
+                <div>  <a href="/post/1">see detaiules</a></div>
               </div>
               <i
                 class="ri-more-fill"

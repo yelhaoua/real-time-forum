@@ -34,13 +34,7 @@ body {
   height: 100%;
 }
 
-
 .container {
-   font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
   background:
     radial-gradient(1200px 600px at 80% -10%, #e7edf6 0%, transparent 60%),
     radial-gradient(900px 500px at 0% 110%, #eaeff7 0%, transparent 55%),
@@ -233,7 +227,7 @@ form {
   border: 0;
   background: transparent;
   outline: none;
-  font-family: inherit;
+
   font-size: 14.5px;
   color: var(--ink);
   padding: 14px 18px 14px 48px;
@@ -265,7 +259,7 @@ form {
   margin-top: 6px;
   border: 0;
   cursor: pointer;
-  font-family: inherit;
+
   font-size: 15px;
   font-weight: 600;
   padding: 15px;

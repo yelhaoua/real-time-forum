@@ -1,38 +1,67 @@
+:root {
+  --bg: #edeff2;
+  --surface: #ffffff;
+  --tint: #f4f7fb;
+  --ink: #15181d;
+  --muted: #737b85;
+  --faint: #9aa1aa;
+  --line: #ebedf0;
+  --line-soft: #f1f3f5;
+  --field: #f4f6f8;
+  --blue: #2d7df6;
+  --blue-deep: #1e63d6;
+  --sky: #5fb6ff;
+  --red: #f0353d;
+  --green: #21a05a;
+  --orange: #f2994a;
+  --radius-card: 28px;
+  --radius-field: 999px;
+  --shadow-card:
+    0 30px 80px -30px rgba(20, 30, 55, 0.28),
+    0 8px 24px -12px rgba(20, 30, 55, 0.12);
+  --shadow-float:
+    0 18px 40px -18px rgba(20, 30, 55, 0.22),
+    0 4px 12px -6px rgba(20, 30, 55, 0.1);
+}
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+
   text-decoration: none;
+  font-family: "Poppins";
 }
 body {
   overflow-x: hidden;
+  background-color: var(--bg);
 }
 
 #succes-Message {
-  position: fixed; 
+  position: fixed;
   right: 0;
   bottom: 5%;
-  width: 250px; 
+  width: 250px;
   padding: 16px;
-  background: #dcdcdc; 
+  background: #dcdcdc;
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
-  box-shadow: -2px 4px 10px rgba(0, 0, 0, 0.1); 
-  
+  box-shadow: -2px 4px 10px rgba(0, 0, 0, 0.1);
+
   animation: slideInOut 4s ease-in-out forwards;
 }
 
 @keyframes slideInOut {
   0% {
-    transform: translateX(100%); 
+    transform: translateX(100%);
   }
   10% {
-    transform: translateX(0); 
+    transform: translateX(0);
   }
   90% {
-    transform: translateX(0); 
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(100%); 
+    transform: translateX(100%);
   }
 }

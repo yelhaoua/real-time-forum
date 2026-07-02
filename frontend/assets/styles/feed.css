@@ -50,18 +50,19 @@ body {
   flex-direction: column;
   align-items: center;
 }
-#nav-bar {
+nav {
   width: 100%;
   height: 9vh;
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   flex-direction: row;
   align-items: center;
+  gap: 30px;
 }
-nav {
+/* nav {
   display: flex;
   gap: 20px;
-}
+} */
 
 .container {
   width: 98%;
@@ -118,8 +119,10 @@ nav {
   align-items: center;
   gap: 20px;
 }
-#post-like,
-#post-comments {
+.post-like,
+.post-comments {
+  width: 40px;
+  height: 20px;
   display: flex;
   outline: none;
   border: none;
@@ -127,8 +130,8 @@ nav {
   flex-direction: row;
   align-items: center;
 }
-#post-like img,
-#post-comments img {
+.post-like img,
+.post-comments img {
   width: 20px;
   height: 20px;
 }

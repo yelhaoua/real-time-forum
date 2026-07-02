@@ -15,7 +15,7 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/login", handler.LoginHandler)
 	mux.HandleFunc("/logout", handler.LogoutHandler)
 	mux.HandleFunc("/craet-post", handler.HnadleCreatPost)
-	mux.HandleFunc("/posts", handler.HnadleCreatPost)
+	mux.HandleFunc("/posts", handler.FeedHanlder)
 
 	return mux
 }

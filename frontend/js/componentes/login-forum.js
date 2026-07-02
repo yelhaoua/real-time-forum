@@ -15,7 +15,8 @@ function validateLogin(input) {
 export default function loginforum() {
   document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
   const head = document.querySelector("head");
-
+  document.getElementById("nav-bar").classList = "hidden"
+  
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = "./assets/styles/login.css";

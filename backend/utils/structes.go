@@ -19,6 +19,7 @@ type Posts struct {
 	UserName     string
 	Content      string
 	Creat_at     string
+	Image_url   string
 	Isliked      bool
 	IsDisliked   bool
 	LikeCount    int
@@ -42,6 +43,6 @@ type FeedStruct struct {
 }
 
 type Actions struct {
-	Actions string `json:action`
-	ID      int    `json:id`
+    Actions string `json:"action"`
+    ID      int    `json:"id"`
 }

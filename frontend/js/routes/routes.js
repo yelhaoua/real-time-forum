@@ -5,7 +5,7 @@ import CreatePost from "../componentes/create-post.js";
 import Logout from "../componentes/logout.js";
 
 const routes = {
-  "/": FeedPage,
+  "/": HomePage,
   "/register": registerForm,
   "/login": loginforum,
   "/craet-post": CreatePost,

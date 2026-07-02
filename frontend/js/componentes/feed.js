@@ -1,20 +1,67 @@
 import NavBar from "./nave-bare.js";
+async function toggleLike(postId, likeBtnElement) { 
+  const icon = likeBtnElement.querySelector(".fa-heart"); 
+  const countSpan = likeBtnElement.querySelector(".like-count");
+  
+  if (!icon || !countSpan) return;
 
-async function toggleLike(postId) {
-  const res = await fetch("http://localhost:9090/posts", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "like",
-      id: Number(postId),
-    }),
-  });
+  // 1. OPTIMISTIC UPDATE: Read current state and change UI instantly
+  const isCurrentlyLiked = icon.classList.contains("fa-solid");
+  let currentCount = parseInt(countSpan.textContent) || 0;
 
-  const result = await res.json();
-  console.log(result);
+  if (isCurrentlyLiked) {
+    // Optimistically UNLIKE
+    icon.style.color = "";
+    icon.classList.remove("fa-solid");
+    icon.classList.add("fa-regular");
+    countSpan.textContent = Math.max(0, currentCount - 1); // Decrement count (-1)
+  } else {
+    // Optimistically LIKE
+    icon.style.color = "var(--accent-red)";
+    icon.classList.remove("fa-regular");
+    icon.classList.add("fa-solid");
+    countSpan.textContent = currentCount + 1; // Increment count (+1)
+  }
+
+  try {
+    // 2. Send the background request to Go server
+    const res = await fetch("http://localhost:9090/posts", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "like",
+        id: Number(postId),
+      }),
+    });
+
+    const result = await res.json();
+    
+    if (result.message === "liked") {
+      icon.style.color = "var(--accent-red)";
+      icon.classList.remove("fa-regular");
+      icon.classList.add("fa-solid");
+    } else if (result.message === "unliked") {
+      icon.style.color = "";
+      icon.classList.remove("fa-solid");
+      icon.classList.add("fa-regular");
+    }
+
+  } catch (error) {
+    if (isCurrentlyLiked) {
+      icon.style.color = "var(--accent-red)";
+      icon.classList.remove("fa-regular");
+      icon.classList.add("fa-solid");
+      countSpan.textContent = currentCount;
+    } else {
+      icon.style.color = "";
+      icon.classList.remove("fa-solid");
+      icon.classList.add("fa-regular");
+      countSpan.textContent = currentCount;
+    }
+  }
 }
 
 async function handlePostActions(e) {
@@ -24,8 +71,7 @@ async function handlePostActions(e) {
 
   if (likeBtn) {
     const postId = likeBtn.dataset.id;
-    console.log("Like:", postId);
-    await toggleLike(postId);
+    await toggleLike(postId, likeBtn);
     return;
   }
 
@@ -82,13 +128,17 @@ async function loadPosts() {
             </div>
               ${post.Image_Image_url ? '<img class="post-image"src="' + post.Image_Image_url + '" alt=""/>' : ""}
 
-            <div class="post-footer">
-              <span data-id="${post.Id}"
-                ><i class="fa-regular fa-heart" style="color: var(--accent-red)"></i>
-                ${post.LikeCount}</span
-              >
-              <span><i class="fa-regular fa-comment"></i></i> ${post.DislikeCount}</span>
-            </div>
+              <div class="post-footer">
+                <span class="post-like" data-id="${post.Id}">
+                  <i class="${post.Isliked ? "fa-solid" : "fa-regular"} fa-heart" 
+                    style="${post.Isliked ? "color: var(--accent-red);" : ""}"></i>
+                  <span class="like-count">${post.LikeCount}</span>
+                </span>
+                
+                <span class="post-comments" data-id="${post.Id}">
+                  <i class="fa-regular fa-comment"></i> ${post.DislikeCount}
+                </span>
+              </div>
           </div>
       `,
     )
@@ -101,9 +151,18 @@ async function loadPosts() {
 }
 
 export default function FeedPage() {
+  const link = document.createElement("link");
+
+  link.rel = "stylesheet";
+  link.href = "./assets/styles/card-post.css";
+
+  document.head.appendChild(link);
+
   window.onload = function () {
     setTimeout(loadPosts);
   };
+
   NavBar();
+
   return `<div class="card-container"></div>`;
 }

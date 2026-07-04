@@ -33,15 +33,7 @@ export default function registerForm() {
             }
           } else {
             const res = await response.json();
-            const bannerElement = Baner(res.error, res.message);
-            let succesMessage = document.getElementById("succes-Message");
-
-            if (succesMessage) {
-              succesMessage.remove();
-            }
-
-            document.body.appendChild(bannerElement);
-
+            Baner(res.error, res.message);
             e.target.reset();
             setTimeout(() => {
               window.location.href = "/#/login";

@@ -1,4 +1,5 @@
 import NavBar from "./nave-bare.js";
+import Baner from "./ui/baner.js";
 async function toggleLike(postId, likeBtnElement) {
   const icon = likeBtnElement.querySelector(".fa-heart");
   const countSpan = likeBtnElement.querySelector(".like-count");
@@ -95,6 +96,7 @@ async function loadPosts() {
 
   if (!res.ok) {
     console.log(result);
+    Baner(result.error, result.message);
     return;
   }
 

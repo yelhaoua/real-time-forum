@@ -1,11 +1,18 @@
 export default function Baner(title, description) {
-  let succesMessage = document.createElement("div");
-  succesMessage.id = "succes-Message";
-  succesMessage.innerHTML = `
+  let Baner = document.createElement("div");
+  Baner.id = "succes-Message";
+  Baner.innerHTML = `
       <div >
         <h3>${title}</h3>
         <p>${description}</p>
       </div>
       `;
-  return succesMessage;
+
+  let succesMessage = document.getElementById("succes-Message");
+
+  if (succesMessage) {
+    succesMessage.remove();
+  }
+
+  document.body.appendChild(Baner);
 }

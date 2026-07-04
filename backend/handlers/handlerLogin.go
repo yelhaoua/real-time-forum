@@ -14,11 +14,6 @@ import (
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	type User struct {
-		Email string `json:email`
-		Pass  string `json:pass`
-	}
-
 	utils.EnableCors(w)
 
 	var UserID int
@@ -30,86 +25,96 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method == http.MethodPost {
-		var user User
-		fmt.Println("POST received")
-
-		err := json.NewDecoder(r.Body).Decode(&user)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "bad json body",
-				Error:   "request_error",
-			})
-			return
-		}
-		if user.Email == "" || user.Pass == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "The login details not valid",
-				Error:   "request_error",
-			})
-			return
-		}
-
-		err = config.Conn.QueryRow(
-			"SELECT id, password FROM users WHERE username = ? OR email = ?",
-			user.Email,
-			user.Email,
-		).Scan(&UserID, &UserPass)
-		if err != nil {
-
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Invalid username or password",
-				Error:   "request_error",
-			})
-			return
-		}
-
-		err = bcrypt.CompareHashAndPassword([]byte(UserPass), []byte(user.Pass))
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Invalid username or password",
-				Error:   "request_error",
-			})
-			return
-		}
-
-		generatedToken := uuid.New().String()
-
-		_, err = config.Conn.Exec(`INSERT INTO sessions (user_id , token , expration_date) VALUES(? , ? , ?)`, UserID, generatedToken, time.Now().Add(24*time.Hour))
-		if err != nil {
-
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "We can't create session token",
-				Error:   "request_error",
-			})
-			return
-		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     "Form_Token",
-			Value:    generatedToken,
-			Path:     "/",
-			HttpOnly: true,
-			Expires:  time.Now().Add(24 * time.Hour),
-			MaxAge:   24 * 60 * 60,
-			SameSite: http.SameSiteLaxMode,
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Method not allowed",
+			Error:   "request_error",
 		})
 		return
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
+
+	var user struct {
+		Email string `json:"email"`
+		Pass  string `json:"pass"`
+	}
+
+	fmt.Println("POST received")
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "bad json body",
+			Error:   "request_error",
+		})
+		return
+	}
+	if user.Email == "" || user.Pass == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "The login details not valid",
+			Error:   "request_error",
+		})
+		return
+	}
+
+	err = config.Conn.QueryRow(
+		"SELECT id, password FROM users WHERE username = ? OR email = ?",
+		user.Email,
+		user.Email,
+	).Scan(&UserID, &UserPass)
+	if err != nil {
+
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Invalid username or password",
+			Error:   "request_error",
+		})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(UserPass), []byte(user.Pass))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Invalid username or password",
+			Error:   "request_error",
+		})
+		return
+	}
+
+	generatedToken := uuid.New().String()
+
+	_, err = config.Conn.Exec(`INSERT INTO sessions (user_id , token , expration_date) VALUES(? , ? , ?)`, UserID, generatedToken, time.Now().Add(24*time.Hour))
+	if err != nil {
+
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "We can't create session token",
+			Error:   "request_error",
+		})
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "Form_Token",
+		Value:    generatedToken,
+		Path:     "/",
+		HttpOnly: true,
+		Expires:  time.Now().Add(24 * time.Hour),
+		MaxAge:   24 * 60 * 60,
+		SameSite: http.SameSiteLaxMode,
+	})
+
 	json.NewEncoder(w).Encode(utils.ResponseApi{
-		Success: false,
-		Message: "Method not allowed",
-		Error:   "request_error",
+		Success: true,
+		Message: "you are loged in",
 	})
 }

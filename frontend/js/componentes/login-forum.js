@@ -1,3 +1,5 @@
+import Baner from "./ui/baner.js";
+
 function validateEmail(input) {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return regex.test(input);
@@ -58,9 +60,12 @@ export default function loginforum() {
         return;
       }
 
-      console.log(res);
+      console.log(res, res.message);
 
-      // window.location.href = "/";
+      Baner(res.message);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1000);
     }
   });
 

@@ -26,18 +26,13 @@ export default function CreatePost() {
         });
 
         const res = await req.json();
-        let baner = document.getElementById("succes-Message");
 
         if (!req.ok) {
-          if (baner) {
-            baner.remove();
-          }
-          document.body.appendChild(Baner(res.error, res.message));
+          Baner(res.error, res.message);
+          return;
         }
-        if (baner) {
-          baner.remove();
-        }
-        document.body.appendChild(Baner(res.error, res.message));
+
+        Baner(res.error, res.message);
       } catch (error) {
         let baner = document.getElementById("succes-Message");
         if (baner) {

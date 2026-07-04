@@ -21,11 +21,12 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	}
 	userId, err := utils.CheckSession(w, r)
 	if err != nil {
+		fmt.Println("Error", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "pleas log in",
-			Errore:  "authorized_error",
+			Error:   "authorized_error",
 		})
 		return
 	}
@@ -35,7 +36,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "Method Not Allowed",
-			Errore:  "request_error",
+			Error:   "request_error",
 		})
 		return
 	}
@@ -56,7 +57,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "Bad Request",
-			Errore:  "request_error",
+			Error:   "request_error",
 		})
 		return
 	}
@@ -70,7 +71,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "post not found",
-			Errore:  "request_error",
+			Error:   "request_error",
 		})
 		return
 	}
@@ -87,7 +88,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "server error pleas try agin later",
-			Errore:  "server",
+			Error:   "server",
 		})
 		return
 	}
@@ -107,9 +108,13 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "server error pleas try agin later",
-			Errore:  "server",
+			Error:   "server",
 		})
 		return
 	}
-	fmt.Println(post, "hna")
+
+	json.NewEncoder(w).Encode(utils.ResponseApi{
+		Success: true,
+		Data:    post,
+	})
 }

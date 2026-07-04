@@ -99,7 +99,7 @@ async function loadPosts() {
     return;
   }
 
-  const posts = result.Data.AllPosts;
+  const posts = result.data.AllPosts;
 
   const postsHTML = posts
     .map(

@@ -1,48 +1,48 @@
 package utils
 
 type ResponseApi struct {
-	Success bool
-	Message string
-	Data    interface{}
-	Errore  string
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+	Error   string      `json:"error"`
 }
 
 type LoginError struct {
-	UserNameErr string
-	LoginErr    string
-	PasswordErr string
+	UserNameErr string `json:"user_name_err"`
+	LoginErr    string `json:"login_err"`
+	PasswordErr string `json:"password_err"`
 }
 
 type Posts struct {
-	Id           int
-	Title        string
-	UserName     string
-	Content      string
-	Creat_at     string
-	Image_url   string
-	Isliked      bool
-	IsDisliked   bool
-	LikeCount    int
-	DislikeCount int
+	Id           int    `json:"id"`
+	Title        string `json:"title"`
+	UserName     string `json:"user_name"`
+	Content      string `json:"content"`
+	Creat_at     string `json:"creat_at"`
+	Image_url    string `json:"image_url"`
+	Isliked      bool   `json:"is_like"`
+	IsDisliked   bool   `json:"is_dislike"`
+	LikeCount    int    `json:"like_count"`
+	DislikeCount int    `json:"dislike_count"`
 }
 
 type Comment struct {
-	Id           int
-	UserName     string
-	Content      string
-	Isliked      bool
-	IsDisliked   bool
-	Creat_at     string
-	LikeCount    int
-	DislikeCount int
+	Id           int    `json:"id"`
+	UserName     string `json:"use_name"`
+	Content      string `json:"content"`
+	Isliked      bool   `json:"is_liked"`
+	IsDisliked   bool   `json:"is_disliked"`
+	Creat_at     string `json:"creat_at  "`
+	LikeCount    int    `json:"like_count"`
+	DislikeCount int    `json:"dislike_count"`
 }
 
 type FeedStruct struct {
-	AllPosts    []Posts
-	AllComments []Comment
+	AllPosts    []Posts   `json:"all_posts"`
+	AllComments []Comment `json:"all_commentes"`
 }
 
 type Actions struct {
-    Actions string `json:"action"`
-    ID      int    `json:"id"`
+	Actions string `json:"action"`
+	ID      int    `json:"id"`
 }

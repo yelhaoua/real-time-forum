@@ -26,14 +26,14 @@ export default function registerForm() {
             const res = await response.json();
             console.log(res);
 
-            if (res.Data) {
-              nameErr.innerHTML = res.Data.Name;
-              emailErr.innerHTML = res.Data.Email;
-              passErr.innerHTML = res.Data.Password;
+            if (res.data) {
+              nameErr.innerHTML = res.data.Name;
+              emailErr.innerHTML = res.data.Email;
+              passErr.innerHTML = res.data.Password;
             }
           } else {
             const res = await response.json();
-            const bannerElement = Baner(res.Message, res.Message);
+            const bannerElement = Baner(res.error, res.message);
             let succesMessage = document.getElementById("succes-Message");
 
             if (succesMessage) {

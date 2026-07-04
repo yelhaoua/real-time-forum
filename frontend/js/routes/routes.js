@@ -3,6 +3,7 @@ import registerForm from "../componentes/register-form.js";
 import loginforum from "../componentes/login-forum.js";
 import CreatePost from "../componentes/create-post.js";
 import Logout from "../componentes/logout.js";
+import PostDetailes from "../componentes/postDeatailes.js";
 
 const routes = {
   "/": HomePage,
@@ -10,7 +11,7 @@ const routes = {
   "/login": loginforum,
   "/craet-post": CreatePost,
   "/logout": Logout,
-  "/post/:id" : PostDetailes
+  "/post/:id": PostDetailes,
 };
 
 export default routes;

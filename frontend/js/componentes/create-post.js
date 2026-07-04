@@ -32,12 +32,12 @@ export default function CreatePost() {
           if (baner) {
             baner.remove();
           }
-          document.body.appendChild(Baner(res.Message, res.Message));
+          document.body.appendChild(Baner(res.error, res.message));
         }
         if (baner) {
           baner.remove();
         }
-        document.body.appendChild(Baner(res.Message, res.Message));
+        document.body.appendChild(Baner(res.error, res.message));
       } catch (error) {
         let baner = document.getElementById("succes-Message");
         if (baner) {

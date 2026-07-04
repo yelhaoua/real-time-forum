@@ -44,7 +44,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		Email    string
 		Password string
 	}
-	var Errores struct {
+	var Errors struct {
 		Name     string
 		Email    string
 		Password string
@@ -55,24 +55,24 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	hasErr := false
 	if len(strings.TrimSpace(data.Name)) < 3 || len(strings.TrimSpace(data.Name)) > 30 {
 		hasErr = true
-		Errores.Name = "please enter valid name"
+		Errors.Name = "please enter valid name"
 	}
 	if !ValidateEmail(strings.TrimSpace(data.Email)) {
 		hasErr = true
-		Errores.Email = "please enter valid email"
+		Errors.Email = "please enter valid email"
 	}
 
 	if len(data.Password) < 8 {
 		hasErr = true
-		Errores.Password = "please enter valid password"
+		Errors.Password = "please enter valid password"
 	}
 
 	if hasErr {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Data:    Errores,
-			Errore:  "input_error",
+			Data:    Errors,
+			Error:   "input_error",
 		})
 		return
 	}
@@ -82,7 +82,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "server error",
-			Errore:  "server_error",
+			Error:   "server_error",
 		})
 		return
 	}
@@ -92,28 +92,28 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			if strings.Contains(err.Error(), "username") {
-				Errores.Name = "duplicated user name"
+				Errors.Name = "duplicated user name"
 				w.WriteHeader(http.StatusBadRequest)
 				json.NewEncoder(w).Encode(utils.ResponseApi{
 					Success: false,
-					Data:    Errores,
+					Data:    Errors,
 				})
 				return
 			}
 			if strings.Contains(err.Error(), "email") {
 				w.WriteHeader(http.StatusBadRequest)
-				Errores.Email = "duplicated user email"
+				Errors.Email = "duplicated user email"
 				json.NewEncoder(w).Encode(utils.ResponseApi{
 					Success: false,
-					Data:    Errores,
+					Data:    Errors,
 				})
 				return
 			}
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,
-				Message: "data base errore pleas try agin later",
-				Errore:  "data_base_error",
+				Message: "data base Error pleas try agin later",
+				Error:   "data_base_error",
 			})
 			return
 
@@ -121,8 +121,8 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,
-				Message: "data base errore pleas try agin later",
-				Errore:  "data_base_error",
+				Message: "data base Error pleas try agin later",
+				Error:   "data_base_error",
 			})
 			return
 		}

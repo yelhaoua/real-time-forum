@@ -37,7 +37,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "you session is invalid pleas log in",
-			Errore:  "auth_err",
+			Error:   "auth_err",
 		})
 		return
 	}
@@ -49,7 +49,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "invalid from content",
-			Errore:  "form-error",
+			Error:   "form-error",
 		})
 		return
 	}
@@ -63,7 +63,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
 			Message: "invalid from content",
-			Errore:  "form-error",
+			Error:   "form-error",
 		})
 		return
 	}
@@ -84,8 +84,8 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "errore in saving image",
-			Errore:  "server_error",
+			Message: "Error in saving image",
+			Error:   "server_error",
 		})
 		return
 	}
@@ -97,8 +97,8 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "errore in saving image",
-			Errore:  "server_error",
+			Message: "Error in saving image",
+			Error:   "server_error",
 		})
 		return
 	}
@@ -110,8 +110,8 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "errore while saving data",
-			Errore:  "server_error",
+			Message: "Error while saving data",
+			Error:   "server_error",
 		})
 		return
 	}

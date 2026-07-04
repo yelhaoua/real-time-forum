@@ -41,15 +41,16 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var post struct {
-		Postid       int
-		User_id      int
-		Title        string
-		Content      string
-		Image_url    string
-		Created_at   time.Time
-		LikeCount    int
-		DislikeCount int
-		Is_liked     int
+		Postid       int    `json:"post_id"`
+		User_id      int    `json:"user_id"`
+		User_Name    string `json:"user_name"`
+		Title        string `json:"title"`
+		Content      string `json:"content"`
+		Image_url    string `json:"image_url"`
+		Created_at   string `json:"created_at"`
+		LikeCount    int    `json:"like_count"`
+		DislikeCount int    `json:"dislike_count"`
+		Is_liked     int    `json:"is_liked"`
 	}
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -64,7 +65,8 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 
 	query := `SELECT * FROM posts WHERE id = ?`
 	res := config.Conn.QueryRow(query, postID)
-	err = res.Scan(&post.Postid, &post.User_id, &post.Title, &post.Content, &post.Image_url, &post.Created_at)
+	var timeCreates time.Time
+	err = res.Scan(&post.Postid, &post.User_id, &post.Title, &post.Content, &post.Image_url, &timeCreates)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -77,10 +79,11 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	}
 	query = `
 	SELECT 
-    (SELECT count(*) FROM votes WHERE user_id = 1 AND vote_value =1 ) AS liked,
-    (SELECT count(*) FROM votes WHERE user_id = 1 AND vote_value = -1 ) AS disliked
+    (SELECT count(*) FROM votes WHERE vote_value = ? AND post_id = ? ) AS liked,
+    (SELECT count(*) FROM votes WHERE vote_value = ?  AND post_id = ?  ) AS disliked
+
 `
-	res = config.Conn.QueryRow(query, postID, 1)
+	res = config.Conn.QueryRow(query, 1, postID, -1, postID)
 	err = res.Scan(&post.LikeCount, &post.DislikeCount)
 	if err != nil {
 
@@ -112,7 +115,22 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	query = `SELECT username FROM users WHERE id = ?`
+	res = config.Conn.QueryRow(query, userId)
+	err = res.Scan(&post.User_Name)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "server error pleas try agin later",
+			Error:   "server",
+		})
+		return
+	}
 
+	post.Created_at = utils.GetDuration(timeCreates)
+	fmt.Println(post)
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
 		Data:    post,

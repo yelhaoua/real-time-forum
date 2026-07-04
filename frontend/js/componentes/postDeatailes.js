@@ -1,4 +1,5 @@
 import Baner from "./ui/baner.js";
+import CardPost from "./ui/card-post.js";
 
 export default function PostDetailes() {
   let link = window.location.href;
@@ -7,6 +8,7 @@ export default function PostDetailes() {
   console.log(postId);
 
   const getPostDetailes = async () => {
+    let postInfo;
     try {
       const req = await fetch(`http://localhost:9090/post/${postId}`, {
         method: "GET",
@@ -18,9 +20,18 @@ export default function PostDetailes() {
         Baner(res.error || "Error", res.message || "Something went wrong");
         return;
       }
-      console.log(res);
+      postInfo = res;
+      if (postInfo) {
+        console.log(postInfo);
+        document.getElementById("card-container").innerHTML = CardPost(
+          postInfo.data,
+        );
+      } else {
+        document.getElementById("card-container").innerHTML = `any post found`;
+      }
     } catch (error) {}
   };
   getPostDetailes();
-  return `<h1>Helooo</h1>`;
+
+  return `<div id="card-container"></div>`;
 }

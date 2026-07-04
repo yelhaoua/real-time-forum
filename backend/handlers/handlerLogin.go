@@ -13,20 +13,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct {
-	Email string `json:email`
-	Pass  string `json:pass`
-}
-
-func JsonEncoder(w http.ResponseWriter, message string, code int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": message,
-	})
-}
-
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	type User struct {
+		Email string `json:email`
+		Pass  string `json:pass`
+	}
+
 	utils.EnableCors(w)
 
 	var UserID int
@@ -44,11 +36,21 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
-			JsonEncoder(w, err.Error(), http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "bad json body",
+				Error:   "request_error",
+			})
 			return
 		}
 		if user.Email == "" || user.Pass == "" {
-			JsonEncoder(w, "The login details not valid", http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "The login details not valid",
+				Error:   "request_error",
+			})
 			return
 		}
 
@@ -58,13 +60,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			user.Email,
 		).Scan(&UserID, &UserPass)
 		if err != nil {
-			JsonEncoder(w, "Invalid username or password", http.StatusBadRequest)
+
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "Invalid username or password",
+				Error:   "request_error",
+			})
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(UserPass), []byte(user.Pass))
 		if err != nil {
-			JsonEncoder(w, "Invalid username or password", http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "Invalid username or password",
+				Error:   "request_error",
+			})
 			return
 		}
 
@@ -72,7 +85,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		_, err = config.Conn.Exec(`INSERT INTO sessions (user_id , token , expration_date) VALUES(? , ? , ?)`, UserID, generatedToken, time.Now().Add(24*time.Hour))
 		if err != nil {
-			JsonEncoder(w, "We can't create session token", http.StatusInternalServerError)
+
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "We can't create session token",
+				Error:   "request_error",
+			})
 			return
 		}
 
@@ -87,5 +106,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	JsonEncoder(w, "Method not allowed", http.StatusMethodNotAllowed)
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	json.NewEncoder(w).Encode(utils.ResponseApi{
+		Success: false,
+		Message: "Method not allowed",
+		Error:   "request_error",
+	})
 }

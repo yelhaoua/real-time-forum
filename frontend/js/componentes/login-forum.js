@@ -15,8 +15,8 @@ function validateLogin(input) {
 export default function loginforum() {
   document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
   const head = document.querySelector("head");
-  document.getElementById("nav-bar").classList = "hidden"
-  
+  document.getElementById("nav-bar").classList = "hidden";
+
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = "./assets/styles/login.css";
@@ -41,7 +41,7 @@ export default function loginforum() {
       }
 
       const PostData = { email: input, pass: pass };
-      const res = await fetch("http://localhost:9090/login", {
+      const req = await fetch("http://localhost:9090/login", {
         method: "POST",
         credentials: "include",
 
@@ -51,14 +51,16 @@ export default function loginforum() {
         body: JSON.stringify(PostData),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        document.getElementById("error-password").innerHTML = error.message;
+      const res = await req.json();
+      if (!req.ok) {
+        document.getElementById("error-password").innerHTML = res.message;
         document.getElementById("error-password").classList.remove("hidden");
+        return;
       }
-      if (res.ok) {
-        window.location.href = "/";
-      }
+
+      console.log(res);
+
+      // window.location.href = "/";
     }
   });
 

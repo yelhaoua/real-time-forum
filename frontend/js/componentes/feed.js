@@ -1,8 +1,8 @@
 import NavBar from "./nave-bare.js";
-async function toggleLike(postId, likeBtnElement) { 
-  const icon = likeBtnElement.querySelector(".fa-heart"); 
+async function toggleLike(postId, likeBtnElement) {
+  const icon = likeBtnElement.querySelector(".fa-heart");
   const countSpan = likeBtnElement.querySelector(".like-count");
-  
+
   if (!icon || !countSpan) return;
 
   // 1. OPTIMISTIC UPDATE: Read current state and change UI instantly
@@ -38,7 +38,7 @@ async function toggleLike(postId, likeBtnElement) {
     });
 
     const result = await res.json();
-    
+
     if (result.message === "liked") {
       icon.style.color = "var(--accent-red)";
       icon.classList.remove("fa-regular");
@@ -48,7 +48,6 @@ async function toggleLike(postId, likeBtnElement) {
       icon.classList.remove("fa-solid");
       icon.classList.add("fa-regular");
     }
-
   } catch (error) {
     if (isCurrentlyLiked) {
       icon.style.color = "var(--accent-red)";
@@ -99,13 +98,13 @@ async function loadPosts() {
     return;
   }
 
-  const posts = result.data.AllPosts;
+  const posts = result.data.all_posts;
 
   const postsHTML = posts
     .map(
       (post) => `
       
-        <div class="card" data-post-id="${post.Id}">
+        <div class="card" data-post-id="${post.id}">
             <div class="post-header">
               <div class="post-author">
                 <img
@@ -113,8 +112,8 @@ async function loadPosts() {
                   alt="Author"
                 />
                 <div class="author-info">
-                  <h4>${post.UserName}</h4>
-                  <span>${post.Creat_at}</span>
+                  <h4>${post.user_name}</h4>
+                  <span>${post.creat_at}</span>
                 </div>
               </div>
               <i
@@ -123,20 +122,20 @@ async function loadPosts() {
               ></i>
             </div>
             <div class="post-content">
-              <h3> ${post.Title} </h3>
-              <p> ${post.Content}</p>
+              <h3> ${post.title} </h3>
+              <p> ${post.content}</p>
             </div>
-              ${post.Image_Image_url ? '<img class="post-image"src="' + post.Image_Image_url + '" alt=""/>' : ""}
+              ${post.image_url ? '<img class="post-image"src="' + post.image_url + '" alt=""/>' : ""}
 
               <div class="post-footer">
-                <span class="post-like" data-id="${post.Id}">
-                  <i class="${post.Isliked ? "fa-solid" : "fa-regular"} fa-heart" 
-                    style="${post.Isliked ? "color: var(--accent-red);" : ""}"></i>
-                  <span class="like-count">${post.LikeCount}</span>
+                <span class="post-like" data-id="${post.id}">
+                  <i class="${post.is_like ? "fa-solid" : "fa-regular"} fa-heart" 
+                    style="${post.is_like ? "color: var(--accent-red);" : ""}"></i>
+                  <span class="like-count">${post.like_count}</span>
                 </span>
                 
-                <span class="post-comments" data-id="${post.Id}">
-                  <i class="fa-regular fa-comment"></i> ${post.DislikeCount}
+                <span class="post-comments" data-id="${post.id}">
+                  <i class="fa-regular fa-comment"></i> ${post.dislike_count}
                 </span>
               </div>
           </div>

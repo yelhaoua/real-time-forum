@@ -20,7 +20,7 @@ type User struct {
 
 func JsonEncoder(w http.ResponseWriter, message string, code int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
+	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": message,
 	})

@@ -111,5 +111,5 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Println(post)
+	fmt.Println(post, "hna")
 }

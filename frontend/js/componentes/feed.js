@@ -6,22 +6,22 @@ async function toggleLike(postId, likeBtnElement) {
 
   if (!icon || !countSpan) return;
 
-  // 1. OPTIMISTIC UPDATE: Read current state and change UI instantly
+
   const isCurrentlyLiked = icon.classList.contains("fa-solid");
   let currentCount = parseInt(countSpan.textContent) || 0;
 
   if (isCurrentlyLiked) {
-    // Optimistically UNLIKE
+
     icon.style.color = "";
     icon.classList.remove("fa-solid");
     icon.classList.add("fa-regular");
-    countSpan.textContent = Math.max(0, currentCount - 1); // Decrement count (-1)
+    countSpan.textContent = Math.max(0, currentCount - 1); 
   } else {
-    // Optimistically LIKE
+  
     icon.style.color = "var(--accent-red)";
     icon.classList.remove("fa-regular");
     icon.classList.add("fa-solid");
-    countSpan.textContent = currentCount + 1; // Increment count (+1)
+    countSpan.textContent = currentCount + 1;
   }
 
   try {

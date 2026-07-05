@@ -1,6 +1,8 @@
+import Comments from "./comments.js";
 import CommentForm from "./ui/add-commente.js";
 import Baner from "./ui/baner.js";
 import CardPost from "./ui/card-post.js";
+import CommentsBox from "./ui/commentsBox.js";
 
 export default function PostDetailes() {
   let link = window.location.href;
@@ -27,16 +29,16 @@ export default function PostDetailes() {
 
         container.appendChild(CardPost(postInfo.data));
         container.appendChild(CommentForm(postInfo.data.post_id));
-
+        CommentsBox()
         let comentesElemente = document.querySelector(".post-comments");
-        comentesElemente.addEventListener("click", () => {
-          getCommetes(comentesElemente.dataset.id);
-        });
+        getCommetes(postId);
+
       } else {
         document.getElementById("card-container").innerHTML = `any post found`;
       }
     } catch (error) {}
   };
+
   getPostDetailes();
 
   async function getCommetes(id) {
@@ -54,7 +56,7 @@ export default function PostDetailes() {
         return;
       }
 
-      console.log(res);
+      Comments(res);
     } catch (error) {}
   }
 

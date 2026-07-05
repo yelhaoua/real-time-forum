@@ -153,14 +153,10 @@ async function loadPosts() {
 
 export default function FeedPage() {
   const link = document.createElement("link");
-
   link.rel = "stylesheet";
   link.href = "./assets/styles/card-post.css";
-
   document.head.appendChild(link);
-
   loadPosts();
-
   NavBar();
 
   return `<div class="card-container"></div>`;

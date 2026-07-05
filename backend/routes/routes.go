@@ -18,8 +18,8 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/posts", handler.FeedHanlder)
 
 	mux.HandleFunc("/comment/{id}", handler.HnadleComments)
-
 	mux.HandleFunc("/creat-commente/{postId}", handler.HnadleAddComments)
+	mux.HandleFunc("/getinfo", handler.HnadleGetInfo)
 
 	return mux
 }

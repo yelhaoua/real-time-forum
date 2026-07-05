@@ -42,10 +42,12 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 	postID := r.PathValue("id")
 
 	type commentData struct {
-		Id        int    `json:"id"`
-		Content   string `json:"content"`
-		CreatedAt string `json:"created_at"`
-		IsLiked   bool   `json:"is_liked"`
+		Id            int    `json:"id"`
+		Content       string `json:"content"`
+		CreatedAt     string `json:"created_at"`
+		Like_Count    int    `json:"like_count"`
+		Dislike_Count int    `json:"dislike_count"`
+		IsLiked       bool   `json:"is_liked"`
 	}
 
 	var allCommentes []commentData
@@ -54,16 +56,19 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
     comments.id,
     comments.content,
     comments.created_at,
+    (SELECT COUNT(*) FROM votes  WHERE comment_id = comments.id AND vote_value = 1  ) AS like_Count,
+    (SELECT COUNT(*) FROM votes  WHERE comment_id = comments.id AND vote_value =-1 ) AS dislike_Count,
     EXISTS (
         SELECT 1
         FROM votes
         WHERE votes.comment_id = comments.id
-          AND votes.user_id = ?
+          AND votes.user_id = 1
           AND votes.vote_value = 1
     ) AS is_liked
 FROM comments
-WHERE comments.post_id = ?
-ORDER BY comments.created_at DESC;
+WHERE comments.post_id = 10
+ORDER BY comments.created_at DESC
+
 `
 
 	res, err := config.Conn.Query(query, userID, postID)
@@ -81,7 +86,7 @@ ORDER BY comments.created_at DESC;
 	for res.Next() {
 		var c commentData
 		var create time.Time
-		err = res.Scan(&c.Id, &c.Content, &create, &c.IsLiked)
+		err = res.Scan(&c.Id, &c.Content, &create, &c.Like_Count, &c.Dislike_Count, &c.IsLiked)
 		if err != nil {
 			fmt.Println("", err)
 			w.WriteHeader(http.StatusInternalServerError)

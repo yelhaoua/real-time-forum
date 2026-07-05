@@ -1,6 +1,8 @@
 export default function Comments(data) {
   const commentsCont = document.getElementById("commentsBox");
-if (data) {    
+    if (data) { 
+    console.log(data ,"heloo");
+    
     const content = data.data
     content.forEach(comment => {
         commentsCont.insertAdjacentHTML('beforeend', `

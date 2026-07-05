@@ -159,9 +159,7 @@ export default function FeedPage() {
 
   document.head.appendChild(link);
 
-  window.onload = function () {
-    setTimeout(loadPosts);
-  };
+  loadPosts();
 
   NavBar();
 

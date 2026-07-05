@@ -8,10 +8,12 @@ export default function CardPost(data) {
 
   document.head.appendChild(link);
 
+  const card = document.createElement("div");
 
-  return `
+  card.className = "card";
+  card.dataset.postId = data.post_id;
 
-     <div class="card" data-post-id="${data.post_id}">
+  card.innerHTML = `
             <div class="post-header">
               <div class="post-author">
                 <img
@@ -50,6 +52,7 @@ export default function CardPost(data) {
                   <i class="fa-regular fa-comment"></i> ${data.comment_count}
                 </span>
               </div>
-          </div>
           `;
+
+  return card;
 }

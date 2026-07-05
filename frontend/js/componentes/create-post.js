@@ -7,10 +7,6 @@ export default function CreatePost() {
   document.head.appendChild(styleLink);
 
   document.body.addEventListener("submit", async (e) => {
-    console.log();
-    e.preventDefault();
-    console.log(e.target);
-
     if (e.target.id === "creat-post-form") {
       e.preventDefault();
       e.stopPropagation();

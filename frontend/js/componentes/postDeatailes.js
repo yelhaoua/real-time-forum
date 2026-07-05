@@ -1,3 +1,4 @@
+import CommentForm from "./ui/add-commente.js";
 import Baner from "./ui/baner.js";
 import CardPost from "./ui/card-post.js";
 
@@ -22,9 +23,10 @@ export default function PostDetailes() {
       }
       postInfo = res;
       if (postInfo) {
-        document.getElementById("card-container").innerHTML = CardPost(
-          postInfo.data,
-        );
+        const container = document.getElementById("card-container");
+
+        container.appendChild(CardPost(postInfo.data));
+        container.appendChild(CommentForm(postInfo.data.post_id));
 
         let comentesElemente = document.querySelector(".post-comments");
         comentesElemente.addEventListener("click", () => {

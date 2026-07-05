@@ -8,6 +8,7 @@ export default function CardPost(data) {
 
   document.head.appendChild(link);
 
+
   return `
 
      <div class="card" data-post-id="${data.post_id}">
@@ -46,7 +47,7 @@ export default function CardPost(data) {
                 </span>
                 
                 <span class="post-comments" data-id="${data.post_id || "not found"}">
-                  <i class="fa-regular fa-comment"></i> ${data.dislike_count || "not found"}
+                  <i class="fa-regular fa-comment"></i> ${data.comment_count}
                 </span>
               </div>
           </div>

@@ -42,15 +42,16 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	}
 	var post struct {
 		Postid       int    `json:"post_id"`
-		User_id      int    `json:"user_id"`
-		User_Name    string `json:"user_name"`
+		Userid       int    `json:"user_id"`
+		UserName     string `json:"user_name"`
 		Title        string `json:"title"`
 		Content      string `json:"content"`
-		Image_url    string `json:"image_url"`
-		Created_at   string `json:"created_at"`
+		Imageurl     string `json:"image_url"`
+		Createdat    string `json:"created_at"`
 		LikeCount    int    `json:"like_count"`
 		DislikeCount int    `json:"dislike_count"`
-		Is_liked     int    `json:"is_liked"`
+		Isliked      int    `json:"is_liked"`
+		CommentCount int    `json:"comment_count"`
 	}
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -66,7 +67,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT * FROM posts WHERE id = ?`
 	res := config.Conn.QueryRow(query, postID)
 	var timeCreates time.Time
-	err = res.Scan(&post.Postid, &post.User_id, &post.Title, &post.Content, &post.Image_url, &timeCreates)
+	err = res.Scan(&post.Postid, &post.Userid, &post.Title, &post.Content, &post.Imageurl, &timeCreates)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -104,7 +105,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
  
 `
 	res = config.Conn.QueryRow(query, userId, postID)
-	err = res.Scan(&post.Is_liked)
+	err = res.Scan(&post.Isliked)
 	if err != nil {
 		fmt.Println("err", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -117,7 +118,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	}
 	query = `SELECT username FROM users WHERE id = ?`
 	res = config.Conn.QueryRow(query, userId)
-	err = res.Scan(&post.User_Name)
+	err = res.Scan(&post.UserName)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -129,7 +130,21 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post.Created_at = utils.GetDuration(timeCreates)
+	query = `SELECT COUNT(*) FROM comments WHERE post_id = ?`
+	res = config.Conn.QueryRow(query, postID)
+	err = res.Scan(&post.CommentCount)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "server error pleas try agin later",
+			Error:   "server",
+		})
+		return
+	}
+
+	post.Createdat = utils.GetDuration(timeCreates)
 	fmt.Println(post)
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,

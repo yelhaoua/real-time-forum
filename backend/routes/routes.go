@@ -16,6 +16,9 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/craet-post", handler.HnadleCreatPost)
 	mux.HandleFunc("/post/{id}", handler.HnadlePostDetailes)
 	mux.HandleFunc("/posts", handler.FeedHanlder)
+	
+	mux.HandleFunc("/comment/{id}", handler.HnadleComments)
+
 
 	return mux
 }

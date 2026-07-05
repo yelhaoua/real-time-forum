@@ -1,27 +1,28 @@
 import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
-async function toggleLike(postId, likeBtnElement) {
+
+async function ToggleLike(postId, likeBtnElement) {
   const icon = likeBtnElement.querySelector(".fa-heart");
   const countSpan = likeBtnElement.querySelector(".like-count");
 
   if (!icon || !countSpan) return;
 
-  // 1. OPTIMISTIC UPDATE: Read current state and change UI instantly
+
   const isCurrentlyLiked = icon.classList.contains("fa-solid");
   let currentCount = parseInt(countSpan.textContent) || 0;
 
   if (isCurrentlyLiked) {
-    // Optimistically UNLIKE
+
     icon.style.color = "";
     icon.classList.remove("fa-solid");
     icon.classList.add("fa-regular");
-    countSpan.textContent = Math.max(0, currentCount - 1); // Decrement count (-1)
+    countSpan.textContent = Math.max(0, currentCount - 1); 
   } else {
-    // Optimistically LIKE
+  
     icon.style.color = "var(--accent-red)";
     icon.classList.remove("fa-regular");
     icon.classList.add("fa-solid");
-    countSpan.textContent = currentCount + 1; // Increment count (+1)
+    countSpan.textContent = currentCount + 1;
   }
 
   try {
@@ -64,14 +65,19 @@ async function toggleLike(postId, likeBtnElement) {
   }
 }
 
-async function handlePostActions(e) {
+if (typeof window !== 'undefined') {
+  window.ToggleLike = ToggleLike;
+  window.HandlePostActions = HandlePostActions;
+}
+
+async function HandlePostActions(e) {
   console.log(e);
 
   const likeBtn = e.target.closest(".post-like");
 
   if (likeBtn) {
     const postId = likeBtn.dataset.id;
-    await toggleLike(postId, likeBtn);
+    await ToggleLike(postId, likeBtn);
     return;
   }
 
@@ -148,7 +154,7 @@ async function loadPosts() {
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
 
-  cardContainer.addEventListener("click", handlePostActions);
+  cardContainer.addEventListener("click", HandlePostActions);
 }
 
 export default function FeedPage() {

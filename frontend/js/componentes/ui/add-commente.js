@@ -15,8 +15,6 @@ export default function CommentForm(postId) {
       console.log("hna1");
 
       try {
-        console.log("hna");
-
         const req = await fetch(
           `http://localhost:9090/creat-commente/${postId}`,
           {

@@ -12,7 +12,6 @@ export default function CardPost(data) {
 
   card.className = "card";
   card.dataset.postId = data.post_id;
-
   card.innerHTML = `
             <div class="post-header">
               <div class="post-author">
@@ -42,17 +41,11 @@ export default function CardPost(data) {
                     style="${data.is_liked ? "color: var(--accent-red);" : ""}"></i>
                   <span class="like-count">${data.like_count}</span>
                 </span>
-                <span class="post-dislike" data-id="${data.post_id}">
-                 ${data.dislike_count ? `<i class="fa-solid fa-heart-crack"></i>` : `<i class="fa-regular fa-heart-crack"></i>`} 
-                 
-                  <span class="like-count">${data.dislike_count}</span>
-                </span>
-                
                 <span class="post-comments" data-id="${data.post_id || "not found"}">
                   <i class="fa-regular fa-comment"></i> ${data.comment_count}
                 </span>
               </div>
           `;
-
+  
   return card;
 }

@@ -62,7 +62,8 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
           AND votes.vote_value = 1
     ) AS is_liked
 FROM comments
-WHERE comments.post_id = ?;
+WHERE comments.post_id = ?
+ORDER BY comments.created_at DESC;
 `
 
 	res, err := config.Conn.Query(query, userID, postID)

@@ -1,6 +1,7 @@
 import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
-async function toggleLike(postId, likeBtnElement) {
+
+async function ToggleLike(postId, likeBtnElement) {
   const icon = likeBtnElement.querySelector(".fa-heart");
   const countSpan = likeBtnElement.querySelector(".like-count");
 
@@ -64,14 +65,19 @@ async function toggleLike(postId, likeBtnElement) {
   }
 }
 
-async function handlePostActions(e) {
+if (typeof window !== 'undefined') {
+  window.ToggleLike = ToggleLike;
+  window.HandlePostActions = HandlePostActions;
+}
+
+async function HandlePostActions(e) {
   console.log(e);
 
   const likeBtn = e.target.closest(".post-like");
 
   if (likeBtn) {
     const postId = likeBtn.dataset.id;
-    await toggleLike(postId, likeBtn);
+    await ToggleLike(postId, likeBtn);
     return;
   }
 
@@ -148,7 +154,7 @@ async function loadPosts() {
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
 
-  cardContainer.addEventListener("click", handlePostActions);
+  cardContainer.addEventListener("click", HandlePostActions);
 }
 
 export default function FeedPage() {

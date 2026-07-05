@@ -31,7 +31,8 @@ export default function PostDetailes() {
         container.appendChild(CommentForm(postInfo.data.post_id));
         CommentsBox()
         let comentesElemente = document.querySelector(".post-comments");
-        getCommetes(postId);
+        container.addEventListener("click", window.HandlePostActions);
+        getCommetes(postId)
 
       } else {
         document.getElementById("card-container").innerHTML = `any post found`;

@@ -1,11 +1,10 @@
 .share-box {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 20px;
   width: 100%;
-  max-width: 680px;
+  max-width: 760px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-
   margin: 20px auto;
 }
 
@@ -32,8 +31,8 @@
   min-width: 100%;
   max-width: 100%;
   resize: none;
-  min-height: 250px;
-  max-height: 250px;
+  min-height: 220px;
+  max-height: 260px;
   position: relative;
   display: flex;
   flex: 1;
@@ -59,9 +58,9 @@
   margin-top: 8px;
 }
 .input-wrapper input:focus,
-.input-wrapper textarea {
+.input-wrapper textarea:focus {
   background-color: #ffffff;
-  border-color: #e2e8f0;
+  border-color: #cbd5e1;
 }
 
 .input-wrapper input::placeholder,
@@ -153,4 +152,64 @@
 
 .privacy-btn i {
   font-size: 11px;
+}
+
+.create-post-card,
+.comment-form-card {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .share-box {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .share-top {
+    align-items: flex-start;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .input-wrapper textarea {
+    min-height: 180px;
+  }
+
+  .actions {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .share-box {
+    padding: 14px;
+  }
+
+  .share-top {
+    gap: 10px;
+  }
+
+  .input-wrapper input,
+  .input-wrapper textarea {
+    font-size: 14px;
+    padding-left: 16px;
+    padding-right: 38px;
+  }
+
+  .emoji-btn {
+    right: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-btn {
+    justify-content: center;
+    width: 100%;
+  }
 }

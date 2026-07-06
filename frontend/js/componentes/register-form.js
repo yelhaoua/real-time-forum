@@ -49,11 +49,9 @@ export default function registerForm() {
   });
 
   return `
-  <div class="container">
-   <main class="card">
-      <!-- Brand side -->
-      
-      <section class="brand">
+  <div class="container register-shell">
+   <main class="card register-card">
+      <section class="brand register-brand">
         <div class="logo">
           <span class="wordmark">Zone01<span>Forum</span></span>
         </div>
@@ -63,18 +61,17 @@ export default function registerForm() {
           <h1>Where your network gets to work.</h1>
           <p>
             Pick up the conversation, manage your pages and projects, and keep
-            your team moving — all in one place.
+            your team moving, all in one place.
           </p>
         </div>
       </section>
 
-      <!-- Form side -->
-      <section class="form-wrap">
+      <section class="form-wrap register-form-wrap">
         <div class="form-inner">
-          <h2 class="title">Register in to your account</h2>
+          <h2 class="title">Create your account</h2>
           <p class="subtitle">
-            Sign Ins to Your Account?
-            <a href="#/login" class="nav-link">Sign In</a>
+            Already have an account?
+            <a href="#/login" class="nav-link">Sign in</a>
           </p>
 
           <form id="loginForm" novalidate>
@@ -127,10 +124,9 @@ export default function registerForm() {
             </div>
 
 
-            <button class="btn" type="submit">Sign in</button>
+            <button class="btn" type="submit">Create account</button>
           </form>
           <div class="foot">
-            
             <div class="copy">Created At Zone01 Oujda © 2021</div>
           </div>
         </div>

@@ -44,8 +44,7 @@ export default function CreatePost() {
     }
   });
   return `
-    <form action=""  id="creat-post-form">
-      <div class="share-box">
+    <form action="" id="creat-post-form" class="share-box create-post-card">
         <div class="share-top">
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
@@ -62,8 +61,7 @@ export default function CreatePost() {
             <div class="input-wrapper">
               <textarea name="postdesc"  placeholder="New Post Description"></textarea>
             </div>
-          <div>
-           
+          </div>
         </div>
 
         <hr class="divider" />
@@ -81,13 +79,10 @@ export default function CreatePost() {
             />
           </label>
 
-          <button  class="action-btn mention-btn" type="submit">
+          <button class="action-btn mention-btn" type="submit">
             <i class="fa-regular fa-paper-plane"></i>
           </button>
         </div>
-      </div>
     </form>
-    
-    
     `;
 }

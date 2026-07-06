@@ -46,8 +46,8 @@ body {
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -227,7 +227,6 @@ form {
   border: 0;
   background: transparent;
   outline: none;
-
   font-size: 14.5px;
   color: var(--ink);
   padding: 14px 18px 14px 48px;
@@ -353,14 +352,22 @@ div #email-Err {
   }
 }
 @media (max-width: 440px) {
-  body {
+  .container {
     padding: 18px;
+  }
+  body {
+    padding: 0;
   }
   .form-wrap {
     padding: 34px 24px;
   }
-  .socials {
-    grid-template-columns: 1fr;
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .form-inner {
+    max-width: 100%;
   }
 }
 

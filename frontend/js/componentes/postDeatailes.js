@@ -26,7 +26,7 @@ export default function PostDetailes() {
       postInfo = res;
       if (postInfo) {
         const container = document.getElementById("card-container");
-
+        container.classList.add("post-detail-page");
         container.appendChild(CardPost(postInfo.data));
         container.appendChild(CommentForm(postInfo.data.post_id));
         CommentsBox()
@@ -61,5 +61,5 @@ export default function PostDetailes() {
     } catch (error) {}
   }
 
-  return `<div id="card-container"></div>`;
+  return `<main id="card-container" class="post-detail-layout"></main>`;
 }

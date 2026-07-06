@@ -17,6 +17,5 @@ func main() {
 	mux.Handle("/uploads/",
 		http.StripPrefix("/uploads/", fs),
 	)
-
 	log.Fatal(http.ListenAndServe(":9090", mux))
 }

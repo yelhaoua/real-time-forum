@@ -1,4 +1,5 @@
 import Baner from "./ui/baner.js";
+import Logout from "./logout.js";
 
 export default async function NavBar() {
   const link = document.createElement("link");
@@ -16,13 +17,29 @@ export default async function NavBar() {
 
     const res = await req.json();
     if (!req.ok) {
-      Baner(res.error, res.message);
+      document.getElementById("nav-bar").innerHTML = `
+      <header class="top-nav">
+          <div class="nav-left">
+            <div class="logo"><i class="ri-hexagon-fill"></i></div>
+            <div class="search-bar">
+              <i class="ri-search-line"></i>
+              <input type="text" placeholder="Search" />
+            </div>
+          </div>
+          <nav class="nav-menu">
+            <a href="#/" class="nav-item active">
+              <i class="ri-home-4-line"></i> Homepage
+            </a>
+            <a href="#/login" class="nav-action-btn">Login</a>
+          </nav>
+        </header>
+      `;
       return;
     }
 
     console.log(res);
     document.getElementById("nav-bar").innerHTML = `
-    <header>
+    <header class="top-nav">
         <div class="nav-left">
           <div class="logo"><i class="ri-hexagon-fill"></i></div>
           <div class="search-bar">
@@ -45,16 +62,20 @@ export default async function NavBar() {
             <span class="notification-badge">2</span></a
           >
           <a href="#" class="nav-item"><i class="ri-apps-2-line"></i> Tools</a>
+          <button id="logoutBtn" class="nav-action-btn" type="button">Logout</button>
         </nav>
         <div class="user-nav-profile">
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
             alt="User"
           />
-          <span style="font-size: 13px; font-weight: 600">${res.data}</span>
-          <i class="ri-arrow-down-s-line" style="color: var(--text-muted)"></i>
+          <span class="user-nav-name">${res.data}</span>
         </div>
       </header>
     `;
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", Logout);
+    }
   } catch (error) {}
 }

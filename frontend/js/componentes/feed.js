@@ -7,26 +7,10 @@ async function ToggleLike(postId, likeBtnElement) {
 
   if (!icon || !countSpan) return;
 
-
   const isCurrentlyLiked = icon.classList.contains("fa-solid");
   let currentCount = parseInt(countSpan.textContent) || 0;
 
-  if (isCurrentlyLiked) {
-
-    icon.style.color = "";
-    icon.classList.remove("fa-solid");
-    icon.classList.add("fa-regular");
-    countSpan.textContent = Math.max(0, currentCount - 1); 
-  } else {
-  
-    icon.style.color = "var(--accent-red)";
-    icon.classList.remove("fa-regular");
-    icon.classList.add("fa-solid");
-    countSpan.textContent = currentCount + 1;
-  }
-
   try {
-    // 2. Send the background request to Go server
     const res = await fetch("http://localhost:9090/posts", {
       method: "POST",
       credentials: "include",
@@ -39,29 +23,30 @@ async function ToggleLike(postId, likeBtnElement) {
       }),
     });
 
-    const result = await res.json();
+    const result = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      Baner(result.error || "request_error", result.message || "Action failed");
+      return;
+    }
 
     if (result.message === "liked") {
       icon.style.color = "var(--accent-red)";
       icon.classList.remove("fa-regular");
       icon.classList.add("fa-solid");
+      countSpan.textContent = currentCount + 1;
     } else if (result.message === "unliked") {
       icon.style.color = "";
       icon.classList.remove("fa-solid");
       icon.classList.add("fa-regular");
+      countSpan.textContent = Math.max(0, currentCount - 1);
     }
   } catch (error) {
-    if (isCurrentlyLiked) {
-      icon.style.color = "var(--accent-red)";
-      icon.classList.remove("fa-regular");
-      icon.classList.add("fa-solid");
-      countSpan.textContent = currentCount;
-    } else {
-      icon.style.color = "";
-      icon.classList.remove("fa-solid");
-      icon.classList.add("fa-regular");
-      countSpan.textContent = currentCount;
-    }
+    Baner("request_error", "Unable to update like state right now");
+    icon.style.color = isCurrentlyLiked ? "var(--accent-red)" : "";
+    icon.classList.toggle("fa-solid", isCurrentlyLiked);
+    icon.classList.toggle("fa-regular", !isCurrentlyLiked);
+    countSpan.textContent = currentCount;
   }
 }
 
@@ -111,8 +96,7 @@ async function loadPosts() {
   const postsHTML = posts
     .map(
       (post) => `
-      
-        <div class="card" data-post-id="${post.id}">
+        <article class="card feed-card" data-post-id="${post.id}">
             <div class="post-header">
               <div class="post-author">
                 <img
@@ -146,7 +130,7 @@ async function loadPosts() {
                   <i class="fa-regular fa-comment"></i> ${post.dislike_count}
                 </span>
               </div>
-          </div>
+        </article>
       `,
     )
     .join("");
@@ -165,5 +149,5 @@ export default function FeedPage() {
   loadPosts();
   NavBar();
 
-  return `<div class="card-container"></div>`;
+  return `<main class="feed-layout"><div class="card-container"></div></main>`;
 }

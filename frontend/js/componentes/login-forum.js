@@ -70,8 +70,8 @@ export default function loginforum() {
   });
 
   return `
-   <main class="card">
-    <section class="brand">
+   <main class="card auth-card">
+    <section class="brand auth-brand">
       <div class="logo">
         <span class="wordmark">Zone01<span>Forum</span></span>
       </div>
@@ -79,15 +79,14 @@ export default function loginforum() {
       <div class="brand-body">
         <div class="eyebrow">Welcome back</div>
         <h1>Where your network gets to work.</h1>
-        <p>Pick up the conversation, manage your pages and projects, and keep your team moving — all in one place.</p> 
-        
+        <p>Pick up the conversation, manage your pages and projects, and keep your team moving, all in one place.</p>
       </div>
     </section>
 
-    <section class="form-wrap">
+    <section class="form-wrap auth-form-wrap">
       <div class="form-inner">
         <h2 class="title">Sign in to your account</h2>
-        <p class="subtitle">New to Talentswide? <a href="#/register" class="nav-link" >Create an account</a></p>
+        <p class="subtitle">New to Talentswide? <a href="#/register" class="nav-link">Create an account</a></p>
 
         <form id="LoginForm" method="POST" action="#">
           <div>
@@ -96,10 +95,9 @@ export default function loginforum() {
               <span class="ic">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
               </span>
-              <input id="email" name="email" type="" placeholder="name@mail.com or username" autocomplete="email" required>
-              
+              <input id="email" name="email" type="text" placeholder="name@mail.com or username" autocomplete="email" required>
             </div>
-            <p id="error-email" class="field-label hidden" style="color: red" >Please enter valid email</p>
+            <p id="error-email" class="field-label hidden auth-error">Please enter valid email</p>
           </div>
 
           <div>
@@ -111,8 +109,7 @@ export default function loginforum() {
               
               <input class="pass-hidden" id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
               <input class="pass-visible" id="password-unmasked" name="password_unmasked" type="text" placeholder="Enter your password" autocomplete="off">
-              
-              
+
               <div class="toggle-container">
                 <input type="checkbox" class="toggle-checkbox" aria-label="Toggle password visibility" role="switch" aria-checked="false">
                 <div class="toggle-icon">
@@ -124,14 +121,14 @@ export default function loginforum() {
                     <path d="M9.9 4.24A10.94 10.94 0 0 1 12 5c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.17 4.31"/>
                     <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
                     <path d="M1 1l22 22"/>
-                </svg>
-                  </div>
+                  </svg>
+                </div>
               </div>
             </div>
-            <p id="error-password" class="field-label hidden" style="color: red" >Password must at least 8 characters</p>
+            <p id="error-password" class="field-label hidden auth-error">Password must be at least 8 characters</p>
           </div>
 
-          <div class="row">
+          <div class="row auth-row">
             <label class="remember">
               <input type="checkbox" id="remember" name="remember" checked>
               <span class="box" aria-hidden="true">
@@ -144,10 +141,9 @@ export default function loginforum() {
 
           <button class="btn" type="submit">Sign in</button>
         </form>
-                 <div class="foot">
-            
-            <div class="copy">Created At Zone01 Oujda © 2021</div>
-          </div>
+        <div class="foot">
+          <div class="copy">Created At Zone01 Oujda © 2021</div>
+        </div>
       </div>
     </section>
   </main>

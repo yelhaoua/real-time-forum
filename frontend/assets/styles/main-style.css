@@ -37,6 +37,41 @@ body {
   background-color: var(--bg);
 }
 
+#nav-bar {
+  width: 100%;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.feed-layout,
+.post-detail-layout {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px 48px;
+}
+
+.card-container {
+  width: 100%;
+  max-width: 860px;
+}
+
+@media (max-width: 900px) {
+  .feed-layout,
+  .post-detail-layout {
+    padding: 18px 14px 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .feed-layout,
+  .post-detail-layout {
+    padding: 14px 10px 32px;
+  }
+}
+
 #succes-Message {
   position: fixed;
   right: 0;

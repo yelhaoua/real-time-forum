@@ -42,8 +42,9 @@ export default function CommentForm(postId) {
 
   document.head.appendChild(link);
   let commetesForm = document.createElement("div");
+  commetesForm.className = "comment-form-wrap";
   commetesForm.innerHTML = `
-    <form id="new-form-comment">
+    <form id="new-form-comment" class="share-box comment-form-card">
         <div class="share-top">
             <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
@@ -57,7 +58,8 @@ export default function CommentForm(postId) {
                 <i class="fa-regular fa-paper-plane"></i>
               </button>
             </div>
-        <div>
+            </div>
+        </div>
     </form>
     `;
 

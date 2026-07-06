@@ -21,20 +21,21 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := utils.CheckSession(w, r)
-	if err != nil {
-
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Authentication required.",
-			Error:   "authorized_error",
-		})
-		return
-	}
-
+	
 	if r.Method == http.MethodPost {
-		err := json.NewDecoder(r.Body).Decode(&action)
+		userID, err := utils.CheckSession(w, r)
+		if err != nil {
+	
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "Authentication required.",
+				Error:   "authorized_error",
+			})
+			return
+		}
+
+		err = json.NewDecoder(r.Body).Decode(&action)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(utils.ResponseApi{

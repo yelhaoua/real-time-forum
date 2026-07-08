@@ -69,7 +69,6 @@ async function ToggleLike(postId, likeBtnElement) {
   }
 }
 
-if (typeof window !== "undefined") {
 async function ToggleDislike(postId, dislikeBtnElement) {
   const icon = dislikeBtnElement.querySelector(".fa-thumbs-down");
   const countSpan = dislikeBtnElement.querySelector(".dislike-count");

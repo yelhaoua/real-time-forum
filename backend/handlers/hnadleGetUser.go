@@ -28,6 +28,11 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	type userData struct {
+		Id            string `json:"id"`
+		UserName      string `json:"user_name"`
+		Profile_image string `json:"profile_image"`
+	}
 
 	var data string
 
@@ -42,7 +47,7 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `SELECT username FROM users WHERE username LIKE ?`
+	query := `SELECT id , username , profile_image FROM users WHERE username LIKE ?`
 
 	rows, err := config.Conn.Query(query, "%"+data+"%")
 	if err != nil {
@@ -57,13 +62,13 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 
 	defer rows.Close()
 
-	var users []string
+	var users []userData
 
 	for rows.Next() {
-		var username string
-		err := rows.Scan(&username)
+		var user userData
+		err := rows.Scan(&user.Id, &user.UserName, &user.Profile_image)
 		if err != nil {
-			fmt.Println(username, err)
+			fmt.Println(user, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,
@@ -73,7 +78,7 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		users = append(users, username)
+		users = append(users, user)
 	}
 
 	if err := rows.Err(); err != nil {

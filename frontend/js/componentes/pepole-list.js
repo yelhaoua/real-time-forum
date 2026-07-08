@@ -39,7 +39,7 @@ export default function ChatList() {
 
 
   function renderUsers(usersToRender) {
-    console.log("render");
+    console.log("render", usersToRender);
 
     if (usersToRender.length === 0) {
       itemList.innerHTML = `<p style="padding: 10px; color: #888; font-size: 13px;">No users found</p>`;
@@ -49,14 +49,13 @@ export default function ChatList() {
     itemList.innerHTML = usersToRender
       .map(
         (user) => `
-        <a href="#" class="list-item chat-item" data-id="${user}">
+        <a href="#/chat/${user.id}" class="list-item chat-item" data-id="${user.id}">
           <div class="item-info">
             <div class="chat-avatar">
-              <img src="${""}" alt="${""}">
+              <img src="http://localhost:9090/uploads${user.profile_image}" alt="${user.profile_image}">
             </div>
             <div class="item-text">
-              <h4>${user}</h4>
-              <p>${user}</p>
+              <h4>${user.user_name}</h4>
             </div>
           </div>
           ${"" ? `<span class="chat-badge">${""}</span>` : ""}
@@ -92,10 +91,7 @@ export default function ChatList() {
     } catch (error) {
 
     }
-    const filteredUsers = users.filter((user) =>
-      user.name.toLowerCase().includes(query)
-    );
-    ;
+
   });
 
 

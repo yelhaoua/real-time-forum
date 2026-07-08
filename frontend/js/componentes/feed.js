@@ -1,4 +1,5 @@
 import NavBar from "./nave-bare.js";
+import ChatList from "./pepole-list.js";
 import Baner from "./ui/baner.js";
 
 async function ToggleLike(postId, likeBtnElement) {
@@ -50,7 +51,7 @@ async function ToggleLike(postId, likeBtnElement) {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.ToggleLike = ToggleLike;
   window.HandlePostActions = HandlePostActions;
 }
@@ -137,6 +138,8 @@ async function loadPosts() {
 
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
+  const charContainer = document.querySelector(".chat-contaner");
+  charContainer.appendChild( ChatList());
 
   cardContainer.addEventListener("click", HandlePostActions);
 }
@@ -149,5 +152,5 @@ export default function FeedPage() {
   loadPosts();
   NavBar();
 
-  return `<main class="feed-layout"><div class="card-container"></div></main>`;
+  return `<main class="feed-layout"><div class="card-container"></div> <div class="chat-contaner"></div></main>`;
 }

@@ -89,6 +89,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(hashPassword)
 	_, err = config.Conn.Exec("INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)",
 		data.Name, data.Email, hashPassword, time.Now())
+	fmt.Println("err", err)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			if strings.Contains(err.Error(), "username") {
@@ -117,15 +118,14 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "data base Error pleas try agin later",
-				Error:   "data_base_error",
-			})
-			return
 		}
+		Errors.Email = "duplicated user email or user name"
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Data:    Errors,
+		})
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 var Conn *sql.DB
 
 func DbConnect() {
-	DB, err := sql.Open("sqlite3", "./real-time-forum.db")
+	DB, err := sql.Open("sqlite", "./real-time-forum.db")
 	if err != nil {
 		fmt.Println("Connect Err", err)
 		return

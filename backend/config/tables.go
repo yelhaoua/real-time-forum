@@ -66,6 +66,13 @@ FOREIGN KEY (user_id) REFERENCES users(id)
     UNIQUE(user_id, post_id),
     UNIQUE(user_id, comment_id)
 )`,
+		`CREATE TABLE IF NOT EXISTS direct_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender TEXT NOT NULL,
+    recipient TEXT NOT NULL,
+    content TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+)`,
 	}
 
 	for _, q := range queries {

@@ -115,7 +115,80 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+
+		if action.Actions == "dislike" {
+			var currentVote int
+			err := config.Conn.QueryRow(
+				"SELECT vote_value FROM votes WHERE post_id = ? AND user_id = ?",
+				action.ID,
+				userID,
+			).Scan(&currentVote)
+
+			w.Header().Set("Content-Type", "application/json")
+
+			if err == sql.ErrNoRows {
+				_, err = config.Conn.Exec(
+					"INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, -1)",
+					action.ID,
+					userID,
+				)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					json.NewEncoder(w).Encode(utils.ResponseApi{
+						Success: false,
+						Message: "Internal Server Error",
+						Error:   "server_error",
+					})
+					return
+				}
+				w.WriteHeader(http.StatusAccepted)
+				json.NewEncoder(w).Encode(map[string]string{"message": "disliked"})
+				return
+
+			} else if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(utils.ResponseApi{
+					Success: false,
+					Message: "Internal Server Error",
+					Error:   "server_error",
+				})
+				return
+			}
+
+			if currentVote == -1 {
+				_, err = config.Conn.Exec("DELETE FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					json.NewEncoder(w).Encode(utils.ResponseApi{
+						Success: false,
+						Message: "Internal Server Error",
+						Error:   "server_error",
+					})
+					return
+				}
+				w.WriteHeader(http.StatusAccepted)
+				json.NewEncoder(w).Encode(map[string]string{"message": "undisliked"})
+				return
+			} else {
+				_, err = config.Conn.Exec("UPDATE votes SET vote_value = -1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					json.NewEncoder(w).Encode(utils.ResponseApi{
+						Success: false,
+						Message: "Internal Server Error",
+						Error:   "server_error",
+					})
+					return
+				}
+				w.WriteHeader(http.StatusAccepted)
+				json.NewEncoder(w).Encode(map[string]string{"message": "disliked"})
+				return
+			}
+		}
 	} else if r.Method == http.MethodGet {
+		if id, err := utils.CheckSession(w, r); err == nil {
+			userID = id
+		}
 
 		query := `SELECT
             posts.id,

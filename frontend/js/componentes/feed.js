@@ -2,6 +2,23 @@ import NavBar from "./nave-bare.js";
 import ChatList from "./pepole-list.js";
 import Baner from "./ui/baner.js";
 
+function clearOppositeVote(btnElement, oppositeSelector, iconClass, countClass) {
+  const card = btnElement.closest(".feed-card, .post-detail-page, #card-container");
+  const oppositeBtn = card && card.querySelector(oppositeSelector);
+  if (!oppositeBtn) return;
+
+  const icon = oppositeBtn.querySelector(iconClass);
+  const countSpan = oppositeBtn.querySelector(countClass);
+  if (!icon || !countSpan) return;
+
+  if (icon.classList.contains("fa-solid")) {
+    icon.style.color = "";
+    icon.classList.remove("fa-solid");
+    icon.classList.add("fa-regular");
+    countSpan.textContent = Math.max(0, (parseInt(countSpan.textContent) || 0) - 1);
+  }
+}
+
 async function ToggleLike(postId, likeBtnElement) {
   const icon = likeBtnElement.querySelector(".fa-heart");
   const countSpan = likeBtnElement.querySelector(".like-count");
@@ -36,6 +53,7 @@ async function ToggleLike(postId, likeBtnElement) {
       icon.classList.remove("fa-regular");
       icon.classList.add("fa-solid");
       countSpan.textContent = currentCount + 1;
+      clearOppositeVote(likeBtnElement, ".post-dislike", ".fa-thumbs-down", ".dislike-count");
     } else if (result.message === "unliked") {
       icon.style.color = "";
       icon.classList.remove("fa-solid");
@@ -52,7 +70,59 @@ async function ToggleLike(postId, likeBtnElement) {
 }
 
 if (typeof window !== "undefined") {
+async function ToggleDislike(postId, dislikeBtnElement) {
+  const icon = dislikeBtnElement.querySelector(".fa-thumbs-down");
+  const countSpan = dislikeBtnElement.querySelector(".dislike-count");
+
+  if (!icon || !countSpan) return;
+
+  const isCurrentlyDisliked = icon.classList.contains("fa-solid");
+  let currentCount = parseInt(countSpan.textContent) || 0;
+
+  try {
+    const res = await fetch("http://localhost:9090/posts", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "dislike",
+        id: Number(postId),
+      }),
+    });
+
+    const result = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      Baner(result.error || "request_error", result.message || "Action failed");
+      return;
+    }
+
+    if (result.message === "disliked") {
+      icon.style.color = "var(--primary)";
+      icon.classList.remove("fa-regular");
+      icon.classList.add("fa-solid");
+      countSpan.textContent = currentCount + 1;
+      clearOppositeVote(dislikeBtnElement, ".post-like", ".fa-heart", ".like-count");
+    } else if (result.message === "undisliked") {
+      icon.style.color = "";
+      icon.classList.remove("fa-solid");
+      icon.classList.add("fa-regular");
+      countSpan.textContent = Math.max(0, currentCount - 1);
+    }
+  } catch (error) {
+    Baner("request_error", "Unable to update dislike state right now");
+    icon.style.color = isCurrentlyDisliked ? "var(--primary)" : "";
+    icon.classList.toggle("fa-solid", isCurrentlyDisliked);
+    icon.classList.toggle("fa-regular", !isCurrentlyDisliked);
+    countSpan.textContent = currentCount;
+  }
+}
+
+if (typeof window !== 'undefined') {
   window.ToggleLike = ToggleLike;
+  window.ToggleDislike = ToggleDislike;
   window.HandlePostActions = HandlePostActions;
 }
 
@@ -67,11 +137,27 @@ async function HandlePostActions(e) {
     return;
   }
 
+  const dislikeBtn = e.target.closest(".post-dislike");
+
+  if (dislikeBtn) {
+    const postId = dislikeBtn.dataset.id;
+    await ToggleDislike(postId, dislikeBtn);
+    return;
+  }
+
   const commentBtn = e.target.closest(".post-comments");
   if (commentBtn) {
     const postId = commentBtn.dataset.id;
     console.log("Comments:", postId);
     window.location.hash = `/post/${postId}`;
+    return;
+  }
+
+  if (e.target.closest(".ri-more-fill")) return;
+
+  const card = e.target.closest(".feed-card");
+  if (card) {
+    window.location.hash = `/post/${card.dataset.postId}`;
   }
 }
 
@@ -122,13 +208,19 @@ async function loadPosts() {
 
               <div class="post-footer">
                 <span class="post-like" data-id="${post.id}">
-                  <i class="${post.is_like ? "fa-solid" : "fa-regular"} fa-heart" 
+                  <i class="${post.is_like ? "fa-solid" : "fa-regular"} fa-heart"
                     style="${post.is_like ? "color: var(--accent-red);" : ""}"></i>
                   <span class="like-count">${post.like_count}</span>
                 </span>
-                
+
+                <span class="post-dislike" data-id="${post.id}">
+                  <i class="${post.is_dislike ? "fa-solid" : "fa-regular"} fa-thumbs-down"
+                    style="${post.is_dislike ? "color: var(--primary);" : ""}"></i>
+                  <span class="dislike-count">${post.dislike_count}</span>
+                </span>
+
                 <span class="post-comments" data-id="${post.id}">
-                  <i class="fa-regular fa-comment"></i> ${post.dislike_count}
+                  <i class="fa-regular fa-comment"></i>
                 </span>
               </div>
         </article>

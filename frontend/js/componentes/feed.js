@@ -148,6 +148,14 @@ async function HandlePostActions(e) {
     const postId = commentBtn.dataset.id;
     console.log("Comments:", postId);
     window.location.hash = `/post/${postId}`;
+    return;
+  }
+
+  if (e.target.closest(".ri-more-fill")) return;
+
+  const card = e.target.closest(".feed-card");
+  if (card) {
+    window.location.hash = `/post/${card.dataset.postId}`;
   }
 }
 

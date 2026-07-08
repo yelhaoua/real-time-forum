@@ -4,35 +4,34 @@ export default function ChatPage() {
   link.href = "../../assets/styles/chat-page.css";
 
   document.head.appendChild(link);
+  document.addEventListener("click", () => {
+    console.log(document.querySelector(".chat-page-container"));
+  });
 
-  return `
-  
-  
-  <div class="chat-page-container">
-  
-  <!-- MAIN CHAT AREA (Middle Section) -->
-  <main class="main-chat-window">
-    
-    <!-- Chat Header -->
-    <div class="chat-header">
-      <div class="active-user-info">
-        <div class="chat-avatar">
-          <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
-        </div>
-        <div class="item-text">
-          <h4>Alan Patterson</h4>
-          <p class="status-text"><span class="status-dot"></span> Online</p>
-        </div>
-      </div>
-      <div class="chat-actions">
-        <button class="action-btn"><i class="ri-phone-line"></i></button>
-        <button class="action-btn"><i class="ri-vidicon-line"></i></button>
-        <button class="action-btn"><i class="ri-more-2-fill"></i></button>
-      </div>
-    </div>
+  let chatHestory = [];
 
-    <!-- Messages Container -->
-    <div class="chat-messages-body">
+  async function getMessages(id) {
+    try {
+      const req = await fetch(`http://localhost:9090/getcahtinfo/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const res = await req.json();
+
+      if (!req.ok) {
+        Baner(res.error, res.message);
+        return;
+      }
+      console.log("hnaaaa", res, req);
+      users = res.data;
+
+      renderchat(chatHestory);
+    } catch (error) {}
+  }
+
+  function renderchat() {
+    return ` <div class="chat-messages-body">
       <!-- Incoming Message -->
       <div class="message-row incoming">
         <div class="chat-avatar msg-avatar">
@@ -62,7 +61,33 @@ export default function ChatPage() {
           <span class="message-time">2 hours ago</span>
         </div>
       </div>
+    </div>`;
+  }
+
+  return `
+  <div class="chat-page-container">
+
+
+  <main class="main-chat-window">
+    <div class="chat-header">
+      <div class="active-user-info">
+        <div class="chat-avatar">
+          <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
+        </div>
+        <div class="item-text">
+          <h4>Alan Patterson</h4>
+          <p class="status-text"><span class="status-dot"></span> Online</p>
+        </div>
+      </div>
+      <div class="chat-actions">
+        <button class="action-btn"><i class="ri-phone-line"></i></button>
+        <button class="action-btn"><i class="ri-vidicon-line"></i></button>
+        <button class="action-btn"><i class="ri-more-2-fill"></i></button>
+      </div>
     </div>
+
+    <!-- Messages Container -->
+    ${renderchat()}
 
     <!-- Chat Input Footer -->
     <div class="chat-input-footer">
@@ -75,8 +100,6 @@ export default function ChatPage() {
     </div>
 
   </main>
-
   
-
 </div>  `;
 }

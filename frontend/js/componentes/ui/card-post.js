@@ -37,9 +37,14 @@ export default function CardPost(data) {
 
               <div class="post-footer">
                 <span class="post-like" data-id="${data.post_id}">
-                  <i class="${data.is_liked ? "fa-solid" : "fa-regular"} fa-heart" 
+                  <i class="${data.is_liked ? "fa-solid" : "fa-regular"} fa-heart"
                     style="${data.is_liked ? "color: var(--accent-red);" : ""}"></i>
                   <span class="like-count">${data.like_count}</span>
+                </span>
+                <span class="post-dislike" data-id="${data.post_id}">
+                  <i class="${data.is_disliked ? "fa-solid" : "fa-regular"} fa-thumbs-down"
+                    style="${data.is_disliked ? "color: var(--primary);" : ""}"></i>
+                  <span class="dislike-count">${data.dislike_count}</span>
                 </span>
                 <span class="post-comments" data-id="${data.post_id || "not found"}">
                   <i class="fa-regular fa-comment"></i> ${data.comment_count}

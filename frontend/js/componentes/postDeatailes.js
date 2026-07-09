@@ -1,21 +1,19 @@
+import MainHeaders from "../shared/main-headers.js";
 import Comments from "./comments.js";
+import NavBar from "./nave-bare.js";
 import CommentForm from "./ui/add-commente.js";
 import Baner from "./ui/baner.js";
 import CardPost from "./ui/card-post.js";
 import CommentsBox from "./ui/commentsBox.js";
 
 export default function PostDetailes() {
-  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+  MainHeaders();
+  NavBar();
 
-  if (styleLink) {
-    console.log(styleLink);
-    styleLink.href = "../../assets/styles/main-style.css";
-  } else {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../../assets/styles/main-style.css";
-    document.head.appendChild(link);
-  }
+  let linkStyle = document.createElement("link");
+  linkStyle.rel = "stylesheet";
+  linkStyle.href = "../../assets/styles/main-style.css";
+  document.head.appendChild(linkStyle);
 
   document;
   let link = window.location.href;

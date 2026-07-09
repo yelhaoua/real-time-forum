@@ -1,31 +1,19 @@
+import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
 
 export default function CreatePost() {
+  MainHeaders();
   NavBar();
-  const link = document.createElement("link");
+
+  let link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "../../assets/styles/nav-var.css";
+  link.href = "../../assets/styles/creat-post-style.css";
   document.head.appendChild(link);
-  let styleLink = document.querySelector('link[rel*="stylesheet"]');
-
-  if (styleLink) {
-    console.log(styleLink);
-    styleLink.href = "../../assets/styles/creat-post-style.css";
-  } else {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-
-    link.href = "../../assets/styles/creat-post-style.css";
-    document.head.appendChild(link);
-  }
 
   document.body.addEventListener("submit", async (e) => {
     if (e.target.id === "creat-post-form") {
       e.preventDefault();
-      e.stopPropagation();
-      console.log(e.target.id);
-
       let formData = new FormData(e.target);
 
       try {

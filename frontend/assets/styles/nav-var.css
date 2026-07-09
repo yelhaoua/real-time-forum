@@ -8,7 +8,7 @@
   --accent-red: #ef4444;
 }
 header {
-  width: min(1180px, calc(100% - 32px));
+  
   margin-left: auto;
   margin-right: auto;
   display: flex;

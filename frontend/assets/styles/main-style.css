@@ -32,6 +32,7 @@
   text-decoration: none;
   font-family: "Poppins";
 }
+
 body {
   overflow-x: hidden;
   background-color: var(--bg);
@@ -48,17 +49,18 @@ body {
 .feed-layout,
 .post-detail-layout {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(250px, 280px) 1fr minmax(300px, 340px);
   justify-content: center;
   padding: 24px 16px 48px;
 }
 
 .card-container {
   width: 100%;
-  max-width: 860px;
 }
 
 @media (max-width: 900px) {
+
   .feed-layout,
   .post-detail-layout {
     padding: 18px 14px 40px;
@@ -66,6 +68,7 @@ body {
 }
 
 @media (max-width: 640px) {
+
   .feed-layout,
   .post-detail-layout {
     padding: 14px 10px 32px;
@@ -90,12 +93,15 @@ body {
   0% {
     transform: translateX(100%);
   }
+
   10% {
     transform: translateX(0);
   }
+
   90% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(100%);
   }

@@ -14,7 +14,7 @@ export default function ChatPage() {
     e.preventDefault();
     console.log("dddd", e.target.id);
 
-    if (e.target.id == "send-message-btn") {
+    if (e.target.id == "messageform") {
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
       try {
@@ -58,6 +58,10 @@ export default function ChatPage() {
       const messagesBody = document.querySelector(".chat-messages-body");
       if (messagesBody) {
         messagesBody.innerHTML = renderChat(chatHistory);
+        messagesBody.scrollTo({
+          top: messagesBody.scrollHeight,
+  
+        });
       }
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -98,8 +102,14 @@ export default function ChatPage() {
   return `
   <div class="chat-page-container">
     <main class="main-chat-window">
+      
       <div class="chat-header">
         <div class="active-user-info">
+          <!-- Back Home Arrow Button -->
+          <a href="#/" class="back-home-btn" title="Back to Home">
+           <i class="fa-solid fa-angle-left"></i>
+          </a>
+          
           <div class="chat-avatar">
             <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
           </div>
@@ -108,6 +118,7 @@ export default function ChatPage() {
             <p class="status-text"><span class="status-dot"></span> Online</p>
           </div>
         </div>
+        
         <div class="chat-actions">
           <button class="action-btn"><i class="ri-phone-line"></i></button>
           <button class="action-btn"><i class="ri-vidicon-line"></i></button>
@@ -115,20 +126,17 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <!-- Messages Container starts empty, gets filled by getMessages() -->
       <div class="chat-messages-body">
-        <div class="loading-spinner" style="text-align:center; padding: 20px; color: gray;">Loading messages...</div>
+        <div class="loading-spinner" style="text-align:center; padding: 20px; color: #718096;">Loading messages...</div>
       </div>
 
-      <!-- Chat Input Footer -->
       <div class="chat-input-footer">
-        <form class="chat-input-form"  id="send-message-btn">
-          <button type="button" class="input-action-btn"><i class="ri-emotion-line"></i></button>
-          <button type="button" class="input-action-btn"><i class="ri-attachment-line"></i></button>
+        <form class="chat-input-form" id="messageform">
           <input type="text" name="message-content" class="message-input" placeholder="Type a message...">
-          <button type="submit" class="send-message-btn"><i class="ri-send-plane-2-fill"></i></button>
+          <button type="submit" class="send-message-btn"><i class="fa-regular fa-paper-plane"></i></button>
         </form>
       </div>
+
     </main>
   </div>`;
 }

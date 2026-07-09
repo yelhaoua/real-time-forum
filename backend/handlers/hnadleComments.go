@@ -62,12 +62,12 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
         SELECT 1
         FROM votes
         WHERE votes.comment_id = comments.id
-          AND votes.user_id = 1
+          AND votes.user_id = ?
           AND votes.vote_value = 1
     ) AS is_liked
-FROM comments
-WHERE comments.post_id = 10
-ORDER BY comments.created_at DESC
+	FROM comments
+	WHERE comments.post_id = ?
+	ORDER BY comments.created_at DESC
 
 `
 
@@ -98,6 +98,7 @@ ORDER BY comments.created_at DESC
 			return
 		}
 		c.CreatedAt = utils.GetDuration(create)
+		fmt.Println("")
 		allCommentes = append(allCommentes, c)
 	}
 	if err != nil {
@@ -109,6 +110,7 @@ ORDER BY comments.created_at DESC
 		})
 		return
 	}
+	fmt.Println("hnnaaa", allCommentes)
 
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,

@@ -20,6 +20,9 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/comment/{id}", handler.HnadleComments)
 	mux.HandleFunc("/creat-commente/{postId}", handler.HnadleAddComments)
 	mux.HandleFunc("/getinfo", handler.HnadleGetInfo)
+	mux.HandleFunc("/getuser", handler.HnadleGetUser)
+	mux.HandleFunc("/getcahtinfo/{id}", handler.HnadleGetChatInfo)
+	mux.HandleFunc("/send-message/{id}", handler.HnadleSendMessage)
 
 	return mux
 }

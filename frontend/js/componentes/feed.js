@@ -2,8 +2,15 @@ import NavBar from "./nave-bare.js";
 import ChatList from "./pepole-list.js";
 import Baner from "./ui/baner.js";
 
-function clearOppositeVote(btnElement, oppositeSelector, iconClass, countClass) {
-  const card = btnElement.closest(".feed-card, .post-detail-page, #card-container");
+function clearOppositeVote(
+  btnElement,
+  oppositeSelector,
+  iconClass,
+  countClass,
+) {
+  const card = btnElement.closest(
+    ".feed-card, .post-detail-page, #card-container",
+  );
   const oppositeBtn = card && card.querySelector(oppositeSelector);
   if (!oppositeBtn) return;
 
@@ -15,7 +22,10 @@ function clearOppositeVote(btnElement, oppositeSelector, iconClass, countClass) 
     icon.style.color = "";
     icon.classList.remove("fa-solid");
     icon.classList.add("fa-regular");
-    countSpan.textContent = Math.max(0, (parseInt(countSpan.textContent) || 0) - 1);
+    countSpan.textContent = Math.max(
+      0,
+      (parseInt(countSpan.textContent) || 0) - 1,
+    );
   }
 }
 
@@ -53,7 +63,12 @@ async function ToggleLike(postId, likeBtnElement) {
       icon.classList.remove("fa-regular");
       icon.classList.add("fa-solid");
       countSpan.textContent = currentCount + 1;
-      clearOppositeVote(likeBtnElement, ".post-dislike", ".fa-thumbs-down", ".dislike-count");
+      clearOppositeVote(
+        likeBtnElement,
+        ".post-dislike",
+        ".fa-thumbs-down",
+        ".dislike-count",
+      );
     } else if (result.message === "unliked") {
       icon.style.color = "";
       icon.classList.remove("fa-solid");
@@ -103,7 +118,12 @@ async function ToggleDislike(postId, dislikeBtnElement) {
       icon.classList.remove("fa-regular");
       icon.classList.add("fa-solid");
       countSpan.textContent = currentCount + 1;
-      clearOppositeVote(dislikeBtnElement, ".post-like", ".fa-heart", ".like-count");
+      clearOppositeVote(
+        dislikeBtnElement,
+        ".post-like",
+        ".fa-heart",
+        ".like-count",
+      );
     } else if (result.message === "undisliked") {
       icon.style.color = "";
       icon.classList.remove("fa-solid");
@@ -119,7 +139,7 @@ async function ToggleDislike(postId, dislikeBtnElement) {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.ToggleLike = ToggleLike;
   window.ToggleDislike = ToggleDislike;
   window.HandlePostActions = HandlePostActions;
@@ -230,18 +250,25 @@ async function loadPosts() {
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
   const charContainer = document.querySelector(".chat-contaner");
-  charContainer.appendChild( ChatList());
+  charContainer.appendChild(ChatList());
 
   cardContainer.addEventListener("click", HandlePostActions);
 }
 
 export default function FeedPage() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "./assets/styles/card-post.css";
-  document.head.appendChild(link);
+  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+
+  if (styleLink) {
+    console.log(styleLink);
+    styleLink.href = "../../assets/styles/main-style.css";
+  } else {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../../assets/styles/main-style.css";
+    document.head.appendChild(link);
+  }
   loadPosts();
   NavBar();
 
-  return `<main class="feed-layout"><div class="card-container"></div> <div class="chat-contaner"></div></main>`;
+  return `<main class="feed-layout"><div class="nav-container"></div> <div class="card-container"></div> <div class="chat-contaner"></div></main>`;
 }

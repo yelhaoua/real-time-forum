@@ -1,6 +1,18 @@
 import Baner from "./ui/baner.js";
 
 export default function registerForm() {
+  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+
+  if (styleLink) {
+    console.log(styleLink);
+    styleLink.href = "../../assets/styles/register.css";
+  } else {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../../assets/styles/register.css";
+    document.head.appendChild(link);
+  }
+
   document.getElementById("nav-bar").innerHTML = "";
   document.addEventListener("submit", (e) => {
     let nameErr = document.getElementById("name-Err");

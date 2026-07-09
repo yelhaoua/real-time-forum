@@ -8,7 +8,6 @@ function matchRoute(pathname) {
     const pathParts = pathname.split("/");
 
     if (routeParts.length !== pathParts.length) continue;
-
     let params = {};
     let matched = true;
 

@@ -1,16 +1,45 @@
-export default function ChatPage() {
-  let link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "../../assets/styles/chat-page.css";
+import Baner from "./ui/baner.js";
 
-  document.head.appendChild(link);
-  document.addEventListener("click", () => {
-    console.log(document.querySelector(".chat-page-container"));
+export default function ChatPage() {
+  if (!document.querySelector('link[href*="chat-page.css"]')) {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../../assets/styles/chat-page.css";
+    document.head.appendChild(link);
+  }
+
+  document.getElementById("nav-bar").innerHTML = "";
+
+  document.body.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    console.log("dddd", e.target.id);
+
+    if (e.target.id == "send-message-btn") {
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      try {
+        const req = await fetch(`http://localhost:9090/send-message/${id}`, {
+          method: "POST",
+          credentials: "include",
+          body: JSON.stringify(data),
+        });
+        const res = await req.json();
+
+        if (!req.ok) {
+          Baner(res.error, res.message);
+          return;
+        }
+        window.location.reload();
+      } catch (error) {}
+    }
   });
 
-  let chatHestory = [];
+  let chatHistory = [];
 
-  async function getMessages(id) {
+  const urlParts = window.location.href.split("/");
+  const id = urlParts[urlParts.length - 1];
+
+  async function getMessages() {
     try {
       const req = await fetch(`http://localhost:9090/getcahtinfo/${id}`, {
         method: "GET",
@@ -23,83 +52,83 @@ export default function ChatPage() {
         Baner(res.error, res.message);
         return;
       }
-      console.log("hnaaaa", res, req);
-      users = res.data;
 
-      renderchat(chatHestory);
-    } catch (error) {}
+      chatHistory = res.data;
+
+      const messagesBody = document.querySelector(".chat-messages-body");
+      if (messagesBody) {
+        messagesBody.innerHTML = renderChat(chatHistory);
+      }
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    }
   }
 
-  function renderchat() {
-    return ` <div class="chat-messages-body">
-      <!-- Incoming Message -->
-      <div class="message-row incoming">
-        <div class="chat-avatar msg-avatar">
-          <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
-        </div>
-        <div class="message-content">
-          <p>Hey! Are we still meeting up today for the project review?</p>
-          <span class="message-time">10:14 AM</span>
-        </div>
-      </div>
+  function renderChat(history = []) {
+    return history
+      .map((el) => {
+        if (id != el.recipient_id) {
+          return `
+                <div class="message-row incoming">
+                    <div class="chat-avatar msg-avatar">
+                        <img src="../../assets/images/download.jpeg">
+                    </div>
+                    <div class="message-content">
+                        <p>${el.content}</p>
+                        <span class="message-time">${el.creat_time || el.create_time}</span>
+                    </div>
+                </div>
+            `;
+        }
 
-      <!-- Outgoing Message -->
-      <div class="message-row outgoing">
-        <div class="message-content">
-          <p>Hey Alan! Yes, absolutely. I'll be ready in about 15 minutes.</p>
-          <span class="message-time">10:15 AM</span>
-        </div>
-      </div>
-
-      <!-- Incoming Message -->
-      <div class="message-row incoming">
-        <div class="chat-avatar msg-avatar">
-          <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
-        </div>
-        <div class="message-content">
-          <p>Was great meeting up today! Let me know when you push the updates to the repository.</p>
-          <span class="message-time">2 hours ago</span>
-        </div>
-      </div>
-    </div>`;
+        return `
+            <div class="message-row outgoing">
+                <div class="message-content">
+                    <p>${el.content}</p>
+                    <span class="message-time">${el.creat_time || el.create_time}</span>
+                </div>
+            </div>
+        `;
+      })
+      .join("");
   }
+
+  setTimeout(getMessages, 0);
 
   return `
   <div class="chat-page-container">
-
-
-  <main class="main-chat-window">
-    <div class="chat-header">
-      <div class="active-user-info">
-        <div class="chat-avatar">
-          <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
+    <main class="main-chat-window">
+      <div class="chat-header">
+        <div class="active-user-info">
+          <div class="chat-avatar">
+            <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
+          </div>
+          <div class="item-text">
+            <h4>Alan Patterson</h4>
+            <p class="status-text"><span class="status-dot"></span> Online</p>
+          </div>
         </div>
-        <div class="item-text">
-          <h4>Alan Patterson</h4>
-          <p class="status-text"><span class="status-dot"></span> Online</p>
+        <div class="chat-actions">
+          <button class="action-btn"><i class="ri-phone-line"></i></button>
+          <button class="action-btn"><i class="ri-vidicon-line"></i></button>
+          <button class="action-btn"><i class="ri-more-2-fill"></i></button>
         </div>
       </div>
-      <div class="chat-actions">
-        <button class="action-btn"><i class="ri-phone-line"></i></button>
-        <button class="action-btn"><i class="ri-vidicon-line"></i></button>
-        <button class="action-btn"><i class="ri-more-2-fill"></i></button>
+
+      <!-- Messages Container starts empty, gets filled by getMessages() -->
+      <div class="chat-messages-body">
+        <div class="loading-spinner" style="text-align:center; padding: 20px; color: gray;">Loading messages...</div>
       </div>
-    </div>
 
-    <!-- Messages Container -->
-    ${renderchat()}
-
-    <!-- Chat Input Footer -->
-    <div class="chat-input-footer">
-      <form class="chat-input-form" onsubmit="event.preventDefault();">
-        <button type="button" class="input-action-btn"><i class="ri-emotion-line"></i></button>
-        <button type="button" class="input-action-btn"><i class="ri-attachment-line"></i></button>
-        <input type="text" class="message-input" placeholder="Type a message...">
-        <button type="submit" class="send-message-btn"><i class="ri-send-plane-2-fill"></i></button>
-      </form>
-    </div>
-
-  </main>
-  
-</div>  `;
+      <!-- Chat Input Footer -->
+      <div class="chat-input-footer">
+        <form class="chat-input-form"  id="send-message-btn">
+          <button type="button" class="input-action-btn"><i class="ri-emotion-line"></i></button>
+          <button type="button" class="input-action-btn"><i class="ri-attachment-line"></i></button>
+          <input type="text" name="message-content" class="message-input" placeholder="Type a message...">
+          <button type="submit" class="send-message-btn"><i class="ri-send-plane-2-fill"></i></button>
+        </form>
+      </div>
+    </main>
+  </div>`;
 }

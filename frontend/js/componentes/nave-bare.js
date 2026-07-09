@@ -21,10 +21,7 @@ export default async function NavBar() {
       <header class="top-nav">
           <div class="nav-left">
             <div class="logo"><i class="ri-hexagon-fill"></i></div>
-            <div class="search-bar">
-              <i class="ri-search-line"></i>
-              <input type="text" placeholder="Search" />
-            </div>
+            
           </div>
           <nav class="nav-menu">
             <a href="#/" class="nav-item active">
@@ -42,27 +39,18 @@ export default async function NavBar() {
     <header class="top-nav">
         <div class="nav-left">
           <div class="logo"><i class="ri-hexagon-fill"></i></div>
-          <div class="search-bar">
-            <i class="ri-search-line"></i>
-            <input type="text" placeholder="Search" />
-          </div>
         </div>
         <nav class="nav-menu">
           <a href="#" class="nav-item active"
-            ><i class="ri-home-4-line"></i> Homepage</a
+            ><i class="ri-home-4-line"></i> Home Page</a
           >
-          <a href="#" class="nav-item"
-            ><i class="ri-team-line"></i> Connections</a
+          <a href="#/craet-post" class="nav-item"
+            ><i class="ri-team-line"></i> New Post</a
           >
-          <a href="#" class="nav-item"
+          <a href="#/chat-page" class="nav-item"
             ><i class="ri-chat-3-line"></i> Messages</a
           >
-          <a href="#" class="nav-item"
-            ><i class="ri-notification-3-line"></i> Notifications
-            <span class="notification-badge">2</span></a
-          >
-          <a href="#" class="nav-item"><i class="ri-apps-2-line"></i> Tools</a>
-          <button id="logoutBtn" class="nav-action-btn" type="button">Logout</button>
+          
         </nav>
         <div class="user-nav-profile">
           <img
@@ -70,6 +58,7 @@ export default async function NavBar() {
             alt="User"
           />
           <span class="user-nav-name">${res.data}</span>
+          <button id="logoutBtn" class="nav-action-btn" type="button">Logout</button>
         </div>
       </header>
     `;

@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css");
+
 :root {
   --bg: #edeff2;
   --surface: #ffffff;
@@ -28,7 +31,9 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: "Poppins";
 }
+
 html,
 body {
   height: 100%;
@@ -64,6 +69,7 @@ body {
   transform: translateY(14px) scale(0.99);
   animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
 @keyframes rise {
   to {
     opacity: 1;
@@ -82,6 +88,7 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
+
 /* .brand::after {
   content: "";
   position: absolute;
@@ -104,16 +111,19 @@ body {
   position: relative;
   z-index: 2;
 }
+
 .mark {
   width: 34px;
   height: 34px;
   flex: none;
 }
+
 .wordmark {
   font-weight: 800;
   font-size: 19px;
   letter-spacing: -0.02em;
 }
+
 .wordmark span {
   color: var(--blue);
 }
@@ -124,6 +134,7 @@ body {
   margin-top: auto;
   padding-top: 48px;
 }
+
 .eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -132,6 +143,7 @@ body {
   color: var(--blue);
   margin-bottom: 14px;
 }
+
 .brand-body h1 {
   font-size: 30px;
   line-height: 1.18;
@@ -140,6 +152,7 @@ body {
   color: var(--ink);
   max-width: 14ch;
 }
+
 .brand-body p {
   margin-top: 14px;
   color: var(--muted);
@@ -155,6 +168,7 @@ body {
   flex-direction: column;
   justify-content: center;
 }
+
 .form-inner {
   width: 100%;
   max-width: 380px;
@@ -166,16 +180,19 @@ body {
   font-weight: 800;
   letter-spacing: -0.025em;
 }
+
 .subtitle {
   margin-top: 8px;
   color: var(--muted);
   font-size: 14.5px;
 }
+
 .subtitle a {
   color: var(--blue);
   font-weight: 600;
   text-decoration: none;
 }
+
 .subtitle a:hover {
   text-decoration: underline;
 }
@@ -186,6 +203,7 @@ form {
   flex-direction: column;
   gap: 16px;
 }
+
 .field-label {
   font-size: 13px;
   font-weight: 600;
@@ -206,11 +224,13 @@ form {
     background 0.18s ease,
     box-shadow 0.18s ease;
 }
+
 .field:focus-within {
   background: #fff;
   border-color: var(--blue);
   box-shadow: 0 0 0 4px rgba(45, 125, 246, 0.12);
 }
+
 .field .ic {
   position: absolute;
   left: 18px;
@@ -219,9 +239,11 @@ form {
   pointer-events: none;
   transition: color 0.18s ease;
 }
+
 .field:focus-within .ic {
   color: var(--blue);
 }
+
 .field input {
   width: 100%;
   border: 0;
@@ -232,9 +254,11 @@ form {
   padding: 14px 18px 14px 48px;
   border-radius: var(--radius-field);
 }
+
 .field input::placeholder {
   color: var(--faint);
 }
+
 .field .toggle {
   position: absolute;
   right: 8px;
@@ -249,6 +273,7 @@ form {
     color 0.15s ease,
     background 0.15s ease;
 }
+
 .field .toggle:hover {
   color: var(--muted);
   background: rgba(0, 0, 0, 0.04);
@@ -271,14 +296,17 @@ form {
     box-shadow 0.15s ease,
     filter 0.15s ease;
 }
+
 .btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 16px 28px -12px rgba(45, 125, 246, 0.7);
   filter: brightness(1.03);
 }
+
 .btn:active {
   transform: translateY(0);
 }
+
 .btn:focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px rgba(45, 125, 246, 0.3);
@@ -292,6 +320,7 @@ form {
   font-size: 12.5px;
   margin: 22px 0 18px;
 }
+
 .divider::before,
 .divider::after {
   content: "";
@@ -299,6 +328,7 @@ form {
   flex: 1;
   background: var(--line);
 }
+
 div #pass-Err,
 div #name-Err,
 div #email-Err {
@@ -320,19 +350,23 @@ div #email-Err {
   justify-content: space-between;
   gap: 8px;
 }
+
 .foot-links {
   display: flex;
   gap: 16px;
 }
+
 .foot-links a {
   font-size: 12.5px;
   color: var(--faint);
   text-decoration: none;
 }
+
 .foot-links a:hover {
   color: var(--muted);
   text-decoration: underline;
 }
+
 .copy {
   font-size: 12.5px;
   color: var(--faint);
@@ -344,28 +378,35 @@ div #email-Err {
     grid-template-columns: 1fr;
     max-width: 440px;
   }
+
   .brand {
     display: none;
   }
+
   .form-wrap {
     padding: 40px 30px;
   }
 }
+
 @media (max-width: 440px) {
   .container {
     padding: 18px;
   }
+
   body {
     padding: 0;
   }
+
   .form-wrap {
     padding: 34px 24px;
   }
+
   .row {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
+
   .form-inner {
     max-width: 100%;
   }
@@ -377,7 +418,41 @@ div #email-Err {
     opacity: 1;
     transform: none;
   }
+
   * {
     transition: none !important;
+  }
+}
+
+
+#succes-Message {
+  position: fixed;
+  right: 0;
+  bottom: 5%;
+  width: 250px;
+  padding: 16px;
+  background: #dcdcdc;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  box-shadow: -2px 4px 10px rgba(0, 0, 0, 0.1);
+
+  animation: slideInOut 4s ease-in-out forwards;
+}
+
+@keyframes slideInOut {
+  0% {
+    transform: translateX(100%);
+  }
+
+  10% {
+    transform: translateX(0);
+  }
+
+  90% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
   }
 }

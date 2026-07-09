@@ -27,6 +27,7 @@
   flex-direction: column;
   flex: 1;
 }
+
 .input-wrapper textarea {
   min-width: 100%;
   max-width: 100%;
@@ -37,11 +38,13 @@
   display: flex;
   flex: 1;
 }
+
 .input-container {
   width: 100%;
   display: flex;
   flex-direction: column;
 }
+
 .input-wrapper input,
 .input-wrapper textarea {
   flex: 1;
@@ -54,9 +57,11 @@
   outline: none;
   transition: all 0.2s ease;
 }
+
 .input-wrapper textarea {
   margin-top: 8px;
 }
+
 .input-wrapper input:focus,
 .input-wrapper textarea:focus {
   background-color: #ffffff;
@@ -157,6 +162,18 @@
 .create-post-card,
 .comment-form-card {
   display: block;
+}
+
+#user-search-input {
+  flex: 1;
+  background-color: #f7f8fa;
+  border: 1px solid transparent;
+  border-radius: 24px;
+  padding: 12px 45px 12px 20px;
+  font-size: 15px;
+  color: #333;
+  outline: none;
+  transition: all 0.2s ease;
 }
 
 @media (max-width: 768px) {

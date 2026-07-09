@@ -257,12 +257,14 @@ async function loadPosts() {
 
 export default function FeedPage() {
   let styleLink = document.querySelector('link[rel*="stylesheet"]');
+
   if (styleLink) {
-    styleLink.href = "../../assets/styles/feed.css";
+    console.log(styleLink);
+    styleLink.href = "../../assets/styles/main-style.css";
   } else {
-    const link = document.createElement("link");
+    let link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "../../assets/styles/feed.css";
+    link.href = "../../assets/styles/main-style.css";
     document.head.appendChild(link);
   }
   loadPosts();

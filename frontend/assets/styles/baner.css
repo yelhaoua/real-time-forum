@@ -1,0 +1,31 @@
+#succes-Message {
+  position: fixed;
+  right: 0;
+  bottom: 5%;
+  width: 250px;
+  padding: 16px;
+  background: #dcdcdc;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  box-shadow: -2px 4px 10px rgba(0, 0, 0, 0.1);
+
+  animation: slideInOut 4s ease-in-out forwards;
+}
+
+@keyframes slideInOut {
+  0% {
+    transform: translateX(100%);
+  }
+
+  10% {
+    transform: translateX(0);
+  }
+
+  90% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}

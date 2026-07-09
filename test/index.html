@@ -52,7 +52,6 @@
 
       /* --- COMMON CARD STYLES --- */
 
-
       /* --- LEFT SIDEBAR --- */
       .profile-card {
         text-align: center;
@@ -251,7 +250,7 @@
       }
 
       /* --- POST CARD --- */
-      
+
       /* --- RIGHT SIDEBAR (PROFILE MENU) --- */
       .profile-menu-card {
         padding: 20px 0;
@@ -312,173 +311,91 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="dashboard-container">
-      <div class="main-content">
-        <aside class="left-sidebar">
-          <div class="card profile-card">
-            <i class="ri-settings-4-line settings-btn"></i>
-            <img
-              class="avatar-large"
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-              alt="User"
-            />
-            <h3>Erşad Başbağ</h3>
-            <p>Istanbul, Turkey</p>
+    <div class="container register-shell">
+      <main class="card register-card">
+        <section class="brand register-brand">
+          <div class="logo">
+            <span class="wordmark">Zone01<span>Forum</span></span>
           </div>
 
-          <div class="card">
-            <div class="card-title">Your Pages</div>
-            <div class="item-list">
-              <a href="#" class="list-item">
-                <div class="item-info">
-                  <div class="item-icon icon-twitter">
-                    <i class="ri-twitter-fill"></i>
-                  </div>
-                  <div class="item-text">
-                    <h4>Twitter</h4>
-                    <p>Social Media Platform</p>
-                  </div>
+          <div class="brand-body">
+            <div class="eyebrow">Welcome To Your Forum</div>
+            <h1>Where your network gets to work.</h1>
+            <p>
+              Pick up the conversation, manage your pages and projects, and keep
+              your team moving, all in one place.
+            </p>
+          </div>
+        </section>
+
+        <section class="form-wrap register-form-wrap">
+          <div class="form-inner">
+            <h2 class="title">Create your account</h2>
+            <p class="subtitle">
+              Already have an account?
+              <a href="#/login" class="nav-link">Sign in</a>
+            </p>
+
+            <form id="loginForm" novalidate>
+              <div>
+                <label class="field-label" for="name">Full Name</label>
+                <div class="field">
+                  <span class="ic"><i class="fa-regular fa-user"></i></span>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="Joe Deo"
+                    required
+                  />
                 </div>
-                <span class="item-badge">2</span>
-              </a>
-            </div>
-            <a href="#" class="view-all">View All</a>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Your Projects</div>
-            <div class="item-list">
-              <a href="#" class="list-item">
-                <div class="item-info">
-                  <div class="item-icon icon-github">
-                    <i class="ri-github-fill"></i>
-                  </div>
-                  <div class="item-text">
-                    <h4>Github</h4>
-                    <p>Coding Platform</p>
-                  </div>
-                </div>
-                <span class="item-badge">2</span>
-              </a>
-              <a href="#" class="list-item">
-                <div class="item-info">
-                  <div class="item-icon icon-apple">
-                    <i class="ri-apple-fill"></i>
-                  </div>
-                  <div class="item-text">
-                    <h4>Apple</h4>
-                    <p>Business Company</p>
-                  </div>
-                </div>
-                <span class="item-badge">2</span>
-              </a>
-            </div>
-            <a href="#" class="view-all">View All</a>
-          </div>
-
-          <div class="footer-links">
-            <a href="#">Privacy Terms</a> <a href="#">Advertising</a>
-            <a href="#">Cookies</a>
-            <div>Talentswide © 2026</div>
-          </div>
-        </aside>
-
-        <main class="feed-area">
-          <div class="card create-post">
-            <div class="post-input-wrapper">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="User"
-              />
-              <input type="text" placeholder="Share something..." />
-            </div>
-            <div class="post-actions">
-              <div class="action-buttons">
-                <button class="action-btn btn-img">
-                  <i class="ri-image-line"></i> Image
-                </button>
-                <button class="action-btn btn-vid">
-                  <i class="ri-video-chat-line"></i> Video
-                </button>
-                <button class="action-btn btn-att">
-                  <i class="ri-attachment-line"></i> Attachment
-                </button>
-                <button class="action-btn btn-hash">
-                  <i class="ri-hashtag"></i> Hashtag
-                </button>
+                <span id="name-Err"></span>
               </div>
-              <div class="post-privacy">
-                Public <i class="ri-arrow-down-s-line"></i>
-              </div>
-            </div>
-          </div>
 
-          <div class="feed-sort">
-            Sort by: <span>Top <i class="ri-arrow-down-s-line"></i></span>
-          </div>
-
-          
-        </main>
-
-        <aside class="right-sidebar">
-          <div class="card profile-menu-card">
-            <div class="menu-section-title">Profile</div>
-            <ul class="menu-list">
-              <li>
-                <a href="#"><i class="ri-user-line"></i> My Profile</a>
-              </li>
-              <li>
-                <a href="#"
-                  ><i class="ri-user-shared-line"></i> Change Account</a
-                >
-              </li>
-              <li>
-                <a href="#"><i class="ri-settings-3-line"></i> Settings</a>
-              </li>
-              <li>
-                <a href="#"><i class="ri-question-line"></i> Help</a>
-              </li>
-              <li>
-                <a href="#"><i class="ri-feedback-line"></i> Give a feedback</a>
-              </li>
-            </ul>
-
-            <div class="card-title">Your Company</div>
-            <div class="item-list">
-              <div class="list-item">
-                <div class="item-info">
-                  <div class="item-icon icon-twitter">
-                    <i class="ri-twitter-fill"></i>
-                  </div>
-                  <div class="item-text">
-                    <h4>Twitter</h4>
-                    <p>Lorem ipsum dolor</p>
-                  </div>
+              <div>
+                <label class="field-label" for="email">Email address</label>
+                <div class="field">
+                  <span class="ic"
+                    ><i class="fa-regular fa-envelope"></i>
+                  </span>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    autocomplete="email"
+                    required
+                  />
                 </div>
+                <span id="email-Err"></span>
               </div>
-            </div>
-            <a href="#" class="view-all" style="padding: 0 20px">View All</a>
 
-            <div class="card-title" style="margin-top: 20px">Your Projects</div>
-            <div class="item-list">
-              <div class="list-item">
-                <div class="item-info">
-                  <div class="item-icon icon-github">
-                    <i class="ri-github-fill"></i>
-                  </div>
-                  <div class="item-text">
-                    <h4>Twitter</h4>
-                    <p>Lorem ipsum dolor</p>
-                  </div>
+              <div>
+                <label class="field-label" for="password">Password</label>
+                <div class="field">
+                  <span class="ic"> <i class="fa-solid fa-lock"></i></span>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                  />
                 </div>
+                <span id="pass-Err"></span>
               </div>
-            </div>
-            <a href="#" class="view-all" style="padding: 0 20px">View All</a>
 
-            <a href="#" class="sign-out-btn">Sign Out</a>
+              <button class="btn" type="submit">Create account</button>
+            </form>
+            <div class="foot">
+              <div class="copy">Created At Zone01 Oujda © 2021</div>
+            </div>
           </div>
-        </aside>
-      </div>
+        </section>
+      </main>
     </div>
+
+    `;
   </body>
 </html>

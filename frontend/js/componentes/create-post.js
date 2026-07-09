@@ -1,6 +1,12 @@
+import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
 
 export default function CreatePost() {
+  NavBar();
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "../../assets/styles/nav-var.css";
+  document.head.appendChild(link);
   let styleLink = document.querySelector('link[rel*="stylesheet"]');
 
   if (styleLink) {

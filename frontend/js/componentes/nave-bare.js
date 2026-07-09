@@ -5,7 +5,6 @@ export default async function NavBar() {
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = "../../assets/styles/nav-var.css";
-
   document.head.appendChild(link);
 
   try {

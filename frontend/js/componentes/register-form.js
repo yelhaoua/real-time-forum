@@ -1,19 +1,16 @@
+import MainHeaders from "../shared/main-headers.js";
 import Baner from "./ui/baner.js";
 
 export default function registerForm() {
-  let styleLink = document.querySelector('link[rel*="stylesheet"]');
-
-  if (styleLink) {
-    console.log(styleLink);
-    styleLink.href = "../../assets/styles/register.css";
-  } else {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../../assets/styles/register.css";
-    document.head.appendChild(link);
-  }
-
+  // init the header in html
+  MainHeaders();
+  let link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "../../assets/styles/register.css";
+  document.head.appendChild(link);
+  // remove nav bare
   document.getElementById("nav-bar").innerHTML = "";
+
   document.addEventListener("submit", (e) => {
     let nameErr = document.getElementById("name-Err");
     let emailErr = document.getElementById("email-Err");

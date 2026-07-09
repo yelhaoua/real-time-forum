@@ -1,3 +1,4 @@
+import MainHeaders from "../shared/main-headers.js";
 import Baner from "./ui/baner.js";
 
 function validateEmail(input) {
@@ -15,26 +16,16 @@ function validateLogin(input) {
 }
 
 export default function loginforum() {
-  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+  MainHeaders();
 
-  if (styleLink) {
-    console.log(styleLink);
-    styleLink.href = "../../assets/styles/register.css";
-  } else {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../../assets/styles/register.css";
-    document.head.appendChild(link);
-  }
-
-  document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
-  const head = document.querySelector("head");
-  document.getElementById("nav-bar").classList = "hidden";
-
+  const head = document.head;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "./assets/styles/login.css";
+  link.href = "../../assets/styles/login.css";
   head.appendChild(link);
+
+  document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
+  document.getElementById("nav-bar").classList = "hidden";
 
   // document.getElementsByTagName("nav")[0].classList = "hidden";
 

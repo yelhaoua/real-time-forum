@@ -60,7 +60,7 @@ export default function registerForm() {
     }
   });
 
-  return`
+  return `
     <div class="container register-shell">
       <main class="card register-card">
         <section class="brand register-brand">

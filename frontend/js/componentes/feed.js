@@ -1,3 +1,4 @@
+import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
 import ChatList from "./pepole-list.js";
 import Baner from "./ui/baner.js";
@@ -256,19 +257,20 @@ async function loadPosts() {
 }
 
 export default function FeedPage() {
-  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+  MainHeaders();
+  let link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "../../assets/styles/main-style.css";
+  document.head.appendChild(link);
 
-  if (styleLink) {
-    console.log(styleLink);
-    styleLink.href = "../../assets/styles/main-style.css";
-  } else {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../../assets/styles/main-style.css";
-    document.head.appendChild(link);
-  }
-  loadPosts();
   NavBar();
+  loadPosts();
 
-  return `<main class="feed-layout"><div class="nav-container"></div> <div class="card-container"></div> <div class="chat-contaner"></div></main>`;
+  return `
+    <main class="feed-layout">
+      <div class="nav-container"></div>
+      <div class="card-container"></div>
+      <div class="chat-contaner"></div>
+    </main>
+  `;
 }

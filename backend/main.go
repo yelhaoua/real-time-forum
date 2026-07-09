@@ -5,8 +5,13 @@ import (
 	"net/http"
 
 	"real-time-forum/config"
+	handler "real-time-forum/handlers"
 	"real-time-forum/routes"
 )
+
+func init() {
+	go handler.HandleMessages()
+}
 
 func main() {
 	mux := routes.Routes()

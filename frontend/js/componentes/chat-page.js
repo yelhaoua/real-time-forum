@@ -10,34 +10,75 @@ export default function ChatPage() {
 
   document.getElementById("nav-bar").innerHTML = "";
 
-  document.body.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    console.log("dddd", e.target.id);
-
-    if (e.target.id == "messageform") {
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-      try {
-        const req = await fetch(`http://localhost:9090/send-message/${id}`, {
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify(data),
-        });
-        const res = await req.json();
-
-        if (!req.ok) {
-          Baner(res.error, res.message);
-          return;
-        }
-        window.location.reload();
-      } catch (error) {}
-    }
-  });
+  const urlParts = window.location.href.split("/");
+  const id = urlParts[urlParts.length - 1];
 
   let chatHistory = [];
 
-  const urlParts = window.location.href.split("/");
-  const id = urlParts[urlParts.length - 1];
+  const ws = new WebSocket(`ws://localhost:9090/send-message/${id}`);
+
+  ws.onopen = () => {
+    console.log("WebSocket connected to Go server securely.");
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      console.log(event.data);
+
+      const incomingMsg = JSON.parse(event.data);
+
+      chatHistory.push(incomingMsg);
+    } catch (e) {
+      chatHistory.push({
+        content: event.data,
+        sender_id: null,
+        create_time: new Date().toLocaleTimeString(),
+      });
+    }
+
+    updateChatDOM();
+  };
+
+  ws.onerror = (error) => {
+    console.error("WebSocket Error Details:", error);
+  };
+
+  ws.onclose = () => {
+    console.log("Persistent connection with Go server dropped.");
+  };
+
+  document.body.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (e.target.id === "messageform") {
+      const inputElement = e.target.querySelector(
+        'input[name="message-content"]',
+      );
+      const messageText = inputElement.value.trim();
+
+      if (!messageText) return;
+
+      const payload = {
+        content: messageText,
+        recipient_id: Number(id),
+      };
+
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(payload));
+
+        chatHistory.push({
+          content: messageText,
+          recipient_id: null,
+          create_time: new Date().toLocaleTimeString(),
+        });
+
+        updateChatDOM();
+        inputElement.value = "";
+      } else {
+        Baner("Connection Error", "WebSocket connection is closed. Try again.");
+      }
+    }
+  });
 
   async function getMessages() {
     try {
@@ -53,25 +94,28 @@ export default function ChatPage() {
         return;
       }
 
-      chatHistory = res.data;
-
-      const messagesBody = document.querySelector(".chat-messages-body");
-      if (messagesBody) {
-        messagesBody.innerHTML = renderChat(chatHistory);
-        messagesBody.scrollTo({
-          top: messagesBody.scrollHeight,
-  
-        });
-      }
+      chatHistory = res.data || [];
+      updateChatDOM();
     } catch (error) {
       console.error("Failed to fetch messages:", error);
+    }
+  }
+
+  function updateChatDOM() {
+    const messagesBody = document.querySelector(".chat-messages-body");
+    if (messagesBody) {
+      messagesBody.innerHTML = renderChat(chatHistory);
+      messagesBody.scrollTo({
+        top: messagesBody.scrollHeight,
+        behavior: "smooth",
+      });
     }
   }
 
   function renderChat(history = []) {
     return history
       .map((el) => {
-        if (id != el.recipient_id) {
+        if (id == el.sender_id) {
           return `
                 <div class="message-row incoming">
                     <div class="chat-avatar msg-avatar">
@@ -79,7 +123,7 @@ export default function ChatPage() {
                     </div>
                     <div class="message-content">
                         <p>${el.content}</p>
-                        <span class="message-time">${el.creat_time || el.create_time}</span>
+                        <span class="message-time">${el.creat_time || el.create_time || ""}</span>
                     </div>
                 </div>
             `;
@@ -89,14 +133,13 @@ export default function ChatPage() {
             <div class="message-row outgoing">
                 <div class="message-content">
                     <p>${el.content}</p>
-                    <span class="message-time">${el.creat_time || el.create_time}</span>
+                    <span class="message-time">${el.creat_time || el.create_time || ""}</span>
                 </div>
             </div>
         `;
       })
       .join("");
   }
-
   setTimeout(getMessages, 0);
 
   return `
@@ -105,13 +148,12 @@ export default function ChatPage() {
       
       <div class="chat-header">
         <div class="active-user-info">
-          <!-- Back Home Arrow Button -->
           <a href="#/" class="back-home-btn" title="Back to Home">
            <i class="fa-solid fa-angle-left"></i>
           </a>
           
           <div class="chat-avatar">
-            <img src="../../assets/images/download.jpeg" alt="Alan Patterson">
+            <img src="../../assets/images/download.jpeg" alt="Avatar">
           </div>
           <div class="item-text">
             <h4>Alan Patterson</h4>
@@ -132,7 +174,7 @@ export default function ChatPage() {
 
       <div class="chat-input-footer">
         <form class="chat-input-form" id="messageform">
-          <input type="text" name="message-content" class="message-input" placeholder="Type a message...">
+          <input type="text" name="message-content" class="message-input" placeholder="Type a message..." autocomplete="off">
           <button type="submit" class="send-message-btn"><i class="fa-regular fa-paper-plane"></i></button>
         </form>
       </div>

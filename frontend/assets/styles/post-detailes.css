@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css");
+
+* {
+    font-family: "Poppins";
+}
+
+.post-detail-page {
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+    padding: 32px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+.post-detail-page .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin-bottom: 24px;
+}
+
+.post-detail-page .post-content {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 24px;
+}
+
+.post-detail-page .post-image {
+    max-height: 400px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    object-fit: cover;
+}
+
+.post-detail-page .post-footer {
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+}
+
+.post-detail-page .chat-input-form {
+    max-width: 100%;
+    background-color: var(--field);
+    border: 1px solid var(--line);
+    margin-bottom: 28px;
+}
+
+.post-detail-page .comment-text-box {
+    background-color: transparent;
+    border: none;
+    padding: 8px 0;
+}
+
+.post-detail-page .comment-text-box:focus {
+    background-color: transparent;
+}
+
+.post-detail-page #commentsBox {
+    border-top: 1px solid var(--line-soft);
+    padding-top: 20px;
+    gap: 20px;
+}
+
+.post-detail-page .single-comment {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.post-detail-page .single-comment:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .post-detail-page {
+        padding: 20px;
+        border-radius: 18px;
+    }
+
+    .post-detail-page .post-content {
+        font-size: 15px;
+    }
+}

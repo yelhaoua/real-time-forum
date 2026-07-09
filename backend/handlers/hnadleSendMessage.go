@@ -9,7 +9,7 @@ import (
 	"real-time-forum/utils"
 )
 
-func HnadleSendMessage(w http.ResponseWriter, r *http.Request) {
+func HnadlGetMessage(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
 
 	if r.Method == http.MethodOptions {
@@ -68,6 +68,7 @@ func HnadleSendMessage(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
-		Message: "message send",
+		Message: "internal server error",
+		Error:   "server_error",
 	})
 }

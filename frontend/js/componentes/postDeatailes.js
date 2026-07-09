@@ -5,6 +5,19 @@ import CardPost from "./ui/card-post.js";
 import CommentsBox from "./ui/commentsBox.js";
 
 export default function PostDetailes() {
+  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+
+  if (styleLink) {
+    console.log(styleLink);
+    styleLink.href = "../../assets/styles/main-style.css";
+  } else {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../../assets/styles/main-style.css";
+    document.head.appendChild(link);
+  }
+
+  document;
   let link = window.location.href;
   link = link.split("/");
   const postId = link[link.length - 1];
@@ -29,11 +42,10 @@ export default function PostDetailes() {
         container.classList.add("post-detail-page");
         container.appendChild(CardPost(postInfo.data));
         container.appendChild(CommentForm(postInfo.data.post_id));
-        CommentsBox()
+        CommentsBox();
         let comentesElemente = document.querySelector(".post-comments");
         container.addEventListener("click", window.HandlePostActions);
-        getCommetes(postId)
-
+        getCommetes(postId);
       } else {
         document.getElementById("card-container").innerHTML = `any post found`;
       }

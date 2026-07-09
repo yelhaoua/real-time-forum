@@ -1,10 +1,18 @@
 import Baner from "./ui/baner.js";
 
 export default function CreatePost() {
-  let styleLink = document.createElement("link");
-  styleLink.rel = "stylesheet";
-  styleLink.href = "../../assets/styles/creat-post-style.css";
-  document.head.appendChild(styleLink);
+  let styleLink = document.querySelector('link[rel*="stylesheet"]');
+
+  if (styleLink) {
+    console.log(styleLink);
+    styleLink.href = "../../assets/styles/creat-post-style.css";
+  } else {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+
+    link.href = "../../assets/styles/creat-post-style.css";
+    document.head.appendChild(link);
+  }
 
   document.body.addEventListener("submit", async (e) => {
     if (e.target.id === "creat-post-form") {

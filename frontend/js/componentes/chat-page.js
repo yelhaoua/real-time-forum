@@ -24,10 +24,7 @@ export default function ChatPage() {
 
   ws.onmessage = (event) => {
     try {
-      console.log(event.data);
-
       const incomingMsg = JSON.parse(event.data);
-
       chatHistory.push(incomingMsg);
     } catch (e) {
       chatHistory.push({
@@ -67,13 +64,9 @@ export default function ChatPage() {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(payload));
 
-        chatHistory.push({
-          content: messageText,
-          recipient_id: null,
-          create_time: new Date().toLocaleTimeString(),
-        });
+        
 
-        updateChatDOM();
+      
         inputElement.value = "";
       } else {
         Baner("Connection Error", "WebSocket connection is closed. Try again.");

@@ -77,7 +77,6 @@ func HnadleSendMessage(w http.ResponseWriter, r *http.Request) {
 
 func HandleMessages() {
 	for {
-		fmt.Println(":ssds")
 		msg := <-broadcast
 
 		query := `INSERT INTO direct_messages (sender_id, recipient_id, content ,timestamp) VALUES (?, ?, ? ,?)`

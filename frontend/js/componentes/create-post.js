@@ -43,7 +43,7 @@ export default function CreatePost() {
           Baner(res.error, res.message);
           return;
         }
-        Baner(res.error, res.message);
+        Baner(res.message);
       } catch (error) {
         console.log(error);
 

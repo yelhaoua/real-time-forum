@@ -1,6 +1,6 @@
 import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
-import ChatList from "./pepole-list.js";
+
 import Baner from "./ui/baner.js";
 
 function clearOppositeVote(
@@ -251,7 +251,7 @@ async function loadPosts() {
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
   const charContainer = document.querySelector(".chat-contaner");
-  charContainer.appendChild(ChatList());
+
 
   cardContainer.addEventListener("click", HandlePostActions);
 }
@@ -268,9 +268,7 @@ export default function FeedPage() {
 
   return `
     <main class="feed-layout">
-      <div class="nav-container"></div>
       <div class="card-container"></div>
-      <div class="chat-contaner"></div>
     </main>
   `;
 }

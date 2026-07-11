@@ -52,8 +52,6 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(250px, 280px) 1fr minmax(300px, 340px);
   padding: 24px 16px 48px;
   align-items: start;
 }

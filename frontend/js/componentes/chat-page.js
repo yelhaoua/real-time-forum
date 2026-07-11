@@ -1,12 +1,13 @@
+import MainHeaders from "../shared/main-headers.js";
 import Baner from "./ui/baner.js";
 
 export default function ChatPage() {
-  if (!document.querySelector('link[href*="chat-page.css"]')) {
-    let link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../../assets/styles/chat-page.css";
-    document.head.appendChild(link);
-  }
+  MainHeaders();
+
+  let link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "../../assets/styles/chat-page.css";
+  document.head.appendChild(link);
 
   document.getElementById("nav-bar").innerHTML = "";
 
@@ -91,10 +92,11 @@ export default function ChatPage() {
 
       if (!req.ok) {
         Baner(res.error, res.message);
+        setTimeout(() => (window.location.href = "/"), 1000);
         return;
       }
-
       chatHistory = res.data || [];
+      console.log(chatHistory, "1");
       updateChatDOM();
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -102,6 +104,8 @@ export default function ChatPage() {
   }
 
   function updateChatDOM() {
+    const username = document.querySelector(".user-name");
+    username.innerHTML = chatHistory[0].recipient_name;
     const messagesBody = document.querySelector(".chat-messages-body");
     if (messagesBody) {
       messagesBody.innerHTML = renderChat(chatHistory);
@@ -156,7 +160,7 @@ export default function ChatPage() {
             <img src="../../assets/images/download.jpeg" alt="Avatar">
           </div>
           <div class="item-text">
-            <h4>Alan Patterson</h4>
+            <h4 class="user-name"></h4>
             <p class="status-text"><span class="status-dot"></span> Online</p>
           </div>
         </div>

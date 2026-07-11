@@ -47,6 +47,15 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("data", data)
+	if data == "" {
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: true,
+			Data:    []string{},
+		})
+		return
+	}
+
 	query := `SELECT id , username , profile_image FROM users WHERE username LIKE ?`
 
 	rows, err := config.Conn.Query(query, "%"+data+"%")

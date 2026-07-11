@@ -51,6 +51,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		LikeCount    int    `json:"like_count"`
 		DislikeCount int    `json:"dislike_count"`
 		Isliked      int    `json:"is_liked"`
+		IsDisliked   int    `json:"is_disliked"`
 		CommentCount int    `json:"comment_count"`
 	}
 	postID, err := strconv.Atoi(r.PathValue("id"))
@@ -97,15 +98,21 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	query = `	
-	SELECT EXISTS (
-    SELECT 1 
-    FROM votes 
-    WHERE user_id = ? AND post_id = ?
-	) AS has_liked;
- 
+	SELECT 
+  (SELECT EXISTS (
+      SELECT 1 
+      FROM votes 
+      WHERE user_id = ? AND post_id = ? AND vote_value = 1
+  )) AS has_liked,
+  
+  (SELECT EXISTS (
+      SELECT 1 
+      FROM votes 
+      WHERE user_id = ? AND post_id = ? AND vote_value = -1
+  )) AS has_disliked 
 `
-	res = config.Conn.QueryRow(query, userId, postID)
-	err = res.Scan(&post.Isliked)
+	res = config.Conn.QueryRow(query, userId, postID, userId, postID)
+	err = res.Scan(&post.Isliked, &post.IsDisliked)
 	if err != nil {
 		fmt.Println("err", err)
 		w.WriteHeader(http.StatusInternalServerError)

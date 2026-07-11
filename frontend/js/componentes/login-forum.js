@@ -1,3 +1,4 @@
+import CheckSession from "../shared/checkSession.js";
 import MainHeaders from "../shared/main-headers.js";
 import Baner from "./ui/baner.js";
 
@@ -17,6 +18,7 @@ function validateLogin(input) {
 
 export default function loginforum() {
   MainHeaders();
+  CheckSession();
 
   const head = document.head;
   const link = document.createElement("link");
@@ -26,8 +28,6 @@ export default function loginforum() {
 
   document.getElementsByTagName("title")[0].innerHTML = "01Forum | Login";
   document.getElementById("nav-bar").classList = "hidden";
-
-  // document.getElementsByTagName("nav")[0].classList = "hidden";
 
   document.addEventListener("submit", async (e) => {
     if (e.target.id == "LoginForm") {

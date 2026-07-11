@@ -1,3 +1,4 @@
+import CheckSession from "../shared/checkSession.js";
 import MainHeaders from "../shared/main-headers.js";
 import Baner from "./ui/baner.js";
 
@@ -9,7 +10,8 @@ export default function registerForm() {
   link.href = "../../assets/styles/register.css";
   document.head.appendChild(link);
 
-  // remove nav bare
+  CheckSession();
+
   document.getElementById("nav-bar").innerHTML = "";
 
   document.addEventListener("submit", (e) => {
@@ -31,19 +33,22 @@ export default function registerForm() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
+            credentials: "include",
           });
 
+          const res = await response.json();
           if (!response.ok) {
-            const res = await response.json();
             console.log(res);
-
+            if (res.data.message == "login") {
+              window.location.href = "/";
+              return;
+            }
             if (res.data) {
               nameErr.innerHTML = res.data.Name;
               emailErr.innerHTML = res.data.Email;
               passErr.innerHTML = res.data.Password;
             }
           } else {
-            const res = await response.json();
             Baner(res.error, res.message);
             e.target.reset();
 

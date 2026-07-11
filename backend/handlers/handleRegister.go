@@ -31,6 +31,16 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err := utils.CheckSession(w, r)
+	if err == nil {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "login",
+		})
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		json.NewEncoder(w).Encode(utils.ResponseApi{

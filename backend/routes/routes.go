@@ -16,14 +16,13 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/craet-post", handler.HnadleCreatPost)
 	mux.HandleFunc("/post/{id}", handler.HnadlePostDetailes)
 	mux.HandleFunc("/posts", handler.FeedHanlder)
-
 	mux.HandleFunc("/comment/{id}", handler.HnadleComments)
 	mux.HandleFunc("/creat-commente/{postId}", handler.HnadleAddComments)
 	mux.HandleFunc("/getinfo", handler.HnadleGetInfo)
 	mux.HandleFunc("/getuser", handler.HnadleGetUser)
 	mux.HandleFunc("/getcahtinfo/{id}", handler.HnadleGetChatInfo)
 	mux.HandleFunc("/send-message/{id}", handler.HnadleSendMessage)
-	// mux.HandleFunc("/sendmsg", handler.HandleSendMessage)
+	mux.HandleFunc("/checksession", handler.HnadleCheakSession)
 
 	return mux
 }

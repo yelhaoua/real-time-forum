@@ -1,6 +1,6 @@
 import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
-import ChatList from "./pepole-list.js";
+
 import Baner from "./ui/baner.js";
 
 function clearOppositeVote(
@@ -115,7 +115,7 @@ async function ToggleDislike(postId, dislikeBtnElement) {
     }
 
     if (result.message === "disliked") {
-      icon.style.color = "var(--primary)";
+      icon.style.color = "var(--accent-red)";
       icon.classList.remove("fa-regular");
       icon.classList.add("fa-solid");
       countSpan.textContent = currentCount + 1;
@@ -133,7 +133,7 @@ async function ToggleDislike(postId, dislikeBtnElement) {
     }
   } catch (error) {
     Baner("request_error", "Unable to update dislike state right now");
-    icon.style.color = isCurrentlyDisliked ? "var(--primary)" : "";
+    icon.style.color = isCurrentlyDisliked ? "var(--accent-red)" : "";
     icon.classList.toggle("fa-solid", isCurrentlyDisliked);
     icon.classList.toggle("fa-regular", !isCurrentlyDisliked);
     countSpan.textContent = currentCount;
@@ -235,7 +235,7 @@ async function loadPosts() {
 
                 <span class="post-dislike" data-id="${post.id}">
                   <i class="${post.is_dislike ? "fa-solid" : "fa-regular"} fa-thumbs-down"
-                    style="${post.is_dislike ? "color: var(--primary);" : ""}"></i>
+                    style="${post.is_dislike ? "color: var(--accent-red);" : ""}"></i>
                   <span class="dislike-count">${post.dislike_count}</span>
                 </span>
 
@@ -251,7 +251,7 @@ async function loadPosts() {
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
   const charContainer = document.querySelector(".chat-contaner");
-  charContainer.appendChild(ChatList());
+
 
   cardContainer.addEventListener("click", HandlePostActions);
 }
@@ -268,9 +268,7 @@ export default function FeedPage() {
 
   return `
     <main class="feed-layout">
-      <div class="nav-container"></div>
       <div class="card-container"></div>
-      <div class="chat-contaner"></div>
     </main>
   `;
 }

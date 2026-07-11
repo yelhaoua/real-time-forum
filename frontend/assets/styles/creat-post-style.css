@@ -235,3 +235,15 @@
     width: 100%;
   }
 }
+
+
+.title-err,
+.desc-err,
+.img-err {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f0353d;
+  margin-bottom: 8px;
+  display: block;
+}

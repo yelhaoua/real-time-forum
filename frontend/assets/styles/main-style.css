@@ -52,8 +52,6 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(250px, 280px) 1fr minmax(300px, 340px);
   padding: 24px 16px 48px;
   align-items: start;
 }
@@ -272,7 +270,17 @@ body {
   color: var(--blue);
 }
 
+
+
 #commentsBox {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.comment-form-wrap {
+  width: 100%;
   margin-top: 10px;
   display: flex;
   flex-direction: column;

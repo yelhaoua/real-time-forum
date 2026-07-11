@@ -47,10 +47,12 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	var postErrors struct {
 		TitleError string `json:"title_error"`
 		DescErr    string `json:"desc_error"`
+		ImgErr     string `json:"image_error"`
 	}
 
 	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
+
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
@@ -62,14 +64,14 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	postTitle := r.FormValue("posttitle")
 	postDesc := r.FormValue("postdesc")
 	hassErr := false
-	if len(postTitle) > 100 {
+	if len(postTitle) > 50 || len(postTitle) < 3 {
 		hassErr = true
-		postErrors.TitleError = "you title is too long"
+		postErrors.TitleError = "your title must have betwen 3 and 50 char"
 	}
 
-	if len(postDesc) > 500 {
+	if len(postDesc) > 500 || len(postDesc) < 10 {
 		hassErr = true
-		postErrors.DescErr = "you description is too long"
+		postErrors.DescErr = "your description must have betwen 10 and 500 char"
 	}
 
 	if hassErr {
@@ -83,11 +85,12 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 
 	file, handler, err := r.FormFile("postimage")
 	if err != nil {
+		fmt.Println("err" ,err)
+		postErrors.ImgErr = "enter image pleas"
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "no image found",
-			Error:   "form-error",
+			Data:    postErrors,
 		})
 		return
 	}

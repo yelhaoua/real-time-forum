@@ -1,9 +1,17 @@
-/* Chat Item Row Layout */
 .chat-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
+  background-color: var(--field);
+  border-radius: 12px;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
+}
+
+.chat-item:hover {
+  background-color: var(--line-soft);
+  cursor: pointer;
 }
 
 .chat-item .item-info {
@@ -12,7 +20,15 @@
   gap: 12px;
 }
 
-/* Rounded Avatar Specs */
+.item-list {
+  display: flex;
+  position: absolute;
+  width: 100vw;
+  background-color: var(--surface);
+  left: 0;
+  padding: 30px;
+}
+
 .chat-avatar {
   width: 40px;
   height: 40px;
@@ -20,45 +36,96 @@
 }
 
 .chat-avatar img {
-  border-radius: 50%;
+  border-radius: var(--radius-field);
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Typography styles */
 .chat-item .item-text h4 {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #333;
+  color: var(--ink);
 }
 
 .chat-item .item-text p {
   margin: 2px 0 0;
   font-size: 12px;
-  color: #777;
+  color: var(--muted);
 }
 
-/* Red Counter Badge */
 .chat-badge {
-  background: #e74c3c;
-  color: #fff;
-  border-radius: 50%;
+  background: var(--red);
+  color: var(--surface);
+  border-radius: var(--radius-field);
   width: 18px;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-/* Footer Link */
 .chat-view-all {
   padding-top: 10px;
   display: block;
   font-size: 13px;
-  color: #3498db;
+  color: var(--blue);
   text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.chat-view-all:hover {
+  color: var(--blue-deep);
+  text-decoration: underline;
+}
+
+.people-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  background-color: var(--surface);
+}
+
+.people-header .header-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.people-header .close-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-field);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.people-header .close-btn:hover {
+  background-color: var(--field);
+  color: var(--ink);
+}
+
+.people-header .close-btn:active {
+  background-color: var(--line-soft);
+  transform: scale(0.98);
+}
+
+.people-header .close-btn .icon {
+  font-size: 11px;
 }

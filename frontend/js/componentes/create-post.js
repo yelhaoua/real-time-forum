@@ -12,6 +12,12 @@ export default function CreatePost() {
   document.head.appendChild(link);
 
   document.body.addEventListener("submit", async (e) => {
+    let title_err = document.querySelector(".title-err");
+    let desc_err = document.querySelector(".desc-err");
+    let img_err = document.querySelector(".img-err");
+    title_err.innerHTML = "";
+    desc_err.innerHTML = "";
+    img_err.innerHTML = "";
     if (e.target.id === "creat-post-form") {
       e.preventDefault();
       let formData = new FormData(e.target);
@@ -26,22 +32,22 @@ export default function CreatePost() {
         const res = await req.json();
 
         if (!req.ok) {
+          console.log(res);
+
+          if (res.data.title_error || res.data.desc_error || res.data) {
+            title_err.innerHTML = res.data.title_error;
+            desc_err.innerHTML = res.data.desc_error;
+            img_err.innerHTML = res.data.image_error;
+            return;
+          }
           Baner(res.error, res.message);
           return;
         }
-
         Baner(res.error, res.message);
       } catch (error) {
-        let baner = document.getElementById("succes-Message");
-        if (baner) {
-          baner.remove();
-        }
-        document.body.appendChild(
-          Baner(
-            "server errore",
-            "backend server ius down pleas try agin layter",
-          ),
-        );
+        console.log(error);
+
+        Baner("server errore", "backend server ius down pleas try agin layter");
       }
     }
   });
@@ -60,9 +66,11 @@ export default function CreatePost() {
                 <i class="fa-regular fa-face-smile"></i>
               </button>
             </div>
+            <div class="title-err"></div>
             <div class="input-wrapper">
               <textarea name="postdesc"  placeholder="New Post Description"></textarea>
             </div>
+            <div class="desc-err"><div>
           </div>
         </div>
 
@@ -80,11 +88,13 @@ export default function CreatePost() {
               style="display: none"
             />
           </label>
+          
 
           <button class="action-btn mention-btn" type="submit">
             <i class="fa-regular fa-paper-plane"></i>
           </button>
         </div>
+        <div class="img-err"></div>
     </form>
     `;
 }

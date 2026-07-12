@@ -63,7 +63,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = config.Conn.QueryRow(
-		"SELECT id, password FROM users WHERE username = ? OR email = ?",
+		"SELECT id, password FROM users WHERE nick_name = ? OR email = ?",
 		user.Email,
 		user.Email,
 	).Scan(&UserID, &UserPass)

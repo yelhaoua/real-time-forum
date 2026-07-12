@@ -196,7 +196,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
             posts.content,
             posts.image_url,
             posts.created_at,
-            users.username,
+            users.nick_name,
             EXISTS (
                 SELECT 1 FROM votes
                 WHERE post_id = posts.id

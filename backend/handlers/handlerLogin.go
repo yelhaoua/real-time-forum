@@ -36,8 +36,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user struct {
-		Email string `json:"email"`
-		Pass  string `json:"pass"`
+		Email    string `json:"email"`
+		Username string `json:"username"`
+		Pass     string `json:"pass"`
 	}
 
 	fmt.Println("POST received")
@@ -52,7 +53,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	if user.Email == "" || user.Pass == "" {
+	// Determine identifier (email or username)
+	identifier := user.Email
+	if identifier == "" {
+		identifier = user.Username
+	}
+	if identifier == "" || user.Pass == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
@@ -64,8 +70,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = config.Conn.QueryRow(
 		"SELECT id, password FROM users WHERE nick_name = ? OR email = ?",
-		user.Email,
-		user.Email,
+		identifier,
+		identifier,
 	).Scan(&UserID, &UserPass)
 	if err != nil {
 

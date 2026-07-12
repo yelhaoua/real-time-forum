@@ -43,7 +43,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	var post struct {
 		Postid       int    `json:"post_id"`
 		Userid       int    `json:"user_id"`
-		UserName     string `json:"user_name"`
+		NickName     string `json:"user_name"`
 		Title        string `json:"title"`
 		Content      string `json:"content"`
 		Imageurl     string `json:"image_url"`
@@ -123,9 +123,9 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	query = `SELECT username FROM users WHERE id = ?`
+	query = `SELECT nick_name FROM users WHERE id = ?`
 	res = config.Conn.QueryRow(query, userId)
-	err = res.Scan(&post.UserName)
+	err = res.Scan(&post.NickName)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

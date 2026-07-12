@@ -56,7 +56,7 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `SELECT id , username , profile_image FROM users WHERE username LIKE ?`
+	query := `SELECT id ,  nick_name , profile_image FROM users WHERE  nick_name LIKE ?`
 
 	rows, err := config.Conn.Query(query, "%"+data+"%")
 	if err != nil {

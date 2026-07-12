@@ -74,9 +74,9 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 	query := `
 	SELECT
 	dm.sender_id,
-    sender.username AS sender_name,
+    sender.nick_name AS sender_name,
 	dm.recipient_id,
-    recipient.username AS recipient_name,
+    recipient.nick_name AS recipient_name,
     dm.content,
     dm.timestamp
 	FROM direct_messages dm
@@ -102,6 +102,7 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var allMessages []chatInfo
+
 	for res.Next() {
 		var message chatInfo
 		err = res.Scan(&message.Sender_id, &message.Sender_name, &message.Recipient_id, &message.Recipient_name, &message.Content, &message.Creat_time)
@@ -118,8 +119,21 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		allMessages = append(allMessages, message)
 	}
 
+	var resc_user_name string
+	query = `SELECT nick_name from users  WHERE id = ?`
+	err = config.Conn.QueryRow(query, ChatID).Scan(&resc_user_name)
+	if err != nil {
+		fmt.Println("err", err)
+	}
+	var finleres struct {
+		AllMessages    []chatInfo
+		Resc_user_name string
+	}
+	finleres.AllMessages = allMessages
+	finleres.Resc_user_name = resc_user_name
+
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
-		Data:    allMessages,
+		Data:    finleres,
 	})
 }

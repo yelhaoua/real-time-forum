@@ -37,7 +37,7 @@ func HnadleGetInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	var user_name string
 
-	query := `SELECT users.username FROM users WHERE id = ?`
+	query := `SELECT users.nick_name FROM users WHERE id = ?`
 
 	err = config.Conn.QueryRow(query, userID).Scan(&user_name)
 	if err != nil {

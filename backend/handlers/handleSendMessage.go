@@ -34,7 +34,7 @@ var (
 	mu        sync.Mutex
 )
 
-func HnadleSendMessage(w http.ResponseWriter, r *http.Request) {
+func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
 	userId, err := utils.CheckSession(w, r)
 	if err != nil {
@@ -73,6 +73,33 @@ func HnadleSendMessage(w http.ResponseWriter, r *http.Request) {
 		broadcast <- messages
 
 	}
+}
+
+func GetMessages(w http.ResponseWriter, r *http.Request) {
+	utils.EnableCors(w)
+	userId, err := utils.CheckSession(w, r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "bad request", Error: "request_error"})
+		return
+	}
+	rows, err := config.Conn.Query("SELECT sender_id, recipient_id, content, timestamp FROM direct_messages WHERE recipient_id = ? OR sender_id = ? ORDER BY timestamp ASC", userId, userId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
+		return
+	}
+	defer rows.Close()
+	
+	var msgs []utils.Message
+	for rows.Next() {
+		var m utils.Message
+		if err := rows.Scan(&m.SenderID, &m.RecipientID, &m.Content, &m.Timestamp); err != nil {
+			continue
+		}
+		msgs = append(msgs, m)
+	}
+	json.NewEncoder(w).Encode(utils.ResponseApi{Success: true, Data: msgs})
 }
 
 func HandleMessages() {

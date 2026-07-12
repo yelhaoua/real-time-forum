@@ -1,5 +1,7 @@
 package utils
 
+import "time"
+
 type ResponseApi struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
@@ -45,4 +47,11 @@ type FeedStruct struct {
 type Actions struct {
 	Actions string `json:"action"`
 	ID      int    `json:"id"`
+}
+
+type Message struct {
+	SenderID    int       `json:"sender_id"`
+	RecipientID int       `json:"recipient_id"`
+	Content     string    `json:"content"`
+	Timestamp   time.Time `json:"timestamp"`
 }

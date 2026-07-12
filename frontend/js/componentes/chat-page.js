@@ -16,7 +16,7 @@ export default function ChatPage() {
 
   let chatHistory = [];
 
-  const ws = new WebSocket(`ws://localhost:9090/send-message/${id}`);
+  const ws = new WebSocket(`ws://localhost:9090/ws`);
 
   ws.onopen = () => {
     console.log("WebSocket connected to Go server securely.");

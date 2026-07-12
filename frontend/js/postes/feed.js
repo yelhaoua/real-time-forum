@@ -1,7 +1,7 @@
+import NavBar from "../componentes/nave-bare.js";
+import Baner from "../componentes/ui/baner.js";
 import MainHeaders from "../shared/main-headers.js";
-import NavBar from "./nave-bare.js";
 
-import Baner from "./ui/baner.js";
 
 function clearOppositeVote(
   btnElement,

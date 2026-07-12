@@ -1,7 +1,7 @@
-import Baner from "../componentes/ui/baner.js";
-import CheckSession from "../shared/checkSession.js";
-import MainHeaders from "../shared/main-headers.js";
-import RegisterAction from "./actions/register-action.js";
+import Baner from "../ui/baner.js";
+import CheckSession from "../../shared/checkSession.js";
+import MainHeaders from "../../shared/main-headers.js";
+import RegisterAction from "../auth/actions/register-action.js";
 
 export default function RegisterForm() {
   // init the header in html

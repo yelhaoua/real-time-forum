@@ -1,7 +1,8 @@
-import Baner from "../componentes/ui/baner.js";
-import CheckSession from "../shared/checkSession.js";
-import MainHeaders from "../shared/main-headers.js";
+import CheckSession from "../../shared/checkSession.js";
+import MainHeaders from "../../shared/main-headers.js";
+import Baner from "../ui/baner.js";
 import LoginAction from "./actions/login-action.js";
+
 
 export default function loginforum() {
   MainHeaders();
@@ -19,7 +20,7 @@ export default function loginforum() {
   document.getElementById("nav-bar").classList = "hidden";
 
   document.addEventListener("submit", async (e) => {
-    const res = await LoginAction(e);
+    const res =await  LoginAction(e);
     console.log(res);
     if (!res.success) {
       Baner(res.error, res.message);

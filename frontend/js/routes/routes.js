@@ -5,13 +5,13 @@ import CreatePost from "../componentes/create-post.js";
 import PostDetailes from "../componentes/postDeatailes.js";
 
 import ChatPage from "../componentes/chat-page.js";
-import loginforum from "../auth/login-forum.js";
-import RegisterForm from "../auth/register-form.js";
-import logout from "../auth/logout.js";
+import loginforum from "../componentes/auth/login-forum.js";
+import RegisterFrom from "../componentes/auth/register-form.js";
+import logout from "../componentes/auth/logout.js";
 
 const routes = {
   "/": HomePage,
-  "/register": RegisterForm,
+  "/register": RegisterFrom,
   "/login": loginforum,
   "/craet-post": CreatePost,
   "/logout": logout,

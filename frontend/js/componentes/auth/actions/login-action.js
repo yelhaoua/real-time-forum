@@ -1,7 +1,9 @@
-import { validateLogin } from "../../shared/login-validatore.js";
+import { validateLogin } from "../../../shared/login-validatore.js";
 
 export default async function LoginAction(e) {
+  
   if (e.target.id == "LoginForm") {
+  
     e.preventDefault();
 
     const input = document.getElementById("email").value;
@@ -17,6 +19,8 @@ export default async function LoginAction(e) {
     }
 
     const PostData = { email: input, pass: pass };
+    console.log(PostData);
+    
     try {
       const req = await fetch("http://localhost:9090/login", {
         method: "POST",
@@ -34,9 +38,13 @@ export default async function LoginAction(e) {
       if (!req.ok) {
         document.getElementById("error-password").innerHTML = res.message;
         document.getElementById("error-password").classList.remove("hidden");
-        return;
+        return res;
       }
       return res;
-    } catch (error) {}
+    } catch (error) {
+      return {
+        success: false,
+      };
+    }
   }
 }

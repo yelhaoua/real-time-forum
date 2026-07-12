@@ -1,7 +1,6 @@
-import NavBar from "../componentes/nave-bare.js";
-import Baner from "../componentes/ui/baner.js";
-import MainHeaders from "../shared/main-headers.js";
-
+import NavBar from "../nave-bare.js";
+import Baner from "../ui/baner.js";
+import MainHeaders from "../../shared/main-headers.js";
 
 function clearOppositeVote(
   btnElement,
@@ -167,40 +166,40 @@ async function HandlePostActions(e) {
 
   const commentBtn = e.target.closest(".post-comments");
   // Helper to check login status
-async function isLoggedIn() {
-  try {
-    const res = await fetch('http://localhost:9090/checksession', {
-      method: 'GET',
-      credentials: 'include',
-    });
-    return res.ok;
-  } catch (e) {
-    return false;
+  async function isLoggedIn() {
+    try {
+      const res = await fetch("http://localhost:9090/checksession", {
+        method: "GET",
+        credentials: "include",
+      });
+      return res.ok;
+    } catch (e) {
+      return false;
+    }
   }
-}
 
-if (commentBtn) {
-  const postId = commentBtn.dataset.id;
-  console.log('Comments:', postId);
-  if (await isLoggedIn()) {
-    window.location.hash = `/post/${postId}`;
-  } else {
-    // redirect to login if not authenticated
-    window.location.hash = '/login';
+  if (commentBtn) {
+    const postId = commentBtn.dataset.id;
+    console.log("Comments:", postId);
+    if (await isLoggedIn()) {
+      window.location.hash = `/post/${postId}`;
+    } else {
+      // redirect to login if not authenticated
+      window.location.hash = "/login";
+    }
+    return;
   }
-  return;
-}
 
-if (e.target.closest('.ri-more-fill')) return;
+  if (e.target.closest(".ri-more-fill")) return;
 
-const card = e.target.closest('.feed-card');
-if (card) {
-  if (await isLoggedIn()) {
-    window.location.hash = `/post/${card.dataset.postId}`;
-  } else {
-    window.location.hash = '/login';
+  const card = e.target.closest(".feed-card");
+  if (card) {
+    if (await isLoggedIn()) {
+      window.location.hash = `/post/${card.dataset.postId}`;
+    } else {
+      window.location.hash = "/login";
+    }
   }
-}
 }
 
 async function loadPosts() {
@@ -273,7 +272,6 @@ async function loadPosts() {
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;
   const charContainer = document.querySelector(".chat-contaner");
-
 
   cardContainer.addEventListener("click", HandlePostActions);
 }

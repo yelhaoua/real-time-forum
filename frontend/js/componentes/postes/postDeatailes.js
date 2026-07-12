@@ -1,14 +1,14 @@
-import CheckSession from "../shared/checkSession.js";
-import MainHeaders from "../shared/main-headers.js";
+import CheckSession from "../../shared/checkSession.js";
+import MainHeaders from "../../shared/main-headers.js";
 import PostesDetailesAction, {
   GetCommetesAction,
 } from "./actions/post-details-action.js";
-import Comments from "../componentes/comments.js";
-import Baner from "../componentes/ui/baner.js";
-import CommentForm from "../componentes/ui/add-commente.js";
-import NavBar from "../componentes/nave-bare.js";
-import CardPost from "../componentes/ui/card-post.js";
-import CommentsBox from "../componentes/ui/commentsBox.js";
+import Comments from "../comments.js";
+import Baner from "../ui/baner.js";
+import CommentForm from "../ui/add-commente.js";
+import NavBar from "../nave-bare.js";
+import CardPost from "../ui/card-post.js";
+import CommentsBox from "../ui/commentsBox.js";
 
 export default function PostDetailes() {
   MainHeaders();

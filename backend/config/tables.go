@@ -12,7 +12,9 @@ func testTAble() {
 	queries := []string{
 		`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
+    nick_name TEXT NOT NULL UNIQUE,
+    frist_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     profile_image TEXT DEFAULT '/static/images/default-banner.png', 

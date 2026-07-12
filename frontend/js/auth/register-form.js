@@ -1,68 +1,33 @@
+import Baner from "../componentes/ui/baner.js";
 import CheckSession from "../shared/checkSession.js";
 import MainHeaders from "../shared/main-headers.js";
-import Baner from "../componentes/ui/baner.js";
+import RegisterAction from "./actions/register-action.js";
 
 export default function RegisterForm() {
   // init the header in html
   MainHeaders();
+  async () => {
+    await CheckSession();
+  };
+
   let link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = "../../assets/styles/register.css";
   document.head.appendChild(link);
 
-  CheckSession();
-
   document.getElementById("nav-bar").innerHTML = "";
 
-  document.addEventListener("submit", (e) => {
-    let nameErr = document.getElementById("name-Err");
-    let emailErr = document.getElementById("email-Err");
-    let passErr = document.getElementById("pass-Err");
-    if (e.target.id === "loginForm") {
-      e.preventDefault();
-      nameErr.innerHTML = "";
-      emailErr.innerHTML = "";
-      passErr.innerHTML = "";
+  document.addEventListener("submit", async (e) => {
+    const res = await RegisterAction(e);
 
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-
-      const sendData = async () => {
-        try {
-          const response = await fetch("http://localhost:9090/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-            credentials: "include",
-          });
-
-          const res = await response.json();
-          if (!response.ok) {
-            console.log(res);
-            if (res.data.message == "login") {
-              window.location.href = "/";
-              return;
-            }
-            if (res.data) {
-              nameErr.innerHTML = res.data.Name;
-              emailErr.innerHTML = res.data.Email;
-              passErr.innerHTML = res.data.Password;
-            }
-          } else {
-            Baner(res.error, res.message);
-            e.target.reset();
-
-            setTimeout(() => {
-              window.location.href = "/#/login";
-            }, 1000);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      sendData();
+    if (!res.success) {
+      Baner(res.error, res.message);
+      return;
     }
+    Baner(res.message);
+    setTimeout(() => {
+      window.location.href = "/#/login";
+    }, 1000);
   });
 
   return `
@@ -92,23 +57,56 @@ export default function RegisterForm() {
             </p>
 
             <form id="loginForm" novalidate>
+
               <div>
-                <label class="field-label" for="name">Full Name</label>
+                <label class="field-label" for="Nickname">Nickname</label>
                 <div class="field">
                   <span class="ic"><i class="fa-regular fa-user"></i></span>
                   <input
-                    id="name"
-                    name="name"
+                    id="Nickname"
+                    name="Nickname"
+                    type="text"
+                    placeholder="kaito"
+                    required
+                  />
+                </div>
+                <span class="inputes_Err" id="nickname-Err"></span>
+              </div>
+
+
+              <div>
+                <label class="field-label" for="first-name">First Name</label>
+                <div class="field">
+                  <span class="ic"><i class="fa-regular fa-user"></i></span>
+                  <input
+                    id="first-name"
+                    name="first-name"
                     type="text"
                     placeholder="Joe Deo"
                     required
                   />
                 </div>
-                <span id="name-Err"></span>
+                <span class="inputes_Err" id="first-name-Err"></span>
+              </div>
+
+
+              <div>
+                <label class="field-label" for="last-name">Last Name</label>
+                <div class="field">
+                  <span class="ic"><i class="fa-regular fa-user"></i></span>
+                  <input
+                    id="last-name"
+                    name="last-name"
+                    type="text"
+                    placeholder="Joe Deo"
+                    required
+                  />
+                </div>
+                <span class="inputes_Err" id="last-name-Err"></span>
               </div>
 
               <div>
-                <label class="field-label" for="email">Email address</label>
+                <label class="field-label" for="email">Email</label>
                 <div class="field">
                   <span class="ic"
                     ><i class="fa-regular fa-envelope"></i>
@@ -122,7 +120,7 @@ export default function RegisterForm() {
                     required
                   />
                 </div>
-                <span id="email-Err"></span>
+                <span class="inputes_Err" id="email-Err"></span>
               </div>
 
               <div>
@@ -138,7 +136,7 @@ export default function RegisterForm() {
                     required
                   />
                 </div>
-                <span id="pass-Err"></span>
+                <span class="inputes_Err" id="pass-Err"></span>
               </div>
 
               <button class="btn" type="submit">Create account</button>

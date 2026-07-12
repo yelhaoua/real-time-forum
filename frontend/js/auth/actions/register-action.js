@@ -1,0 +1,51 @@
+export default async function RegisterAction(e) {
+  // Nickname - Err;
+  // first - name;
+  // last - name;
+  let nickNameErr = document.getElementById("nickname-Err");
+  let fristNameErr = document.getElementById("first-name-Err");
+  let lastNameErr = document.getElementById("last-name-Err");
+  let emailErr = document.getElementById("email-Err");
+  let passErr = document.getElementById("pass-Err");
+  if (e.target.id === "loginForm") {
+    e.preventDefault();
+    nickNameErr.innerHTML = "";
+    fristNameErr.innerHTML = "";
+    lastNameErr.innerHTML = "";
+    emailErr.innerHTML = "";
+    passErr.innerHTML = "";
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    try {
+      const response = await fetch("http://localhost:9090/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+
+      const res = await response.json();
+      if (!response.ok) {
+        if (res.data.message == "login") {
+          window.location.href = "/";
+          return;
+        }
+        if (res.data) {
+          nickNameErr.innerHTML = res.data.nickname ? res.data.nickname : "";
+          fristNameErr.innerHTML = res.data.first_name
+            ? res.data.first_name
+            : "";
+          lastNameErr.innerHTML = res.data.last_name ? res.data.last_name : "";
+          emailErr.innerHTML = res.data.email ? res.data.email : "";
+          passErr.innerHTML = res.data.password ? res.data.password : "";
+          return;
+        }
+        return res;
+      }
+      return res;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}

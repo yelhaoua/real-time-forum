@@ -329,9 +329,7 @@ form {
   background: var(--line);
 }
 
-div #pass-Err,
-div #name-Err,
-div #email-Err {
+div .inputes_Err {
   margin-top: 4px;
   font-size: 13px;
   font-weight: 600;

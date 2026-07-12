@@ -21,7 +21,8 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/getinfo", handler.HnadleGetInfo)
 	mux.HandleFunc("/getuser", handler.HnadleGetUser)
 	mux.HandleFunc("/getcahtinfo/{id}", handler.HnadleGetChatInfo)
-	mux.HandleFunc("/send-message/{id}", handler.HnadleSendMessage)
+	mux.HandleFunc("/ws", handler.HandleSendMessage)
+	mux.HandleFunc("/messages", handler.GetMessages)
 	mux.HandleFunc("/checksession", handler.HnadleCheakSession)
 
 	return mux

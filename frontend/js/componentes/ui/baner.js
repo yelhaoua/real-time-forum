@@ -19,6 +19,8 @@ export default function Baner(title, description) {
   document.body.appendChild(Baner);
   setTimeout(() => {
     let succesMessage = document.getElementById("succes-Message");
-    succesMessage.remove();
+    if (succesMessage) {
+      succesMessage.remove();
+    }
   }, 4000);
 }

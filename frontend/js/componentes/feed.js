@@ -166,19 +166,41 @@ async function HandlePostActions(e) {
   }
 
   const commentBtn = e.target.closest(".post-comments");
-  if (commentBtn) {
-    const postId = commentBtn.dataset.id;
-    console.log("Comments:", postId);
+  // Helper to check login status
+async function isLoggedIn() {
+  try {
+    const res = await fetch('http://localhost:9090/checksession', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+if (commentBtn) {
+  const postId = commentBtn.dataset.id;
+  console.log('Comments:', postId);
+  if (await isLoggedIn()) {
     window.location.hash = `/post/${postId}`;
-    return;
+  } else {
+    // redirect to login if not authenticated
+    window.location.hash = '/login';
   }
+  return;
+}
 
-  if (e.target.closest(".ri-more-fill")) return;
+if (e.target.closest('.ri-more-fill')) return;
 
-  const card = e.target.closest(".feed-card");
-  if (card) {
+const card = e.target.closest('.feed-card');
+if (card) {
+  if (await isLoggedIn()) {
     window.location.hash = `/post/${card.dataset.postId}`;
+  } else {
+    window.location.hash = '/login';
   }
+}
 }
 
 async function loadPosts() {

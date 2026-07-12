@@ -1,5 +1,4 @@
 export default function Baner(title, description) {
-  
   let Baner = document.createElement("div");
   Baner.id = "succes-Message";
   if (title || description) {
@@ -18,4 +17,7 @@ export default function Baner(title, description) {
   }
 
   document.body.appendChild(Baner);
+  setTimeout(() => {
+    succesMessage.remove();
+  }, 2000);
 }

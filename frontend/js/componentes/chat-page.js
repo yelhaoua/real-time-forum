@@ -25,9 +25,9 @@ export default function ChatPage() {
   ws.onmessage = (event) => {
     try {
       const incomingMsg = JSON.parse(event.data);
-      chatHistory.push(incomingMsg);
+      chatHistory.AllMessages.push(incomingMsg);
     } catch (e) {
-      chatHistory.push({
+      chatHistory.AllMessages.push({
         content: event.data,
         sender_id: null,
         create_time: new Date().toLocaleTimeString(),
@@ -64,9 +64,6 @@ export default function ChatPage() {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(payload));
 
-        
-
-      
         inputElement.value = "";
       } else {
         Baner("Connection Error", "WebSocket connection is closed. Try again.");
@@ -98,10 +95,10 @@ export default function ChatPage() {
 
   function updateChatDOM() {
     const username = document.querySelector(".user-name");
-    username.innerHTML = chatHistory[0].recipient_name;
+    username.innerHTML = chatHistory.Resc_user_name;
     const messagesBody = document.querySelector(".chat-messages-body");
     if (messagesBody) {
-      messagesBody.innerHTML = renderChat(chatHistory);
+      messagesBody.innerHTML = renderChat(chatHistory.AllMessages);
       messagesBody.scrollTo({
         top: messagesBody.scrollHeight,
         behavior: "smooth",
@@ -110,6 +107,10 @@ export default function ChatPage() {
   }
 
   function renderChat(history = []) {
+    if (!history) {
+      history = [];
+    }
+
     return history
       .map((el) => {
         if (id == el.sender_id) {
@@ -118,9 +119,12 @@ export default function ChatPage() {
                     <div class="chat-avatar msg-avatar">
                         <img src="../../assets/images/download.jpeg">
                     </div>
-                    <div class="message-content">
-                        <p>${el.content}</p>
-                        <span class="message-time">${el.creat_time || el.create_time || ""}</span>
+                    <div>
+                      <h5>${el.sender_name}</h5>
+                      <div class="message-content">
+                          <p>${el.content}</p>
+                          <span class="message-time">${el.creat_time || el.create_time || ""}</span>
+                      </div>
                     </div>
                 </div>
             `;
@@ -128,10 +132,15 @@ export default function ChatPage() {
 
         return `
             <div class="message-row outgoing">
+              <div style="text-align: right">
+                <h5>${el.sender_name}</h5>
                 <div class="message-content">
+                  <div>
                     <p>${el.content}</p>
                     <span class="message-time">${el.creat_time || el.create_time || ""}</span>
+                  </div>
                 </div>
+              </div>  
             </div>
         `;
       })

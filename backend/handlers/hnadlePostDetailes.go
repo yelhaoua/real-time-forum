@@ -43,7 +43,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	var post struct {
 		Postid       int    `json:"post_id"`
 		Userid       int    `json:"user_id"`
-		NickName     string `json:"nick_name"`
+		NickName     string `json:"user_name"`
 		Title        string `json:"title"`
 		Content      string `json:"content"`
 		Imageurl     string `json:"image_url"`

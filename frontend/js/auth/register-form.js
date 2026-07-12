@@ -1,8 +1,8 @@
 import CheckSession from "../shared/checkSession.js";
 import MainHeaders from "../shared/main-headers.js";
-import Baner from "./ui/baner.js";
+import Baner from "../componentes/ui/baner.js";
 
-export default function registerForm() {
+export default function RegisterForm() {
   // init the header in html
   MainHeaders();
   let link = document.createElement("link");

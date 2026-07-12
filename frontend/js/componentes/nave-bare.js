@@ -1,5 +1,5 @@
 import Baner from "./ui/baner.js";
-import Logout from "./logout.js";
+import Logout from "../auth/logout.js";
 import ChatList from "./pepole-list.js";
 
 export default async function NavBar() {

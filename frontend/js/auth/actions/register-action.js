@@ -1,7 +1,4 @@
 export default async function RegisterAction(e) {
-  // Nickname - Err;
-  // first - name;
-  // last - name;
   let nickNameErr = document.getElementById("nickname-Err");
   let fristNameErr = document.getElementById("first-name-Err");
   let lastNameErr = document.getElementById("last-name-Err");

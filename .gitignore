@@ -1,3 +1,7 @@
 **/real-time-forum.db
 ./backend/real-time-forum.db
 real-time-forum.db
+real-time-forum.db
+*.db-wal
+*.db-shm
+*.real-time-forum.db

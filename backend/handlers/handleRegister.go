@@ -16,12 +16,63 @@ import (
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
+type Registerdata struct {
+	NickName  string `json:"Nickname"`
+	FristName string `json:"first-name"`
+	LastName  string `json:"last-name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+}
+
+type RegisterErrors struct {
+	NickName  string `json:"nickname"`
+	FristName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+}
+
 func ValidateEmail(email string) bool {
 	email = strings.TrimSpace(email)
 	if len(email) < 3 || len(email) > 254 {
 		return false
 	}
 	return emailRegex.MatchString(email)
+}
+
+func CheckName(names string) bool {
+	if len(strings.TrimSpace(names)) < 3 || len(strings.TrimSpace(names)) > 10 {
+		return true
+	}
+	return false
+}
+
+func Validatore(data Registerdata, Errors *RegisterErrors) bool {
+	hasErr := false
+	fmt.Println("data", data.NickName, CheckName(data.NickName))
+	if CheckName(data.NickName) {
+		hasErr = true
+		Errors.NickName = "please enter valid nickname"
+	}
+	fmt.Println("data", data.FristName, CheckName(data.FristName))
+	if CheckName(data.FristName) {
+		hasErr = true
+		Errors.FristName = "please enter valid frist name"
+	}
+	fmt.Println("data", data.LastName, CheckName(data.LastName))
+	if CheckName(data.LastName) {
+		hasErr = true
+		Errors.LastName = "please enter valid last name"
+	}
+	if !ValidateEmail(strings.TrimSpace(data.Email)) {
+		hasErr = true
+		Errors.Email = "please enter valid email"
+	}
+	if len(data.Password) < 8 {
+		hasErr = true
+		Errors.Password = "please enter valid password"
+	}
+	return hasErr
 }
 
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
@@ -49,35 +100,24 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	var data struct {
-		Name     string
-		Email    string
-		Password string
-	}
-	var Errors struct {
-		Name     string
-		Email    string
-		Password string
+
+	var data Registerdata
+	var Errors RegisterErrors
+
+	err = json.NewDecoder(r.Body).Decode(&data)
+	fmt.Println("data alll", data)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "invalid json body",
+			Error:   "input_error",
+		})
+		return
 	}
 
-	json.NewDecoder(r.Body).Decode(&data)
-
-	hasErr := false
-	if len(strings.TrimSpace(data.Name)) < 3 || len(strings.TrimSpace(data.Name)) > 30 {
-		hasErr = true
-		Errors.Name = "please enter valid name"
-	}
-	if !ValidateEmail(strings.TrimSpace(data.Email)) {
-		hasErr = true
-		Errors.Email = "please enter valid email"
-	}
-
-	if len(data.Password) < 8 {
-		hasErr = true
-		Errors.Password = "please enter valid password"
-	}
-
-	if hasErr {
+	if Validatore(data, &Errors) {
+		fmt.Println(data, Errors, "hh111111")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
@@ -97,13 +137,13 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println(hashPassword)
-	_, err = config.Conn.Exec("INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)",
-		data.Name, data.Email, hashPassword, time.Now())
+	_, err = config.Conn.Exec("INSERT INTO users (nick_name ,frist_name, last_name ,email, password, created_at) VALUES (?, ?, ?, ? ,?, ?)",
+		data.NickName, data.FristName, data.LastName, data.Email, hashPassword, time.Now())
 	fmt.Println("err", err)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			if strings.Contains(err.Error(), "username") {
-				Errors.Name = "duplicated user name"
+			if strings.Contains(err.Error(), "users.email") || strings.Contains(err.Error(), "users.nick_name") {
+				Errors.NickName = "duplicated user nick_name or user email"
 				w.WriteHeader(http.StatusBadRequest)
 				json.NewEncoder(w).Encode(utils.ResponseApi{
 					Success: false,
@@ -111,15 +151,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 				})
 				return
 			}
-			if strings.Contains(err.Error(), "email") {
-				w.WriteHeader(http.StatusBadRequest)
-				Errors.Email = "duplicated user email"
-				json.NewEncoder(w).Encode(utils.ResponseApi{
-					Success: false,
-					Data:    Errors,
-				})
-				return
-			}
+
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,

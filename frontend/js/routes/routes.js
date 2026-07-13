@@ -5,6 +5,7 @@ import RegisterFrom from "../componentes/auth/register-form.js";
 import logout from "../componentes/auth/logout.js";
 import PostDetailes from "../componentes/postes/postDeatailes.js";
 import CreatePost from "../componentes/postes/create-post.js";
+import Messages from "../componentes/messages.js";
 
 const routes = {
   "/": HomePage,
@@ -13,6 +14,7 @@ const routes = {
   "/craet-post": CreatePost,
   "/logout": logout,
   "/post/:id": PostDetailes,
+  "/chat-page": Messages,
   "/chat/:id": ChatPage,
 };
 

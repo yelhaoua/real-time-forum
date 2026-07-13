@@ -29,9 +29,9 @@ type Messages struct {
 }
 
 var (
-	clients   = make(map[int]*websocket.Conn)
+	Clients   = make(map[int]*websocket.Conn)
 	broadcast = make(chan Messages)
-	mu        sync.Mutex
+	Mu        sync.Mutex
 )
 
 func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
@@ -53,9 +53,15 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer conn.Close()
-	mu.Lock()
-	clients[userId] = conn
-	mu.Unlock()
+	Mu.Lock()
+	Clients[userId] = conn
+	Mu.Unlock()
+
+	broadcast <- Messages{
+        Content:      "SYSTEM_USER_ONLINE",
+        Sender_id:    userId,
+        Recipient_id: 0,
+    }
 	fmt.Println("conn ,", conn)
 
 	for {
@@ -64,9 +70,14 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 		err := conn.ReadJSON(&messages)
 		if err != nil {
 			fmt.Println("err in for ,", err)
-			mu.Lock()
-			delete(clients, userId)
-			mu.Unlock()
+			Mu.Lock()
+			delete(Clients, userId)
+			Mu.Unlock()
+			broadcast <- Messages{
+                Content:      "SYSTEM_USER_OFFLINE",
+                Sender_id:    userId,
+                Recipient_id: 0,
+            }
 			return
 		}
 		messages.Sender_id = userId
@@ -112,18 +123,18 @@ func HandleMessages() {
 			log.Println("insert", err)
 		}
 		fmt.Println("inserted data")
-		mu.Lock()
-		if receiverSocket, online := clients[msg.Recipient_id]; online {
+		Mu.Lock()
+		if receiverSocket, online := Clients[msg.Recipient_id]; online {
 			err := receiverSocket.WriteJSON(msg)
 			if err != nil {
 				log.Printf("rec err", msg.Recipient_id, err)
 				receiverSocket.Close()
-				delete(clients, msg.Recipient_id)
+				delete(Clients, msg.Recipient_id)
 			}
 		}
-		if senderSocket, online := clients[msg.Sender_id]; online {
+		if senderSocket, online := Clients[msg.Sender_id]; online {
 			senderSocket.WriteJSON(msg)
 		}
-		mu.Unlock()
+		Mu.Unlock()
 	}
 }

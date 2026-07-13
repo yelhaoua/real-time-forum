@@ -1,3 +1,5 @@
+import escapeHTML from "../../shared/formate-text.js";
+
 export default function CardPost(data) {
   console.log(data);
 
@@ -20,8 +22,8 @@ export default function CardPost(data) {
                   alt="Author"
                 />
                 <div class="author-info">
-                  <h4>${data.user_name}</h4>
-                  <span>${data.created_at}</span>
+                  <h4>${escapeHTML(data.user_name)}</h4>
+                  <span>${escapeHTML(data.created_at)}</span>
                 </div>
               </div>
               <i
@@ -30,8 +32,8 @@ export default function CardPost(data) {
               ></i>
             </div>
             <div class="post-content">
-              <h3> ${data.title} </h3>
-              <p> ${data.content}</p>
+              <h3> ${escapeHTML(data.title)} </h3>
+              <p> ${escapeHTML(data.content)}</p>
             </div>
               ${data.image_url ? '<img class="post-image"src="' + data.image_url + '" alt=""/>' : ""}
 
@@ -51,6 +53,6 @@ export default function CardPost(data) {
                 </span>
               </div>
           `;
-  
+
   return card;
 }

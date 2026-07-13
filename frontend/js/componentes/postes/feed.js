@@ -1,7 +1,6 @@
 import MainHeaders from "../../shared/main-headers.js";
 import NavBar from "../nave-bare.js";
 
-
 function clearOppositeVote(
   btnElement,
   oppositeSelector,

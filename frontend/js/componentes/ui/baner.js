@@ -8,19 +8,18 @@ export default function Baner(title, description) {
           <p>${description ? description : ""}</p>
         </div>
         `;
-  }
-
-  let succesMessage = document.getElementById("succes-Message");
-
-  if (succesMessage) {
-    succesMessage.remove();
-  }
-
-  document.body.appendChild(Baner);
-  setTimeout(() => {
     let succesMessage = document.getElementById("succes-Message");
+
     if (succesMessage) {
       succesMessage.remove();
     }
-  }, 4000);
+
+    document.body.appendChild(Baner);
+    setTimeout(() => {
+      let succesMessage = document.getElementById("succes-Message");
+      if (succesMessage) {
+        succesMessage.remove();
+      }
+    }, 4000);
+  }
 }

@@ -36,7 +36,6 @@ export default async function RegisterAction(e) {
           lastNameErr.innerHTML = res.data.last_name ? res.data.last_name : "";
           emailErr.innerHTML = res.data.email ? res.data.email : "";
           passErr.innerHTML = res.data.password ? res.data.password : "";
-          return;
         }
         return res;
       }

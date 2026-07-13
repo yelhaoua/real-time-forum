@@ -4,14 +4,15 @@ import (
 	"net/http"
 
 	handler "real-time-forum/handlers"
+	"real-time-forum/middleware"
 )
 
 func Routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", handler.HandleRoot)
-	mux.HandleFunc("/register", handler.HandleRegister)
-	mux.HandleFunc("/login", handler.LoginHandler)
+	mux.Handle("/register" ,middleware.RateLimit(http.HandlerFunc( handler.HandleRegister)))
+	mux.Handle("/login" ,middleware.RateLimit(http.HandlerFunc( handler.LoginHandler)))
 	mux.HandleFunc("/logout", handler.LogoutHandler)
 	mux.HandleFunc("/craet-post", handler.HnadleCreatPost)
 	mux.HandleFunc("/post/{id}", handler.HnadlePostDetailes)

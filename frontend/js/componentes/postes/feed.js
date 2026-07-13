@@ -1,3 +1,4 @@
+import escapeHTML from "../../shared/formate-text.js";
 import MainHeaders from "../../shared/main-headers.js";
 import NavBar from "../nave-bare.js";
 
@@ -220,8 +221,9 @@ async function loadPosts() {
 
   const posts = result.data.all_posts;
 
-  const postsHTML = posts
-    .map(
+  let  postsHTML = ""
+  if (posts) {
+    postsHTML = posts.map(
       (post) => `
         <article class="card feed-card" data-post-id="${post.id}">
             <div class="post-header">
@@ -241,8 +243,8 @@ async function loadPosts() {
               ></i>
             </div>
             <div class="post-content">
-              <h3> ${post.title} </h3>
-              <p> ${post.content}</p>
+              <h3> ${escapeHTML(post.title)} </h3>
+              <p> ${escapeHTML(post.content)}</p>
             </div>
               ${post.image_url ? '<img class="post-image"src="' + post.image_url + '" alt=""/>' : ""}
 
@@ -261,12 +263,23 @@ async function loadPosts() {
 
                 <span class="post-comments" data-id="${post.id}">
                   <i class="fa-regular fa-comment"></i>
+                  <span class="comment-count">${post.comment_count}</span>
                 </span>
               </div>
         </article>
       `,
     )
     .join("");
+  }else{
+    postsHTML = `
+    <p style="
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    text-align: center;
+    ">There no Posts</p>`
+  }
 
   const cardContainer = document.querySelector(".card-container");
   cardContainer.innerHTML = postsHTML;

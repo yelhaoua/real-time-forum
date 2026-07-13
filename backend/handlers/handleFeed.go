@@ -210,7 +210,8 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
                 AND vote_value = -1
             ) AS is_disliked,
             (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = 1) AS like_count,
-            (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = -1) AS dislike_count
+            (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = -1) AS dislike_count,
+			(SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
         FROM posts
         INNER JOIN users ON posts.user_id = users.id
         ORDER BY posts.created_at DESC;`
@@ -231,7 +232,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 		for potes.Next() {
 			var p utils.Posts
 			var Time time.Time
-			err := potes.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &Time, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount)
+			err := potes.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &Time, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount, &p.CommentsCount)
 			if err != nil {
 				fmt.Println("Scan error:", err)
 				w.WriteHeader(http.StatusInternalServerError)

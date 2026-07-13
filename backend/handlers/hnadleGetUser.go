@@ -18,6 +18,17 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+	
+	userID, err := utils.CheckSession(w, r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "please log in",
+			Error:   "unauthorized_error",
+		})
+		return
+	}
 
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -36,7 +47,7 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 
 	var data string
 
-	err := json.NewDecoder(r.Body).Decode(&data)
+	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
@@ -56,9 +67,9 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `SELECT id ,  nick_name , profile_image FROM users WHERE  nick_name LIKE ?`
+	query := `SELECT id, nick_name, profile_image FROM users WHERE nick_name LIKE ? AND id != ?`
 
-	rows, err := config.Conn.Query(query, "%"+data+"%")
+	rows, err := config.Conn.Query(query, "%"+data+"%", userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{

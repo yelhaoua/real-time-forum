@@ -8,8 +8,8 @@ export default function CommentForm(postId) {
 
   document.body.addEventListener("submit", async (e) => {
     if (e.target.id == "new-form-comment") {
+      document.querySelector(".emoji-btn").disabled = true;
       e.preventDefault();
-
       let formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
       console.log("hna1");
@@ -27,13 +27,15 @@ export default function CommentForm(postId) {
         const res = await req.json();
         if (!req.ok) {
           Baner(res.error, res.message);
+          document.querySelector(".emoji-btn").disabled = false;
+
           return;
         }
 
-        Baner(res.message);
         setTimeout(() => {
           window.location.reload();
         }, 500);
+        Baner(res.message);
 
         console.log(res);
       } catch (error) {}

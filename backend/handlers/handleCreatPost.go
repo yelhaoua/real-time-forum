@@ -84,52 +84,46 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	file, handler, err := r.FormFile("postimage")
-	if err != nil {
-		fmt.Println("err" ,err)
-		postErrors.ImgErr = "enter image pleas"
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Data:    postErrors,
-		})
-		return
+
+	imagpath := ""
+
+	if err == nil {
+
+		defer file.Close()
+		imgDir := "./uploads"
+
+		_, err = os.Stat(imgDir)
+		if os.IsNotExist(err) {
+			os.Mkdir(imgDir, os.ModePerm)
+		}
+		imageExt := filepath.Ext(handler.Filename)
+		newImagName := uuid.New().String() + imageExt
+		imagpath = path.Join(imgDir, newImagName)
+		dst, err := os.Create(imagpath)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "Error in saving image",
+				Error:   "server_error",
+			})
+			return
+		}
+
+		defer dst.Close()
+
+		_, err = io.Copy(dst, file)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "Error in saving image",
+				Error:   "server_error",
+			})
+			return
+		}
+		imagpath = fmt.Sprintf("http://localhost:9090/%s", imagpath)
 	}
-	defer file.Close()
-
-	imgDir := "./uploads"
-
-	_, err = os.Stat(imgDir)
-	if os.IsNotExist(err) {
-		os.Mkdir(imgDir, os.ModePerm)
-	}
-
-	imageExt := filepath.Ext(handler.Filename)
-	newImagName := uuid.New().String() + imageExt
-	imagpath := path.Join(imgDir, newImagName)
-	dst, err := os.Create(imagpath)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Error in saving image",
-			Error:   "server_error",
-		})
-		return
-	}
-
-	defer dst.Close()
-
-	_, err = io.Copy(dst, file)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Error in saving image",
-			Error:   "server_error",
-		})
-		return
-	}
-	imagpath = fmt.Sprintf("http://localhost:9090/%s", imagpath)
 
 	query := `INSERT INTO posts (user_id  ,title ,content ,image_url ,created_at) VALUES (? ,? ,? ,? ,?)`
 	res, err := config.Conn.Exec(query, id, postTitle, postDesc, imagpath, time.Now())

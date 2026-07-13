@@ -24,7 +24,7 @@ var (
 var routeLimits = map[string]int{
 	"/register":   10,
 	"/login":      10,
-	"/craet-post": 20,
+	"/craet-post": 10,
 }
 
 func RateLimit(next http.Handler) http.Handler {

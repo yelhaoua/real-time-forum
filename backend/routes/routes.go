@@ -14,7 +14,7 @@ func Routes() *http.ServeMux {
 	mux.Handle("/register" ,middleware.RateLimit(http.HandlerFunc( handler.HandleRegister)))
 	mux.Handle("/login" ,middleware.RateLimit(http.HandlerFunc( handler.LoginHandler)))
 	mux.HandleFunc("/logout", handler.LogoutHandler)
-	mux.HandleFunc("/craet-post", handler.HnadleCreatPost)
+	mux.Handle("/craet-post" ,middleware.RateLimit(http.HandlerFunc( handler.HnadleCreatPost)))
 	mux.HandleFunc("/post/{id}", handler.HnadlePostDetailes)
 	mux.HandleFunc("/posts", handler.FeedHanlder)
 	mux.HandleFunc("/comment/{id}", handler.HnadleComments)

@@ -50,9 +50,7 @@ export default async function NavBar() {
           <a href="#/chat-page" class="nav-item"
             ><i class="ri-chat-3-line"></i> Messages</a
           >
-          
         </nav>
-        <div class="search-users"></div>
         <div class="user-nav-profile">
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
@@ -64,7 +62,7 @@ export default async function NavBar() {
       </header>
     `;
 
-    document.querySelector(".search-users").appendChild(ChatList());
+  
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
       logoutBtn.addEventListener("click", Logout);

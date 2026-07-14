@@ -58,10 +58,10 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	Mu.Unlock()
 
 	broadcast <- Messages{
-        Content:      "SYSTEM_USER_ONLINE",
-        Sender_id:    userId,
-        Recipient_id: 0,
-    }
+		Content:      "SYSTEM_USER_ONLINE",
+		Sender_id:    userId,
+		Recipient_id: 0,
+	}
 	fmt.Println("conn ,", conn)
 
 	for {
@@ -74,13 +74,14 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 			delete(Clients, userId)
 			Mu.Unlock()
 			broadcast <- Messages{
-                Content:      "SYSTEM_USER_OFFLINE",
-                Sender_id:    userId,
-                Recipient_id: 0,
-            }
+				Content:      "SYSTEM_USER_OFFLINE",
+				Sender_id:    userId,
+				Recipient_id: messages.Recipient_id,
+			}
 			return
 		}
 		messages.Sender_id = userId
+		messages.Recipient_id = messages.Recipient_id
 		broadcast <- messages
 
 	}
@@ -101,7 +102,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer rows.Close()
-	
+
 	var msgs []utils.Message
 	for rows.Next() {
 		var m utils.Message

@@ -6,10 +6,11 @@ export default function Comments(data) {
     console.log(data, "heloo");
 
     const content = data.data;
-    content.forEach((comment) => {
-      commentsCont.insertAdjacentHTML(
-        "beforeend",
-        `
+    if (content) {
+      content.forEach((comment) => {
+        commentsCont.insertAdjacentHTML(
+          "beforeend",
+          `
             <div class="single-comment">
                   <img
                       src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
@@ -23,7 +24,8 @@ export default function Comments(data) {
                   </div>
               </div>
         `,
-      );
-    });
+        );
+      });
+    }
   }
 }

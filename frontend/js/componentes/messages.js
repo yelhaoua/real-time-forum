@@ -1,3 +1,4 @@
+import escapeHtml from "../shared/formate-text.js";
 import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
@@ -14,14 +15,7 @@ function ensureStylesheet(href) {
   }
 }
 
-function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
+
 
 function createEmptyState() {
   return {
@@ -106,17 +100,20 @@ function renderMessage(activeUserId, message) {
 function normalizeMessage(message, activeUser) {
   const normalized = { ...message };
   const isIncoming =
-    activeUser &&
-    String(normalized.sender_id) === String(activeUser.id);
+    activeUser && String(normalized.sender_id) === String(activeUser.id);
 
   if (!normalized.sender_name) {
-    normalized.sender_name = isIncoming
-      ? activeUser?.user_name || ""
-      : "You";
+    normalized.sender_name = isIncoming ? activeUser?.user_name || "" : "You";
   }
 
-  if (!normalized.create_time && !normalized.creat_time && normalized.timestamp) {
-    normalized.create_time = new Date(normalized.timestamp).toLocaleTimeString();
+  if (
+    !normalized.create_time &&
+    !normalized.creat_time &&
+    normalized.timestamp
+  ) {
+    normalized.create_time = new Date(
+      normalized.timestamp,
+    ).toLocaleTimeString();
   }
 
   return normalized;
@@ -154,7 +151,8 @@ function integrateMessage(list, freshMessage, activeUser) {
 
   const exactIndex = nextList.findIndex(
     (message) =>
-      String(message.sender_id ?? "") === String(normalizedFresh.sender_id ?? "") &&
+      String(message.sender_id ?? "") ===
+        String(normalizedFresh.sender_id ?? "") &&
       String(message.recipient_id ?? "") ===
         String(normalizedFresh.recipient_id ?? "") &&
       message.content === normalizedFresh.content &&
@@ -348,7 +346,10 @@ function setupSocket() {
       };
     }
 
-    if (!state.activeUser || !isConversationMessage(incomingMsg, state.activeUser)) {
+    if (
+      !state.activeUser ||
+      !isConversationMessage(incomingMsg, state.activeUser)
+    ) {
       return;
     }
 
@@ -452,7 +453,10 @@ function initPage() {
 
       const currentState = getState();
       if (!currentState.activeUser) {
-        Baner("Select a user first", "Choose a contact before sending a message.");
+        Baner(
+          "Select a user first",
+          "Choose a contact before sending a message.",
+        );
         return;
       }
 
@@ -495,7 +499,10 @@ function initPage() {
 export default function Messages() {
   MainHeaders();
 
-  if (window.__messagesPageState?.ws && window.__messagesPageState.ws.readyState < WebSocket.CLOSING) {
+  if (
+    window.__messagesPageState?.ws &&
+    window.__messagesPageState.ws.readyState < WebSocket.CLOSING
+  ) {
     window.__messagesPageState.ws.close();
   }
   window.__messagesPageState = createEmptyState();

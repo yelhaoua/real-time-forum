@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"real-time-forum/config"
@@ -15,6 +17,32 @@ import (
 
 	"github.com/google/uuid"
 )
+
+func checkcategori(categori []string) bool {
+	if len(categori) == 0 {
+		return true
+	}
+	for _, val := range categori {
+		num, err := strconv.Atoi(val)
+		if err != nil {
+			return true
+		}
+		if num < 1 || num > 7 {
+			return true
+		}
+	}
+	return false
+}
+
+func InsertInCategorise(categorise []string, DB *sql.DB, id int) error {
+	for _, val := range categorise {
+		_, err := DB.Exec(`INSERT INTO post_categories (post_id , category_id) VALUES (?, ?)`, id, val)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
@@ -47,6 +75,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	var postErrors struct {
 		TitleError string `json:"title_error"`
 		DescErr    string `json:"desc_error"`
+		CateErr    string `json:"cate_error"`
 		ImgErr     string `json:"image_error"`
 	}
 

@@ -98,6 +98,16 @@
   background-color: var(--bg-card);
 }
 
+.Messages-box:not(.chat-open) #user-chat {
+  display: none;
+}
+
+.Messages-box:not(.chat-open) #users-list {
+  width: 100%;
+  min-width: 100%;
+  border-right: none;
+}
+
 .chat-placeholder {
   display: flex;
   align-items: center;

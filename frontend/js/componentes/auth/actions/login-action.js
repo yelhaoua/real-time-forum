@@ -1,26 +1,27 @@
 import { validateLogin } from "../../../shared/login-validatore.js";
 
 export default async function LoginAction(e) {
-  
   if (e.target.id == "LoginForm") {
-  
     e.preventDefault();
 
     const input = document.getElementById("email").value;
     if (!validateLogin(input)) {
       document.getElementById("error-email").classList.remove("hidden");
-      return;
+      return {
+        success: false,
+      };
     }
 
     const pass = document.getElementById("password").value;
     if (pass.length < 8) {
       document.getElementById("error-password").classList.remove("hidden");
-      return;
+      return {
+        success: false,
+      };
     }
 
     const PostData = { email: input, pass: pass };
-    console.log(PostData);
-    
+
     try {
       const req = await fetch("http://localhost:9090/login", {
         method: "POST",
@@ -33,17 +34,16 @@ export default async function LoginAction(e) {
       });
 
       const res = await req.json();
-      console.log(res);
 
       if (!req.ok) {
         document.getElementById("error-password").innerHTML = res.message;
         document.getElementById("error-password").classList.remove("hidden");
-        return res;
       }
       return res;
     } catch (error) {
       return {
         success: false,
+        message: "internale server errore  or server is downe",
       };
     }
   }

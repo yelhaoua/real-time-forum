@@ -26,7 +26,10 @@ export default async function RegisterAction(e) {
       if (!response.ok) {
         if (res.data.message == "login") {
           window.location.href = "/";
-          return;
+          return {
+            success: false,
+            message: "you alredy have session",
+          };
         }
         if (res.data) {
           nickNameErr.innerHTML = res.data.nickname ? res.data.nickname : "";
@@ -42,6 +45,10 @@ export default async function RegisterAction(e) {
       return res;
     } catch (error) {
       console.error(error);
+      return {
+        success: false,
+        message: "internale server errore  or server is downe",
+      };
     }
   }
 }

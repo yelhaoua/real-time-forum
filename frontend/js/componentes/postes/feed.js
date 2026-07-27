@@ -221,10 +221,11 @@ async function loadPosts() {
 
   const posts = result.data.all_posts;
 
-  let  postsHTML = ""
+  let postsHTML = "";
   if (posts) {
-    postsHTML = posts.map(
-      (post) => `
+    postsHTML = posts
+      .map(
+        (post) => `
         <article class="card feed-card" data-post-id="${post.id}">
             <div class="post-header">
               <div class="post-author">
@@ -268,9 +269,9 @@ async function loadPosts() {
               </div>
         </article>
       `,
-    )
-    .join("");
-  }else{
+      )
+      .join("");
+  } else {
     postsHTML = `
     <p style="
     width: 100%;
@@ -278,7 +279,7 @@ async function loadPosts() {
     flex-direction: column;
     align-content: center;
     text-align: center;
-    ">There no Posts</p>`
+    ">There no Posts</p>`;
   }
 
   const cardContainer = document.querySelector(".card-container");
@@ -289,10 +290,12 @@ async function loadPosts() {
 }
 
 export default function FeedPage() {
-  MainHeaders();
+  document.getElementById("dynamic_style").href =
+    "../../assets/styles/main-style.css";
+
   let link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "../../assets/styles/main-style.css";
+  link.href = "";
   document.head.appendChild(link);
 
   NavBar();

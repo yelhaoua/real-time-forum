@@ -266,6 +266,11 @@ body {
   letter-spacing: -0.025em;
 }
 
+.fullname_holder {
+  display: flex;
+  gap: 10px;
+}
+
 .subtitle {
   margin-top: 8px;
   color: var(--muted);
@@ -344,6 +349,7 @@ form {
   color: var(--faint);
 }
 
+.error,
 .auth-error {
   margin-top: 6px;
   font-size: 13px;

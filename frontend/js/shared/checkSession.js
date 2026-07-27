@@ -9,4 +9,5 @@ export default async function CheckSession() {
   if (req.ok) {
     window.location.href = "/";
   }
+  
 }

@@ -1,55 +1,58 @@
-import NavBar from "./js/componentes/nave-bare.js";
-import NotFoundPage from "./js/componentes/not-found.js";
-import routes from "./js/routes/routes.js";
+import {routes} from "./js/routes/routes.js";
 
-function matchRoute(pathname) {
-  for (const route in routes) {
-    const routeParts = route.split("/");
-    const pathParts = pathname.split("/");
+const getPath = () => {
+  const hash = window.location.hash.slice(1);
+  return hash || "/";
+};
 
-    if (routeParts.length !== pathParts.length) continue;
-    let params = {};
-    let matched = true;
+const urlLocationHandler = async () => {
+  const location = getPath();
+  const route = routes[location] || routes[404];
 
-    for (let i = 0; i < routeParts.length; i++) {
-      if (routeParts[i].startsWith(":")) {
-        params[routeParts[i].slice(1)] = pathParts[i];
-      } else if (routeParts[i] !== pathParts[i]) {
-        matched = false;
-        break;
-      }
+  try {
+    const html = await fetch(route.template).then((res) => {
+      if (!res.ok)
+        throw new Error(`HTTP $ {
+            res.status
+          }
+
+          - Template not found`);
+      return res.text();
+    });
+
+    document.getElementById("app").innerHTML = html;
+
+    if (typeof route.init === "function") {
+      await route.init();
     }
 
-    if (matched) {
-      return {
-        component: routes[route],
-        params,
-      };
-    }
+    document.title = route.title;
+  } catch (err) {
+    console.error("Failed to render page route:", err);
+  }
+};
+
+window.addEventListener("click", (e) => {
+  const anchor = e.target.closest("a");
+  if (!anchor) return;
+
+  const href = anchor.getAttribute("href");
+  if (!href) return;
+
+  if (href.startsWith("#/")) {
+    e.preventDefault();
+    window.location.hash = href;
   }
 
-  return null;
-}
-function router() {
-  const page = document.getElementById("app");
-
-  const currentHash = window.location.hash || "#/";
-  const cleanPath = currentHash.replace("#", "");
-
-  const match = matchRoute(cleanPath);
-
-  if (!match) {
-    page.innerHTML = NotFoundPage();
-    return;
+  if (href === "/logout") {
+    e.preventDefault();
+    window.location.hash = "#/logout";
   }
-  page.innerHTML = match.component(match.params);
-}
+});
 
-window.addEventListener("hashchange", router);
+window.addEventListener("hashchange", urlLocationHandler);
 
-window.addEventListener("DOMContentLoaded", router);
-
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", logout);
-}
+window.addEventListener("DOMContentLoaded", async () => {
+  
+  await urlLocationHandler();
+});

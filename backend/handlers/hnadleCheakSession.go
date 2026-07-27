@@ -17,12 +17,9 @@ func HnadleCheakSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "pleas login",
-		})
-		return
-	}
+	w.WriteHeader(http.StatusUnauthorized)
+	json.NewEncoder(w).Encode(utils.ResponseApi{
+		Success: false,
+		Message: "pleas login",
+	})
 }

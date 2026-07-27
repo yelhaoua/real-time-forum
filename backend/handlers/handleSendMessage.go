@@ -81,7 +81,6 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		messages.Sender_id = userId
-		messages.Recipient_id = messages.Recipient_id
 		broadcast <- messages
 
 	}
@@ -97,6 +96,11 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 	rows, err := config.Conn.Query("SELECT sender_id, recipient_id, content, timestamp FROM direct_messages WHERE recipient_id = ? OR sender_id = ? ORDER BY timestamp ASC", userId, userId)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
+		return
+	}
+	if rows.Err() != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
 		return
@@ -128,7 +132,7 @@ func HandleMessages() {
 		if receiverSocket, online := Clients[msg.Recipient_id]; online {
 			err := receiverSocket.WriteJSON(msg)
 			if err != nil {
-				log.Printf("rec err", msg.Recipient_id, err)
+				log.Printf("rec err: recipient_id=%d, error=%v", msg.Recipient_id, err)
 				receiverSocket.Close()
 				delete(Clients, msg.Recipient_id)
 			}

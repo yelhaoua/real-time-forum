@@ -82,6 +82,17 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	if res.Err() != nil {
+		fmt.Println("err2", res.Err())
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "server error ",
+			Error:   "server_error",
+		})
+		return
+	}
+
 	defer res.Close()
 	for res.Next() {
 		var c commentData

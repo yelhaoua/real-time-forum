@@ -101,6 +101,18 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	if res.Err() != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "InternalServerError",
+			Error:   "server-error",
+		})
+		return
+	}
+
+	defer res.Close()
 	var allMessages []chatInfo
 
 	for res.Next() {

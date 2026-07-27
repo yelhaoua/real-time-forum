@@ -289,7 +289,7 @@ async function loadPosts() {
   cardContainer.addEventListener("click", HandlePostActions);
 }
 
-export default function FeedPage() {
+export default async function FeedPage() {
   document.getElementById("dynamic_style").href =
     "../../assets/styles/main-style.css";
 
@@ -299,11 +299,6 @@ export default function FeedPage() {
   document.head.appendChild(link);
 
   NavBar();
-  loadPosts();
 
-  return `
-    <main class="feed-layout">
-      <div class="card-container"></div>
-    </main>
-  `;
+  loadPosts();
 }

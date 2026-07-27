@@ -10,54 +10,46 @@ import Messages from "../componentes/messages.js";
 export const routes = {
   "/": {
     title: "Home",
-    style: "",
-    template: "../../index.html",
+    template: "../../templates/feed.html",
     init: HomePage,
   },
   "/register": {
     title: "Register",
-    style: "",
-    template: "../../../index.html",
+    template: "../../index.html",
     init: RegisterFrom,
   },
   "/login": {
     title: "Login",
-    style: "",
-    template: "../../../index.html",
+    template: "../../index.html",
 
     init: loginforum,
   },
-  "/create-post": {
+  "/craet-post": {
     title: "Create Post",
-    style: "",
-    template: "../../../index.html",
 
+    template: "../../templates/creat-post.html",
     init: CreatePost,
   },
   "/logout": {
     title: "Logout",
-    style: "",
-    template: "../../../index.html",
+    template: "../../index.html",
 
     init: logout,
   },
   "/post/:id": {
     title: "Post Details",
-    style: "",
-    template: "../../../index.html",
+    template: "../../templates/post-details.html",
 
     init: PostDetailes,
   },
   "/chat-page": {
     title: "Chat",
-    style: "",
-    template: "../../../index.html",
+    template: "../../index.html",
     init: Messages,
   },
   "/chat/:id": {
     title: "Chat",
-    style: "",
-    template: "../../../index.html",
+    template: "../../index.html",
     init: ChatPage,
   },
 };

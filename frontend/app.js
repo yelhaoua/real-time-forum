@@ -1,29 +1,71 @@
-import {routes} from "./js/routes/routes.js";
+import { routes } from "./js/routes/routes.js";
 
 const getPath = () => {
   const hash = window.location.hash.slice(1);
   return hash || "/";
 };
 
+const matchRoute = (path) => {
+  if (routes[path]) {
+    return {
+      route: routes[path],
+      params: {},
+    };
+  }
+
+  for (const routePath in routes) {
+    const routeParts = routePath.split("/");
+    const pathParts = path.split("/");
+
+    if (routeParts.length !== pathParts.length) continue;
+
+    let matched = true;
+    const params = {};
+
+    for (let i = 0; i < routeParts.length; i++) {
+      const routePart = routeParts[i];
+      const pathPart = pathParts[i];
+
+      if (routePart.startsWith(":")) {
+        params[routePart.slice(1)] = pathPart;
+      } else if (routePart !== pathPart) {
+        matched = false;
+        break;
+      }
+    }
+
+    if (matched) {
+      return {
+        route: routes[routePath],
+        params,
+      };
+    }
+  }
+
+  return {
+    route: routes[404],
+    params: {},
+  };
+};
+
 const urlLocationHandler = async () => {
   const location = getPath();
-  const route = routes[location] || routes[404];
+
+  const { route, params } = matchRoute(location);
 
   try {
-    const html = await fetch(route.template).then((res) => {
-      if (!res.ok)
-        throw new Error(`HTTP $ {
-            res.status
-          }
+    const response = await fetch(route.template);
 
-          - Template not found`);
-      return res.text();
-    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} - Template not found`);
+    }
+
+    const html = await response.text();
 
     document.getElementById("app").innerHTML = html;
 
     if (typeof route.init === "function") {
-      await route.init();
+      await route.init(params);
     }
 
     document.title = route.title;
@@ -34,9 +76,11 @@ const urlLocationHandler = async () => {
 
 window.addEventListener("click", (e) => {
   const anchor = e.target.closest("a");
+
   if (!anchor) return;
 
   const href = anchor.getAttribute("href");
+
   if (!href) return;
 
   if (href.startsWith("#/")) {
@@ -52,7 +96,4 @@ window.addEventListener("click", (e) => {
 
 window.addEventListener("hashchange", urlLocationHandler);
 
-window.addEventListener("DOMContentLoaded", async () => {
-  
-  await urlLocationHandler();
-});
+window.addEventListener("DOMContentLoaded", urlLocationHandler);

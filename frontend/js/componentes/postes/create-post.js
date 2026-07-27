@@ -3,14 +3,11 @@ import Baner from "../ui/baner.js";
 import MainHeaders from "../../shared/main-headers.js";
 import CreatePostAction from "./actions/creat-post-action.js";
 
-export default function CreatePost() {
-  MainHeaders();
+export default async function CreatePost() {
   NavBar();
 
-  let link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "../../assets/styles/creat-post-style.css";
-  document.head.appendChild(link);
+  document.getElementById("dynamic_style").href =
+    "../../assets/styles/creat-post-style.css";
 
   document.body.addEventListener("submit", async (e) => {
     document.querySelector(".action-btn").disabled = true;
@@ -21,63 +18,19 @@ export default function CreatePost() {
     title_err.innerHTML = "";
     desc_err.innerHTML = "";
     img_err.innerHTML = "";
-    const res = await CreatePostAction(e);
-    if (!res.success) {
-      if (res.data?.title_error || res.data?.desc_error) {
-        title_err.innerHTML = res.data.title_error;
-        desc_err.innerHTML = res.data.desc_error;
-        img_err.innerHTML = res.data.image_error;
+    if (e.target.id === "creat-post-form") {
+      const res = await CreatePostAction(e);
+      if (!res.success) {
+        if (res.data?.title_error || res.data?.desc_error) {
+          title_err.innerHTML = res.data.title_error;
+          desc_err.innerHTML = res.data.desc_error;
+          img_err.innerHTML = res.data.image_error;
+          return;
+        }
+        Baner(res.message);
         return;
       }
       Baner(res.message);
-      return;
     }
-    Baner(res.message);
   });
-  return `
-    <form action="" id="creat-post-form" class="share-box create-post-card">
-        <div class="share-top">
-          <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-            alt="User Avatar"
-            class="avatar"
-          />
-          <div class="input-container">
-            <div class="input-wrapper">
-              <input type="text"  minlength="3"   maxlength="50" name="posttitle" placeholder="New Post Title" />
-              <button class="emoji-btn">
-                <i class="fa-regular fa-face-smile"></i>
-              </button>
-            </div>
-            <div class="title-err"></div>
-            <div class="input-wrapper">
-              <textarea name="postdesc"  minlength="10"  maxlength="500"  placeholder="New Post Description"></textarea>
-            </div>
-            <div class="desc-err"><div>
-          </div>
-        </div>
-
-        <hr class="divider" />
-
-        <div class="actions">
-          <label class="action-btn image-btn" for="image-upload">
-            <i class="fa-regular fa-image"></i> Image
-            <input
-              type="file"
-              id="image-upload"
-              name="postimage"
-              accept="image/*"
-              name="imagepost"
-              style="display: none"
-            />
-          </label>
-          
-
-          <button class="action-btn mention-btn" type="submit">
-            <i class="fa-regular fa-paper-plane"></i>
-          </button>
-        </div>
-        <div class="img-err"></div>
-    </form>
-    `;
 }

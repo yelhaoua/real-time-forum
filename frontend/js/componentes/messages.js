@@ -2,6 +2,7 @@ import escapeHtml from "../shared/formate-text.js";
 import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
+import wsProvider from "../shared/ws-provider.js";
 
 const MSG_LIMIT = 10;
 
@@ -222,28 +223,12 @@ async function fetchUsers() {
 }
 
 
-function setupSocket() {
+// WS message handler — registered while the messages page is mounted
+function onChatMessage(msg) {
   const state = getState();
-  if (state.ws && state.ws.readyState !== WebSocket.CLOSED) state.ws.close();
-
-  const ws = new WebSocket("ws://localhost:9090/ws");
-  state.ws = ws;
-
-  ws.onmessage = (event) => {
-    let msg;
-    try {
-      msg = JSON.parse(event.data);
-    } catch {
-      msg = { content: event.data, sender_id: state.activeUser?.id ?? null, sender_name: state.activeUser?.user_name ?? "Message", create_time: new Date().toLocaleTimeString() };
-    }
-
-    if (!state.activeUser || !isConversationMessage(msg, state.activeUser)) return;
-
-    state.chatHistory.AllMessages = integrateMessage(state.chatHistory.AllMessages || [], msg, state.activeUser);
-    renderChatBody(state);
-  };
-
-  ws.onerror = (err) => console.error("WebSocket error:", err);
+  if (!state.activeUser || !isConversationMessage(msg, state.activeUser)) return;
+  state.chatHistory.AllMessages = integrateMessage(state.chatHistory.AllMessages || [], msg, state.activeUser);
+  renderChatBody(state);
 }
 
 function initPage() {
@@ -253,7 +238,7 @@ function initPage() {
   const { backButton, chatForm, messageInput } = getChatShellElements();
   const usersList = document.querySelector("#users-list");
 
-  setupSocket();
+  wsProvider.on("message", onChatMessage);
   updateChatHeader(state);
   renderChatBody(state);
 
@@ -303,8 +288,7 @@ function initPage() {
       );
       renderChatBody(currentState);
 
-      if (currentState.ws?.readyState === WebSocket.OPEN) {
-        currentState.ws.send(JSON.stringify(payload));
+      if (wsProvider.send(payload)) {
         messageInput.value = "";
       } else {
         currentState.chatHistory.AllMessages = (currentState.chatHistory.AllMessages || []).filter((m) => !m.__optimistic);
@@ -318,9 +302,8 @@ function initPage() {
 export default function Messages() {
   MainHeaders();
 
-  if (window.__messagesPageState?.ws?.readyState < WebSocket.CLOSING) {
-    window.__messagesPageState.ws.close();
-  }
+  // Unsubscribe any previous mount's handler before resetting state
+  wsProvider.off("message", onChatMessage);
   window.__messagesPageState = createEmptyState();
 
   for (const href of ["../../assets/styles/messages.css", "../../assets/styles/chat-page.css"]) {

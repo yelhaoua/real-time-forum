@@ -1,4 +1,5 @@
 import { routes } from "./js/routes/routes.js";
+import wsProvider from "./js/shared/ws-provider.js";
 
 const getPath = () => {
   const hash = window.location.hash.slice(1);
@@ -65,6 +66,7 @@ const urlLocationHandler = async () => {
   const loggedIn = await isLoggedIn();
 
   if (!loggedIn && AUTH_ONLY.some((p) => location === p || (p.includes(":") && location.startsWith(p.split(":")[0])))) {
+    wsProvider.disconnect();
     window.location.hash = "#/login";
     return;
   }
@@ -73,6 +75,9 @@ const urlLocationHandler = async () => {
     window.location.hash = "#/";
     return;
   }
+
+  // Keep one shared WS connection alive for the whole session
+  if (loggedIn) wsProvider.connect();
 
   const { route, params } = matchRoute(location);
 

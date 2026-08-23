@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 
 	"real-time-forum/config"
@@ -17,90 +16,90 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-type Messages struct {
-	Content      string `json:"content"`
-	Recipient_id int    `json:"recipient_id"`
-	Sender_id    int    `json:"sender_id"`
+// WSMessage is the wire format for every WebSocket frame.
+type WSMessage struct {
+	Type        string `json:"type"`
+	Content     string `json:"content,omitempty"`
+	RecipientID int    `json:"recipient_id,omitempty"`
+	SenderID    int    `json:"sender_id,omitempty"`
+	SenderName  string `json:"sender_name,omitempty"`
 }
 
-var (
-	Clients   = make(map[int]*websocket.Conn)
-	broadcast = make(chan Messages)
-	Mu        sync.Mutex
-)
+var broadcast = make(chan WSMessage, 256)
 
 func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
-	userId, err := utils.CheckSession(w, r)
+
+	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "bad request",
-			Error:   "request_error",
-		})
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "unauthorized", Error: "unauthorized_error"})
 		return
 	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("err web", err)
+		fmt.Println("upgrade err:", err)
 		return
 	}
 
-	defer conn.Close()
-	Mu.Lock()
-	Clients[userId] = conn
-	Mu.Unlock()
+	Hub_.Register(userID, conn)
+	defer Hub_.Unregister(userID, conn)
 
-	broadcast <- Messages{
-		Content:      "SYSTEM_USER_ONLINE",
-		Sender_id:    userId,
-		Recipient_id: 0,
-	}
-	fmt.Println("conn ,", conn)
+	// Tell everyone this user is now online
+	broadcast <- WSMessage{Type: "user_online", SenderID: userID}
 
 	for {
-		var messages Messages
-
-		err := conn.ReadJSON(&messages)
-		if err != nil {
-			fmt.Println("err in for ,", err)
-			Mu.Lock()
-			delete(Clients, userId)
-			Mu.Unlock()
-			broadcast <- Messages{
-				Content:      "SYSTEM_USER_OFFLINE",
-				Sender_id:    userId,
-				Recipient_id: messages.Recipient_id,
-			}
+		var msg WSMessage
+		if err := conn.ReadJSON(&msg); err != nil {
+			// Connection closed — tell everyone this user is offline (if no sessions left after defer)
+			broadcast <- WSMessage{Type: "user_offline", SenderID: userID}
 			return
 		}
-		messages.Sender_id = userId
-		broadcast <- messages
+		msg.Type = "message"
+		msg.SenderID = userID
+		broadcast <- msg
+	}
+}
 
+func HandleMessages() {
+	for msg := range broadcast {
+		switch msg.Type {
+		case "user_online", "user_offline":
+			// Don't persist — just broadcast presence to all connected users
+			Hub_.BroadcastAll(msg)
+
+		case "message":
+			_, err := config.Conn.Exec(
+				`INSERT INTO direct_messages (sender_id, recipient_id, content, timestamp) VALUES (?, ?, ?, ?)`,
+				msg.SenderID, msg.RecipientID, msg.Content, time.Now(),
+			)
+			if err != nil {
+				log.Println("db insert err:", err)
+			}
+			// Deliver to recipient and echo back to all sender sessions
+			Hub_.SendToUser(msg.RecipientID, msg)
+			Hub_.SendToUser(msg.SenderID, msg)
+		}
 	}
 }
 
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
-	userId, err := utils.CheckSession(w, r)
+	userID, err := utils.CheckSession(w, r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "bad request", Error: "request_error"})
 		return
 	}
-	rows, err := config.Conn.Query("SELECT sender_id, recipient_id, content, timestamp FROM direct_messages WHERE recipient_id = ? OR sender_id = ? ORDER BY timestamp ASC", userId, userId)
+	rows, err := config.Conn.Query(
+		`SELECT sender_id, recipient_id, content, timestamp FROM direct_messages WHERE recipient_id = ? OR sender_id = ? ORDER BY timestamp ASC`,
+		userID, userID,
+	)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
-		return
-	}
-	if rows.Err() != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
 		return
@@ -116,34 +115,4 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		msgs = append(msgs, m)
 	}
 	json.NewEncoder(w).Encode(utils.ResponseApi{Success: true, Data: msgs})
-}
-
-func HandleMessages() {
-	for {
-		msg := <-broadcast
-
-		if msg.Content == "SYSTEM_USER_ONLINE" || msg.Content == "SYSTEM_USER_OFFLINE" {
-			// skip inster content in db 
-		} else {
-			query := `INSERT INTO direct_messages (sender_id, recipient_id, content, timestamp) VALUES (?, ?, ?, ?)`
-			_, err := config.Conn.Exec(query, msg.Sender_id, msg.Recipient_id, msg.Content, time.Now())
-			if err != nil {
-				log.Println("insert", err)
-			}
-		}
-		fmt.Println("inserted data")
-		Mu.Lock()
-		if receiverSocket, online := Clients[msg.Recipient_id]; online {
-			err := receiverSocket.WriteJSON(msg)
-			if err != nil {
-				log.Printf("rec err: recipient_id=%d, error=%v", msg.Recipient_id, err)
-				receiverSocket.Close()
-				delete(Clients, msg.Recipient_id)
-			}
-		}
-		if senderSocket, online := Clients[msg.Sender_id]; online {
-			senderSocket.WriteJSON(msg)
-		}
-		Mu.Unlock()
-	}
 }

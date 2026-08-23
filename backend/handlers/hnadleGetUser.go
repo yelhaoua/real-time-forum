@@ -180,11 +180,7 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 		var dbIdInt int
         fmt.Sscanf(user.Id, "%d", &dbIdInt)
 
-        Mu.Lock()
-        _, isOnline := Clients[dbIdInt]
-        Mu.Unlock()
-
-        user.IsOnline = isOnline
+        user.IsOnline = Hub_.IsOnline(dbIdInt)
         users = append(users, user)
 
     }

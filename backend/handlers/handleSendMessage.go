@@ -122,10 +122,14 @@ func HandleMessages() {
 	for {
 		msg := <-broadcast
 
-		query := `INSERT INTO direct_messages (sender_id, recipient_id, content ,timestamp) VALUES (?, ?, ? ,?)`
-		_, err := config.Conn.Exec(query, msg.Sender_id, msg.Recipient_id, msg.Content, time.Now())
-		if err != nil {
-			log.Println("insert", err)
+		if msg.Content == "SYSTEM_USER_ONLINE" || msg.Content == "SYSTEM_USER_OFFLINE" {
+			// skip inster content in db 
+		} else {
+			query := `INSERT INTO direct_messages (sender_id, recipient_id, content, timestamp) VALUES (?, ?, ?, ?)`
+			_, err := config.Conn.Exec(query, msg.Sender_id, msg.Recipient_id, msg.Content, time.Now())
+			if err != nil {
+				log.Println("insert", err)
+			}
 		}
 		fmt.Println("inserted data")
 		Mu.Lock()

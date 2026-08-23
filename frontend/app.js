@@ -48,8 +48,31 @@ const matchRoute = (path) => {
   };
 };
 
+async function isLoggedIn() {
+  try {
+    const req = await fetch("http://localhost:9090/checksession", { method: "GET", credentials: "include" });
+    return req.ok;
+  } catch {
+    return false;
+  }
+}
+
+const AUTH_ONLY = ["/", "/craet-post", "/chat-page", "/chat/:id"];
+const GUEST_ONLY = ["/login", "/register"];
+
 const urlLocationHandler = async () => {
   const location = getPath();
+  const loggedIn = await isLoggedIn();
+
+  if (!loggedIn && AUTH_ONLY.some((p) => location === p || (p.includes(":") && location.startsWith(p.split(":")[0])))) {
+    window.location.hash = "#/login";
+    return;
+  }
+
+  if (loggedIn && GUEST_ONLY.includes(location)) {
+    window.location.hash = "#/";
+    return;
+  }
 
   const { route, params } = matchRoute(location);
 

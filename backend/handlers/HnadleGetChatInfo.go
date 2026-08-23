@@ -71,6 +71,17 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
 	query := `
 	SELECT
 	dm.sender_id,
@@ -88,10 +99,11 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		(dm.sender_id = ? AND dm.recipient_id = ?)
 		OR
 		(dm.sender_id = ? AND dm.recipient_id = ?)
-	ORDER BY dm.timestamp ASC;
+	ORDER BY dm.timestamp DESC
+	LIMIT ? OFFSET ?;
 	`
 
-	res, err := config.Conn.Query(query, userID, ChatID, ChatID, userID)
+	res, err := config.Conn.Query(query, userID, ChatID, ChatID, userID, limit, offset)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
@@ -129,6 +141,11 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		allMessages = append(allMessages, message)
+	}
+
+	// reverse so messages are chronological (ASC) for the frontend
+	for i, j := 0, len(allMessages)-1; i < j; i, j = i+1, j-1 {
+		allMessages[i], allMessages[j] = allMessages[j], allMessages[i]
 	}
 
 	var resc_user_name string

@@ -3,8 +3,10 @@ import MainHeaders from "../shared/main-headers.js";
 import NavBar from "./nave-bare.js";
 import Baner from "./ui/baner.js";
 
+const MSG_LIMIT = 10;
+
 function createEmptyState() {
-  return { users: [], activeUser: null, chatHistory: { Resc_user_name: "", AllMessages: [] }, ws: null };
+  return { users: [], activeUser: null, chatHistory: { Resc_user_name: "", AllMessages: [] }, ws: null, offset: 0, allLoaded: false, loadingMore: false };
 }
 
 function getState() {
@@ -99,7 +101,7 @@ function integrateMessage(list, freshMessage, activeUser) {
 }
 
 
-function renderChatBody(state) {
+function renderChatBody(state, autoScroll = true) {
   const { chatBody } = getChatShellElements();
   if (!chatBody) return;
 
@@ -113,7 +115,7 @@ function renderChatBody(state) {
   }
 
   chatBody.innerHTML = messages.map((m) => renderMessage(state.activeUser.id, m)).join("");
-  chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
+  if (autoScroll) chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
 }
 
 function updateChatHeader(state) {
@@ -134,6 +136,9 @@ function selectUser(user) {
   const state = getState();
   state.activeUser = user ?? null;
   state.chatHistory = { Resc_user_name: user?.user_name ?? "", AllMessages: [] };
+  state.offset = 0;
+  state.allLoaded = false;
+  state.loadingMore = false;
 
   document.querySelector(".Messages-box")?.classList.toggle("chat-open", !!user);
   document.querySelectorAll(".user-row").forEach((row) =>
@@ -147,10 +152,10 @@ function selectUser(user) {
 
 // ── Data fetching ─────────────────────────────────────────────────────────────
 
-async function fetchMessagesForUser(user) {
+async function fetchMessagesForUser(user, offset = 0) {
   const state = getState();
   try {
-    const req = await fetch(`http://localhost:9090/getcahtinfo/${user.id}`, {
+    const req = await fetch(`${API_BASE}/getcahtinfo/${user.id}?limit=${MSG_LIMIT}&offset=${offset}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -163,15 +168,30 @@ async function fetchMessagesForUser(user) {
     const history = res.data || { Resc_user_name: user.user_name, AllMessages: [] };
     state.chatHistory.Resc_user_name = history.Resc_user_name || user.user_name;
 
-    (history.AllMessages || []).forEach((msg) => {
-      if (!isConversationMessage(msg, user)) return;
-      state.chatHistory.AllMessages = integrateMessage(state.chatHistory.AllMessages, msg, user);
-    });
+    const incoming = history.AllMessages || [];
+    if (incoming.length < MSG_LIMIT) state.allLoaded = true;
 
-    updateChatHeader(state);
-    renderChatBody(state);
+    if (offset === 0) {
+      incoming.forEach((msg) => {
+        if (!isConversationMessage(msg, user)) return;
+        state.chatHistory.AllMessages = integrateMessage(state.chatHistory.AllMessages, msg, user);
+      });
+      updateChatHeader(state);
+      renderChatBody(state);
+    } else {
+      const { chatBody } = getChatShellElements();
+      const prevHeight = chatBody ? chatBody.scrollHeight : 0;
+      incoming.forEach((msg) => {
+        if (!isConversationMessage(msg, user)) return;
+        state.chatHistory.AllMessages = [normalizeMessage(msg, user), ...state.chatHistory.AllMessages];
+      });
+      renderChatBody(state, false);
+      if (chatBody) chatBody.scrollTop = chatBody.scrollHeight - prevHeight;
+    }
   } catch (err) {
     console.error("Failed to fetch messages:", err);
+  } finally {
+    state.loadingMore = false;
   }
 }
 
@@ -236,6 +256,18 @@ function initPage() {
   setupSocket();
   updateChatHeader(state);
   renderChatBody(state);
+
+  const { chatBody } = getChatShellElements();
+  if (chatBody && !chatBody.dataset.bound) {
+    chatBody.dataset.bound = "true";
+    chatBody.addEventListener("scroll", () => {
+      const s = getState();
+      if (chatBody.scrollTop > 0 || !s.activeUser || s.allLoaded || s.loadingMore) return;
+      s.loadingMore = true;
+      s.offset += MSG_LIMIT;
+      fetchMessagesForUser(s.activeUser, s.offset);
+    });
+  }
 
   if (usersList && !usersList.dataset.bound) {
     usersList.dataset.bound = "true";

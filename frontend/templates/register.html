@@ -68,6 +68,36 @@
           </div>
 
           <div>
+            <label class="field-label" for="user-age">Your Age</label>
+            <div class="field">
+              <span class="ic"><i class="fa-regular fa-user"></i></span>
+              <input
+                id="user-age"
+                name="user-age"
+                type="number"
+                placeholder="18"
+                min="1"
+                max="120"
+                required
+              />
+            </div>
+            <span class="error" id="user-age-Err"></span>
+          </div>
+
+          <div>
+            <label class="field-label" for="user-gender">Your Gender</label>
+            <div class="field">
+              <span class="ic"><i class="fa-regular fa-user"></i></span>
+              <select id="user-gender" name="user-gender" required>
+                <option value="" disabled selected>Select your gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <span class="error" id="gender-Err"></span>
+          </div>
+
+          <div>
             <label class="field-label" for="email">Email</label>
             <div class="field">
               <span class="ic"><i class="fa-regular fa-envelope"></i> </span>

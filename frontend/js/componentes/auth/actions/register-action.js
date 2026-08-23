@@ -16,6 +16,7 @@ export default async function RegisterAction(e) {
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
+    data["user-age"] = parseInt(data["user-age"], 10);
     try {
       const response = await fetch("http://localhost:9090/register", {
         method: "POST",
@@ -28,7 +29,7 @@ export default async function RegisterAction(e) {
       console.log(res);
 
       if (!response.ok) {
-        if (res.data.message == "login") {
+        if (res.message == "login") {
           window.location.href = "/";
           return {
             success: false,
@@ -37,9 +38,7 @@ export default async function RegisterAction(e) {
         }
         if (res.data) {
           nickNameErr.innerHTML = res.data.nickname ? res.data.nickname : "";
-          fristNameErr.innerHTML = res.data.first_name
-            ? res.data.first_name
-            : "";
+          fristNameErr.innerHTML = res.data.first_name ? res.data.first_name  : "";
           lastNameErr.innerHTML = res.data.last_name ? res.data.last_name : "";
           emailErr.innerHTML = res.data.email ? res.data.email : "";
           passErr.innerHTML = res.data.password ? res.data.password : "";

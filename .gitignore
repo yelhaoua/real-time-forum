@@ -5,3 +5,4 @@ real-time-forum.db
 *.db-wal
 *.db-shm
 *.real-time-forum.db
+TODO.md

@@ -21,6 +21,8 @@ type Registerdata struct {
 	FristName string `json:"first-name"`
 	LastName  string `json:"last-name"`
 	Email     string `json:"email"`
+	Age       int    `json:"user-age"`
+	Gender    string `json:"user-gender"`
 	Password  string `json:"password"`
 }
 
@@ -136,9 +138,9 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Println(hashPassword)
-	_, err = config.Conn.Exec("INSERT INTO users (nick_name ,frist_name, last_name ,email, password, created_at) VALUES (?, ?, ?, ? ,?, ?)",
-		data.NickName, data.FristName, data.LastName, data.Email, hashPassword, time.Now())
+	// fmt.Println(hashPassword)
+	_, err = config.Conn.Exec("INSERT INTO users (nick_name ,frist_name, last_name ,email, age, gender, password, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		data.NickName, data.FristName, data.LastName, data.Email, data.Age, data.Gender, hashPassword, time.Now())
 	fmt.Println("err", err)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {

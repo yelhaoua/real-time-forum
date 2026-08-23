@@ -16,6 +16,8 @@ func testTAble() {
     frist_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
+    age TEXT NOT NULL,
+    gender  TEXT NOT NULL,
     password TEXT NOT NULL,
     profile_image TEXT DEFAULT '/static/images/default-banner.png', 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -28,7 +28,7 @@ export default async function loginforum() {
       }
       Baner(res.message);
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.hash = "#/";
       }, 1000);
     }
   });

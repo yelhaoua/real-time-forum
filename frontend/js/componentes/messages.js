@@ -156,7 +156,7 @@ function selectUser(user) {
 async function fetchMessagesForUser(user, offset = 0) {
   const state = getState();
   try {
-    const req = await fetch(`${API_BASE}/getcahtinfo/${user.id}?limit=${MSG_LIMIT}&offset=${offset}`, {
+    const req = await fetch(`http://localhost:9090/getcahtinfo/${user.id}?limit=${MSG_LIMIT}&offset=${offset}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

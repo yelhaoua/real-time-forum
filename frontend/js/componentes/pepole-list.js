@@ -72,7 +72,7 @@ export default function ChatList() {
         <a href="#/chat/${user.id}" class="list-item chat-item" data-id="${user.id}">
           <div class="item-info">
             <div class="chat-avatar">
-              <img src="http://localhost:9090/uploads${user.profile_image}" alt="${user.profile_image}">
+              <img src="/uploads${user.profile_image}" alt="${user.profile_image}">
             </div>
             <div class="item-text">
               <h4>${user.user_name}</h4>

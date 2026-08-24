@@ -16,7 +16,7 @@ export default function CommentForm(postId) {
 
       try {
         const req = await fetch(
-          `http://localhost:9090/creat-commente/${postId}`,
+          `/creat-commente/${postId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

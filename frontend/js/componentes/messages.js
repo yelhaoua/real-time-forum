@@ -208,12 +208,27 @@ async function fetchUsers() {
     const list = document.querySelector("#users-list");
     if (!list) return;
 
+    if (!state.users.length) {
+      list.innerHTML = `
+        <div class="users-empty-state">
+          <div class="users-empty-icon">
+            <i class="fa-regular fa-comments"></i>
+          </div>
+          <h3 class="users-empty-title">No users yet</h3>
+          <p class="users-empty-desc">When other people join the forum, they'll appear here and you can start a conversation.</p>
+        </div>`;
+      return;
+    }
+
     list.innerHTML = state.users.map((u) => `
       <div class="user-row ${u.is_online ? "online" : "offline"}" data-username="${escapeHtml(u.user_name)}" data-id="${u.id}">
-        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="user-avatar">
+        <div class="user-avatar-wrap">
+          <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
+          <span class="online-dot"></span>
+        </div>
         <div class="user-info">
           <span class="user-name">${escapeHtml(u.user_name)}</span>
-          <span class="user-status">${u.is_online ? "Online" : ""}</span>
+          <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
         </div>
       </div>`).join("");
   } catch (err) {

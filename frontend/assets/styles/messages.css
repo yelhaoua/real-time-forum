@@ -168,6 +168,73 @@
   }
 }
 
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+
+.users-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.users-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.users-empty-icon i {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.users-empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 8px;
+}
+
+.users-empty-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 220px;
+  margin: 0;
+}
+
+/* ── Online dot ───────────────────────────────────────────────────────────── */
+
+.user-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #fafafa;
+  background-color: var(--status-offline);
+}
+
+.user-row.online .online-dot {
+  background-color: var(--status-online);
+}
+
+/* ── Mobile chat header ───────────────────────────────────────────────────── */
+
 .mobile-chat-header {
   display: none;
   background-color: var(--bg-card);

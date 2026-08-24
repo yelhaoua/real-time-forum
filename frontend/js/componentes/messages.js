@@ -328,11 +328,8 @@ export default function Messages() {
   }
 
   NavBar();
-  document.querySelector(".Messages-box")?.classList.remove("chat-open");
-  fetchUsers();
-  setTimeout(initPage, 0);
 
-  return `
+  document.getElementById("app").innerHTML = `
     <div class="Messages-box">
       <div id="users-list"></div>
 
@@ -374,4 +371,7 @@ export default function Messages() {
         </main>
       </div>
     </div>`;
+
+  fetchUsers();
+  setTimeout(initPage, 0);
 }

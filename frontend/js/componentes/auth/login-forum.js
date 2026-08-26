@@ -1,35 +1,45 @@
 import CheckSession from "../../shared/checkSession.js";
-import Baner from "../ui/baner.js";
+import Banner from "../ui/baner.js";
 import LoginAction from "./actions/login-action.js";
 
 export default async function loginforum() {
-  document.getElementById("dynamic_style").href =
-    "../../../assets/styles/login.css";
+  await CheckSession();
 
-  async () => {
-    await CheckSession();
-  };
+  const styleTag = document.getElementById("dynamic_style");
+  if (styleTag) {
+    styleTag.href = "../../../assets/styles/login.css";
+  }
 
-  const html = await fetch("../../../templates/login.html").then((res) =>
-    res.text(),
-  );
+  const response = await fetch("../../../templates/login.html");
+  const html = await response.text();
 
-  document.getElementById("app").innerHTML = html;
+  const appElement = document.getElementById("app");
+  appElement.innerHTML = html;
 
-  document.getElementById("nav-bar").classList = "hidden";
+  const navBar = document.getElementById("nav-bar");
+  if (navBar) {
+    navBar.innerHTML = "";
+  }
 
-  document.addEventListener("submit", async (e) => {
-    if (e.target.id === "LoginForm") {
-      const res = await LoginAction(e);
-      console.log(res);
-      if (!res.success) {
-        Baner(res.error, res.message);
-        return;
-      }
-      Baner(res.message);
-      setTimeout(() => {
-        window.location.hash = "#/";
-      }, 1000);
-    }
-  });
+  const loginForm = document.getElementById("LoginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", handleFormSubmit);
+  }
+}
+
+async function handleFormSubmit(e) {
+  const res = await LoginAction(e);
+  if (!res) return;
+
+  if (!res.success) {
+    const errorTitle = res.error || "Login Error";
+    const errorMessage = res.message || "Invalid email or password.";
+    Banner(errorTitle, errorMessage);
+    return;
+  }
+
+  Banner("Success", res.message || "Login successful!");
+  setTimeout(() => {
+    window.location.hash = "#/";
+  }, 1000);
 }

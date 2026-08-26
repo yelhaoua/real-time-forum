@@ -19,6 +19,18 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "method not allowed",
+			Error:   "method_error",
+		})
+		return
+	}
+
+
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -30,15 +42,6 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "method not allowed",
-			Error:   "method_error",
-		})
-		return
-	}
 	type userData struct {
 		Id            string `json:"id"`
 		UserName      string `json:"user_name"`
@@ -180,7 +183,7 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 		var dbIdInt int
         fmt.Sscanf(user.Id, "%d", &dbIdInt)
 
-        user.IsOnline = Hub_.IsOnline(dbIdInt)
+        user.IsOnline = IsOnline(Hub_ ,dbIdInt)
         users = append(users, user)
 
     }

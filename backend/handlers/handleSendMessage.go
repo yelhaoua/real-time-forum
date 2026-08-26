@@ -46,8 +46,8 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Hub_.Register(userID, conn)
-	defer Hub_.Unregister(userID, conn)
+	Register(Hub_, userID, conn)
+	// defer Unregister(Hub_ ,userID, conn)
 
 	// Tell everyone this user is now online
 	broadcast <- WSMessage{Type: "user_online", SenderID: userID}
@@ -70,7 +70,7 @@ func HandleMessages() {
 		switch msg.Type {
 		case "user_online", "user_offline":
 			// Don't persist — just broadcast presence to all connected users
-			Hub_.BroadcastAll(msg)
+			BroadcastAll(Hub_, msg)
 
 		case "message":
 			_, err := config.Conn.Exec(
@@ -81,8 +81,8 @@ func HandleMessages() {
 				log.Println("db insert err:", err)
 			}
 			// Deliver to recipient and echo back to all sender sessions
-			Hub_.SendToUser(msg.RecipientID, msg)
-			Hub_.SendToUser(msg.SenderID, msg)
+			SendToUser(Hub_, msg.RecipientID, msg)
+			SendToUser(Hub_, msg.SenderID, msg)
 		}
 	}
 }
@@ -99,7 +99,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		`SELECT sender_id, recipient_id, content, timestamp FROM direct_messages WHERE recipient_id = ? OR sender_id = ? ORDER BY timestamp ASC`,
 		userID, userID,
 	)
-	if err != nil {
+	if err != nil || rows.Err() != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
 		return

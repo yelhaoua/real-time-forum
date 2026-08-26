@@ -293,12 +293,12 @@ export default async function FeedPage() {
   document.getElementById("dynamic_style").href =
     "../../assets/styles/main-style.css";
 
-  let link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "";
-  document.head.appendChild(link);
+  // let link = document.createElement("link");
+  // link.rel = "stylesheet";
+  // link.href = "";
+  // document.head.appendChild(link);
 
-  NavBar();
+  await NavBar();
 
   loadPosts();
 }

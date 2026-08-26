@@ -1,57 +1,72 @@
 export default async function RegisterAction(e) {
+  e.preventDefault();
 
-  
-  let nickNameErr = document.getElementById("nickname-Err");
-  let fristNameErr = document.getElementById("first-name-Err");
-  let lastNameErr = document.getElementById("last-name-Err");
-  let emailErr = document.getElementById("email-Err");
-  let passErr = document.getElementById("pass-Err");
-  if (e.target.id === "RegisterForm") {
-    e.preventDefault();
-    nickNameErr.innerHTML = "";
-    fristNameErr.innerHTML = "";
-    lastNameErr.innerHTML = "";
-    emailErr.innerHTML = "";
-    passErr.innerHTML = "";
+  // Safely query DOM elements on submit
+  const nickNameErr = document.getElementById("nickname-Err");
+  const firstNameErr = document.getElementById("first-name-Err");
+  const lastNameErr = document.getElementById("last-name-Err");
+  const emailErr = document.getElementById("email-Err");
+  const passErr = document.getElementById("pass-Err");
 
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data["user-age"] = parseInt(data["user-age"], 10);
-    try {
-      const response = await fetch("http://localhost:9090/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
+  // Helper to clear errors safely
+  const clearError = (el) => {
+    if (el) el.innerHTML = "";
+  };
+  clearError(nickNameErr);
+  clearError(firstNameErr);
+  clearError(lastNameErr);
+  clearError(emailErr);
+  clearError(passErr);
 
-      const res = await response.json();
-      console.log(res);
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
 
-      if (!response.ok) {
-        if (res.message == "login") {
-          window.location.href = "/";
-          return {
-            success: false,
-            message: "you alredy have session",
-          };
-        }
-        if (res.data) {
-          nickNameErr.innerHTML = res.data.nickname ? res.data.nickname : "";
-          fristNameErr.innerHTML = res.data.first_name ? res.data.first_name  : "";
-          lastNameErr.innerHTML = res.data.last_name ? res.data.last_name : "";
-          emailErr.innerHTML = res.data.email ? res.data.email : "";
-          passErr.innerHTML = res.data.password ? res.data.password : "";
-        }
-        return res;
+  // Parse age safely
+  data["user-age"] = parseInt(data["user-age"], 10) || 0;
+
+  try {
+    const response = await fetch("http://localhost:9090/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      credentials: "include",
+    });
+
+    const res = await response.json();
+
+    if (!response.ok) {
+      if (res.message === "login") {
+        window.location.hash = "#/";
+        return {
+          success: false,
+          error: "session_exists",
+          message: "You are already logged in.",
+        };
       }
-      return res;
-    } catch (error) {
-      console.error(error);
+
+      // Map backend validation errors to UI fields
+      if (res.data) {
+        if (nickNameErr) nickNameErr.innerHTML = res.data.nickname || "";
+        if (firstNameErr) firstNameErr.innerHTML = res.data.first_name || "";
+        if (lastNameErr) lastNameErr.innerHTML = res.data.last_name || "";
+        if (emailErr) emailErr.innerHTML = res.data.email || "";
+        if (passErr) passErr.innerHTML = res.data.password || "";
+      }
+
       return {
         success: false,
-        message: "internale server errore  or server is downe",
+        error: res.error || "registration_error",
+        message: res.message || "Validation failed.",
       };
     }
+
+    return res;
+  } catch (error) {
+    console.error("Register network error:", error);
+    return {
+      success: false,
+      error: "server_error",
+      message: "Internal server error or server is unreachable.",
+    };
   }
 }

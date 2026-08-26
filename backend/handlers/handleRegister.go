@@ -16,9 +16,9 @@ import (
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
-type Registerdata struct {
-	NickName  string `json:"Nickname"`
-	FristName string `json:"first-name"`
+type RegisterData struct {
+	Nickname  string `json:"nickname"`
+	FirstName string `json:"first-name"`
 	LastName  string `json:"last-name"`
 	Email     string `json:"email"`
 	Age       int    `json:"user-age"`
@@ -27,11 +27,13 @@ type Registerdata struct {
 }
 
 type RegisterErrors struct {
-	NickName  string `json:"nickname"`
-	FristName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Nickname  string `json:"nickname,omitempty"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Password  string `json:"password,omitempty"`
+	Age       string `json:"age,omitempty"`
+	Gender    string `json:"gender,omitempty"`
 }
 
 func ValidateEmail(email string) bool {
@@ -42,55 +44,63 @@ func ValidateEmail(email string) bool {
 	return emailRegex.MatchString(email)
 }
 
-func CheckName(names string) bool {
-	if len(strings.TrimSpace(names)) < 3 || len(strings.TrimSpace(names)) > 10 {
-		return true
-	}
-	return false
+func IsValidName(name string) bool {
+	trimmed := strings.TrimSpace(name)
+	return len(trimmed) >= 2 && len(trimmed) <= 50
 }
 
-func Validatore(data Registerdata, Errors *RegisterErrors) bool {
+func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
+	var errs RegisterErrors
 	hasErr := false
-	fmt.Println("data", data.NickName, CheckName(data.NickName))
-	if CheckName(data.NickName) {
+
+	// Normalize text inputs
+	data.Nickname = strings.TrimSpace(data.Nickname)
+	data.FirstName = strings.TrimSpace(data.FirstName)
+	data.LastName = strings.TrimSpace(data.LastName)
+	data.Email = strings.ToLower(strings.TrimSpace(data.Email))
+
+	if !IsValidName(data.Nickname) {
 		hasErr = true
-		Errors.NickName = "please enter valid nickname"
+		errs.Nickname = "Nickname must be between 2 and 50 characters"
 	}
-	fmt.Println("data", data.FristName, CheckName(data.FristName))
-	if CheckName(data.FristName) {
+
+	if !IsValidName(data.FirstName) {
 		hasErr = true
-		Errors.FristName = "please enter valid frist name"
+		errs.FirstName = "First name must be between 2 and 50 characters"
 	}
-	fmt.Println("data", data.LastName, CheckName(data.LastName))
-	if CheckName(data.LastName) {
+
+	if !IsValidName(data.LastName) {
 		hasErr = true
-		Errors.LastName = "please enter valid last name"
+		errs.LastName = "Last name must be between 2 and 50 characters"
 	}
-	if !ValidateEmail(strings.TrimSpace(data.Email)) {
+
+	if !ValidateEmail(data.Email) {
 		hasErr = true
-		Errors.Email = "please enter valid email"
+		errs.Email = "Please enter a valid email address"
 	}
+
 	if len(data.Password) < 8 {
 		hasErr = true
-		Errors.Password = "please enter valid password"
+		errs.Password = "Password must be at least 8 characters long"
 	}
-	return hasErr
+
+	if data.Age < 13 || data.Age > 120 {
+		hasErr = true
+		errs.Age = "Age must be between 13 and 120"
+	}
+
+	if data.Gender == "" {
+		hasErr = true
+		errs.Gender = "Please select a gender"
+	}
+
+	return errs, hasErr
 }
 
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
-	if r.Method == "OPTIONS" {
+	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	_, err := utils.CheckSession(w, r)
-	if err == nil {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "login",
-		})
 		return
 	}
 
@@ -98,84 +108,95 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "method not allowed",
+			Message: "Method not allowed",
 		})
 		return
 	}
 
-	var data Registerdata
-	var Errors RegisterErrors
+	// Prevent logged-in users from registering again
+	_, err := utils.CheckSession(w, r)
+	if err == nil {
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Already authenticated",
+		})
+		return
+	}
 
-	err = json.NewDecoder(r.Body).Decode(&data)
-	fmt.Println("data alll", data)
-	if err != nil {
+	var data RegisterData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "invalid json body",
+			Message: "Invalid JSON payload",
 			Error:   "input_error",
 		})
 		return
 	}
 
-	if Validatore(data, &Errors) {
-		fmt.Println(data, Errors, "hh111111")
+	validationErrs, hasErr := ValidateRegistration(&data)
+	if hasErr {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Data:    Errors,
+			Data:    validationErrs,
 			Error:   "input_error",
 		})
 		return
 	}
-	hashPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "server error",
+			Message: "Server error",
 			Error:   "server_error",
 		})
 		return
 	}
-	// fmt.Println(hashPassword)
-	_, err = config.Conn.Exec("INSERT INTO users (nick_name ,frist_name, last_name ,email, age, gender, password, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		data.NickName, data.FristName, data.LastName, data.Email, data.Age, data.Gender, hashPassword, time.Now())
-	fmt.Println("err", err)
+
+	query := `INSERT INTO users (nick_name, frist_name, last_name, email, age, gender, password, created_at) 
+	          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+
+	_, err = config.Conn.Exec(
+		query,
+		data.Nickname, data.FirstName, data.LastName, data.Email,
+		data.Age, data.Gender, string(hashedPassword), time.Now(),
+	)
 	if err != nil {
+		fmt.Println("err", err)
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			if strings.Contains(err.Error(), "users.email") || strings.Contains(err.Error(), "users.nick_name") {
-				Errors.NickName = "duplicated user nick_name or user email"
-				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(utils.ResponseApi{
-					Success: false,
-					Data:    Errors,
-				})
-				return
+			var errs RegisterErrors
+			if strings.Contains(err.Error(), "users.email") {
+				errs.Email = "Email is already in use"
+			}
+			if strings.Contains(err.Error(), "users.nick_name") {
+				errs.Nickname = "Nickname is already taken"
 			}
 
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusConflict)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,
-				Message: "data base Error pleas try agin later",
-				Error:   "data_base_error",
+				Data:    errs,
+				Error:   "conflict_error",
 			})
 			return
-
 		}
-		Errors.Email = "duplicated user email or user name"
+
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Data:    Errors,
+			Message: "Database error, please try again later",
+			Error:   "database_error",
 		})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
-		Message: "you are registerd",
+		Message: "Registration successful",
 	})
 }

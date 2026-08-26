@@ -7,6 +7,8 @@ export default async function NavBar() {
   link.rel = "stylesheet";
   link.href = "../../assets/styles/nav-var.css";
   document.head.appendChild(link);
+  console.log("nave bare");
+  
 
   try {
     const req = await fetch("http://localhost:9090/getinfo", {

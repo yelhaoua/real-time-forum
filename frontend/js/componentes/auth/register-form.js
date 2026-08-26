@@ -1,35 +1,49 @@
-import Baner from "../ui/baner.js";
+import Banner from "../ui/baner.js";
 import CheckSession from "../../shared/checkSession.js";
 import RegisterAction from "../auth/actions/register-action.js";
 
 export default async function RegisterForm() {
-  document.getElementById("dynamic_style").href =
-    "../../../assets/styles/login.css";
+  // 1. Properly await session check
+  await CheckSession();
 
-  async () => {
-    await CheckSession();
-  };
+  // Load stylesheet
+  const styleTag = document.getElementById("dynamic_style");
+  if (styleTag) {
+    styleTag.href = "../../../assets/styles/login.css";
+  }
 
-  const html = await fetch("../../../templates/register.html").then((res) =>
-    res.text(),
-  );
+  // Load template
+  const response = await fetch("../../../templates/register.html");
+  const html = await response.text();
   document.getElementById("app").innerHTML = html;
-  document.getElementById("nav-bar").classList = "hidden";
-  document.addEventListener("submit", async (e) => {
-   
 
-    if (e.target.id === "RegisterForm") {
-      const res = await RegisterAction(e);
-      console.log(res);
-      
-      if (!res.success) {
-        Baner(res.error, res.message);
-        return;
-      }
-      Baner(res.message);
-      setTimeout(() => {
-        window.location.href = "/#/login";
-      }, 1000);
-    }
-  });
+  // Remove nav-bar if present
+  const navBar = document.getElementById("nav-bar");
+  if (navBar) {
+    navBar.innerHTML ="";
+  }
+
+  // Attach submit event directly to the form
+  const formElement = document.getElementById("RegisterForm");
+  if (formElement) {
+    formElement.addEventListener("submit", handleFormSubmit);
+  }
+}
+
+async function handleFormSubmit(e) {
+  const res = await RegisterAction(e);
+  if (!res) return;
+
+  if (!res.success) {
+    Banner(
+      res.error || "Registration Failed",
+      res.message || "Please fix the errors below.",
+    );
+    return;
+  }
+
+  Banner("Success", res.message || "Registration completed!");
+  setTimeout(() => {
+    window.location.hash = "#/login";
+  }, 1000);
 }

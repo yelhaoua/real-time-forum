@@ -2,90 +2,138 @@ package handler
 
 import (
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-// Hub manages all active WebSocket connections.
-// Each user can have multiple simultaneous sessions (tabs/devices).
+const (
+	writeWait  = 10 * time.Second
+	bufferSize = 256
+)
+
+type Client struct {
+	UserID int
+	Conn   *websocket.Conn
+	Send   chan any
+}
+
 type Hub struct {
-	mu      sync.RWMutex
-	clients map[int]map[*websocket.Conn]bool // userID → set of conns
+	Mu      sync.RWMutex
+	Clients map[int]map[*Client]bool 
 }
 
-var Hub_ = &Hub{
-	clients: make(map[int]map[*websocket.Conn]bool),
-}
+var Hub_ = NewHub()
 
-// Register adds a connection for a user.
-func (h *Hub) Register(userID int, conn *websocket.Conn) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	if h.clients[userID] == nil {
-		h.clients[userID] = make(map[*websocket.Conn]bool)
+func NewHub() *Hub {
+	return &Hub{
+		Clients: make(map[int]map[*Client]bool),
 	}
-	h.clients[userID][conn] = true
 }
 
-// Unregister removes a specific connection. Deletes the user entry when last session closes.
-func (h *Hub) Unregister(userID int, conn *websocket.Conn) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	conns := h.clients[userID]
-	if conns == nil {
+func WritePump(h *Hub, client *Client) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer func() {
+		ticker.Stop()
+		Unregister(h, client)
+	}()
+
+	for {
+		select {
+		case message, ok := <-client.Send:
+			client.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if !ok {
+				client.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+
+			if err := client.Conn.WriteJSON(message); err != nil {
+				return
+			}
+		case <-ticker.C:
+			client.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := client.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
+		}
+	}
+}
+
+func Register(h *Hub, userID int, conn *websocket.Conn) *Client {
+	client := &Client{
+		UserID: userID,
+		Conn:   conn,
+		Send:   make(chan any, bufferSize),
+	}
+
+	h.Mu.Lock()
+	if h.Clients[userID] == nil {
+		h.Clients[userID] = make(map[*Client]bool)
+	}
+	h.Clients[userID][client] = true
+	h.Mu.Unlock()
+
+	go WritePump(h, client)
+	return client
+}
+
+func Unregister(h *Hub, client *Client) {
+	h.Mu.Lock()
+	defer h.Mu.Unlock()
+
+	conns, exists := h.Clients[client.UserID]
+	if !exists {
 		return
 	}
-	delete(conns, conn)
-	conn.Close()
+
+	if _, found := conns[client]; found {
+		delete(conns, client)
+		close(client.Send)
+		client.Conn.Close()
+	}
+
 	if len(conns) == 0 {
-		delete(h.clients, userID)
+		delete(h.Clients, client.UserID)
 	}
 }
 
-// IsOnline reports whether a user has at least one active connection.
-func (h *Hub) IsOnline(userID int) bool {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return len(h.clients[userID]) > 0
+func IsOnline(h *Hub, userID int) bool {
+	h.Mu.RLock()
+	defer h.Mu.RUnlock()
+	return len(h.Clients[userID]) > 0
 }
 
-// SendToUser delivers msg to every active session of a single user.
-func (h *Hub) SendToUser(userID int, msg any) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.writeToUser(userID, msg)
+func SendToUser(h *Hub, userID int, msg any) {
+	h.Mu.RLock()
+	defer h.Mu.RUnlock()
+
+	for client := range h.Clients[userID] {
+		select {
+		case client.Send <- msg:
+		default:
+			go Unregister(h, client)
+		}
+	}
 }
 
-// Notify sends a typed notification envelope to a single user.
-//
-//	hub.Notify(userID, "new_message", payload)
-//	hub.Notify(userID, "user_online",  map[string]any{"user_id": id})
-func (h *Hub) Notify(userID int, notifType string, data any) {
-	h.SendToUser(userID, map[string]any{
+func Notify(h *Hub, userID int, notifType string, data any) {
+	SendToUser(h, userID, map[string]any{
 		"type": notifType,
 		"data": data,
 	})
 }
 
-// BroadcastAll delivers msg to every connected user (e.g. online/offline events).
-func (h *Hub) BroadcastAll(msg any) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	for userID := range h.clients {
-		h.writeToUser(userID, msg)
-	}
-}
+func BroadcastAll(h *Hub, msg any) {
+	h.Mu.RLock()
+	defer h.Mu.RUnlock()
 
-// writeToUser must be called with h.mu held.
-func (h *Hub) writeToUser(userID int, msg any) {
-	conns := h.clients[userID]
-	for conn := range conns {
-		if err := conn.WriteJSON(msg); err != nil {
-			conn.Close()
-			delete(conns, conn)
+	for _, conns := range h.Clients {
+		for client := range conns {
+			select {
+			case client.Send <- msg:
+			default:
+				go Unregister(h, client)
+			}
 		}
-	}
-	if len(conns) == 0 {
-		delete(h.clients, userID)
 	}
 }

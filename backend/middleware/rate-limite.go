@@ -20,7 +20,6 @@ var (
 	mutex   sync.Mutex
 )
 
-// requests allowed per minute for each route
 var routeLimits = map[string]int{
 	"/register":   10,
 	"/login":      10,
@@ -29,7 +28,6 @@ var routeLimits = map[string]int{
 
 func RateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Let preflight through — it carries no payload and must not be counted
 		if r.Method == http.MethodOptions {
 			next.ServeHTTP(w, r)
 			return

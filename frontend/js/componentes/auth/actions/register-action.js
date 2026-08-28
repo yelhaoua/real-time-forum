@@ -1,14 +1,12 @@
 export default async function RegisterAction(e) {
   e.preventDefault();
 
-  // Safely query DOM elements on submit
   const nickNameErr = document.getElementById("nickname-Err");
   const firstNameErr = document.getElementById("first-name-Err");
   const lastNameErr = document.getElementById("last-name-Err");
   const emailErr = document.getElementById("email-Err");
   const passErr = document.getElementById("pass-Err");
 
-  // Helper to clear errors safely
   const clearError = (el) => {
     if (el) el.innerHTML = "";
   };
@@ -21,7 +19,6 @@ export default async function RegisterAction(e) {
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData.entries());
 
-  // Parse age safely
   data["user-age"] = parseInt(data["user-age"], 10) || 0;
 
   try {
@@ -44,7 +41,6 @@ export default async function RegisterAction(e) {
         };
       }
 
-      // Map backend validation errors to UI fields
       if (res.data) {
         if (nickNameErr) nickNameErr.innerHTML = res.data.nickname || "";
         if (firstNameErr) firstNameErr.innerHTML = res.data.first_name || "";

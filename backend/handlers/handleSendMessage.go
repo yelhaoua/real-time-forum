@@ -19,13 +19,14 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-// WSMessage is the wire format for every WebSocket frame.
 type WSMessage struct {
 	Type        string `json:"type"`
 	Content     string `json:"content,omitempty"`
 	RecipientID int    `json:"recipient_id,omitempty"`
 	SenderID    int    `json:"sender_id,omitempty"`
 	SenderName  string `json:"sender_name,omitempty"`
+	CreatTime   string `json:"creat_time,omitempty"`
+	TempID      string `json:"temp_id,omitempty"`
 }
 
 var broadcast = make(chan WSMessage, 256)
@@ -47,15 +48,12 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Register(Hub_, userID, conn)
-	// defer Unregister(Hub_ ,userID, conn)
 
-	// Tell everyone this user is now online
 	broadcast <- WSMessage{Type: "user_online", SenderID: userID}
 
 	for {
 		var msg WSMessage
 		if err := conn.ReadJSON(&msg); err != nil {
-			// Connection closed — tell everyone this user is offline (if no sessions left after defer)
 			broadcast <- WSMessage{Type: "user_offline", SenderID: userID}
 			return
 		}
@@ -69,10 +67,18 @@ func HandleMessages() {
 	for msg := range broadcast {
 		switch msg.Type {
 		case "user_online", "user_offline":
-			// Don't persist — just broadcast presence to all connected users
 			BroadcastAll(Hub_, msg)
 
 		case "message":
+			var senderName string
+			if err := config.Conn.QueryRow("SELECT nick_name FROM users WHERE id = ?", msg.SenderID).Scan(&senderName); err != nil {
+				log.Println("sender lookup err:", err)
+			} else {
+				msg.SenderName = senderName
+			}
+
+			msg.CreatTime = time.Now().Format(time.RFC3339)
+
 			_, err := config.Conn.Exec(
 				`INSERT INTO direct_messages (sender_id, recipient_id, content, timestamp) VALUES (?, ?, ?, ?)`,
 				msg.SenderID, msg.RecipientID, msg.Content, time.Now(),
@@ -80,9 +86,27 @@ func HandleMessages() {
 			if err != nil {
 				log.Println("db insert err:", err)
 			}
-			// Deliver to recipient and echo back to all sender sessions
+
+			_, err = config.Conn.Exec(
+				`INSERT INTO notifications (user_id, sender_id, type, snippet, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
+				msg.RecipientID, msg.SenderID, "new_message", msg.Content, 0, time.Now(),
+			)
+			if err != nil {
+				log.Println("notification insert err:", err)
+			}
 			SendToUser(Hub_, msg.RecipientID, msg)
 			SendToUser(Hub_, msg.SenderID, msg)
+
+			notifData := map[string]any{
+				"sender_id":   msg.SenderID,
+				"sender_name": msg.SenderName,
+				"snippet":     msg.Content,
+				"timestamp":   msg.CreatTime,
+			}
+
+			Notify(Hub_, msg.RecipientID, "new_message", notifData)
+
+			Notify(Hub_, msg.SenderID, "message_sent", notifData)
 		}
 	}
 }

@@ -3,8 +3,8 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"real-time-forum/config"
@@ -13,75 +13,43 @@ import (
 
 func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
-	var action utils.Actions
-	var userID int
 
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	
 	if r.Method == http.MethodPost {
 		userID, err := utils.CheckSession(w, r)
 		if err != nil {
-	
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Authentication required.",
-				Error:   "authorized_error",
-			})
+			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Authentication required.", Error: "authorized_error"})
 			return
 		}
 
-		err = json.NewDecoder(r.Body).Decode(&action)
-		if err != nil {
+		var action utils.Actions
+		if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "error in json body",
-				Error:   "request_error",
-			})
+			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "invalid json", Error: "request_error"})
 			return
 		}
 
 		if action.Actions == "like" {
 			var currentVote int
-			err := config.Conn.QueryRow(
-				"SELECT vote_value FROM votes WHERE post_id = ? AND user_id = ?",
-				action.ID,
-				userID,
-			).Scan(&currentVote)
-
-			w.Header().Set("Content-Type", "application/json")
-
+			err := config.Conn.QueryRow("SELECT vote_value FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID).Scan(&currentVote)
 			if err == sql.ErrNoRows {
-				_, err = config.Conn.Exec(
-					"INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, 1)",
-					action.ID,
-					userID,
-				)
+				_, err = config.Conn.Exec("INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, 1)", action.ID, userID)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{
-						Success: false,
-						Message: "Internal Server Error",
-						Error:   "server_error",
-					})
+					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
 				json.NewEncoder(w).Encode(map[string]string{"message": "liked"})
 				return
-
 			} else if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{
-					Success: false,
-					Message: "Internal Server Error",
-					Error:   "server_error",
-				})
+				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 				return
 			}
 
@@ -89,69 +57,41 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 				_, err = config.Conn.Exec("DELETE FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{
-						Success: false,
-						Message: "Internal Server Error",
-						Error:   "server_error",
-					})
+					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
 				json.NewEncoder(w).Encode(map[string]string{"message": "unliked"})
 				return
-			} else {
-				_, err = config.Conn.Exec("UPDATE votes SET vote_value = 1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{
-						Success: false,
-						Message: "Internal Server Error",
-						Error:   "server_error",
-					})
-					return
-				}
-				w.WriteHeader(http.StatusAccepted)
-				json.NewEncoder(w).Encode(map[string]string{"message": "liked"})
+			}
+
+			_, err = config.Conn.Exec("UPDATE votes SET vote_value = 1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 				return
 			}
+			w.WriteHeader(http.StatusAccepted)
+			json.NewEncoder(w).Encode(map[string]string{"message": "liked"})
+			return
 		}
 
 		if action.Actions == "dislike" {
 			var currentVote int
-			err := config.Conn.QueryRow(
-				"SELECT vote_value FROM votes WHERE post_id = ? AND user_id = ?",
-				action.ID,
-				userID,
-			).Scan(&currentVote)
-
-			w.Header().Set("Content-Type", "application/json")
-
+			err := config.Conn.QueryRow("SELECT vote_value FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID).Scan(&currentVote)
 			if err == sql.ErrNoRows {
-				_, err = config.Conn.Exec(
-					"INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, -1)",
-					action.ID,
-					userID,
-				)
+				_, err = config.Conn.Exec("INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, -1)", action.ID, userID)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{
-						Success: false,
-						Message: "Internal Server Error",
-						Error:   "server_error",
-					})
+					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
 				json.NewEncoder(w).Encode(map[string]string{"message": "disliked"})
 				return
-
 			} else if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{
-					Success: false,
-					Message: "Internal Server Error",
-					Error:   "server_error",
-				})
+				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 				return
 			}
 
@@ -159,126 +99,104 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 				_, err = config.Conn.Exec("DELETE FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{
-						Success: false,
-						Message: "Internal Server Error",
-						Error:   "server_error",
-					})
+					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
 				json.NewEncoder(w).Encode(map[string]string{"message": "undisliked"})
 				return
-			} else {
-				_, err = config.Conn.Exec("UPDATE votes SET vote_value = -1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
-				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{
-						Success: false,
-						Message: "Internal Server Error",
-						Error:   "server_error",
-					})
-					return
-				}
-				w.WriteHeader(http.StatusAccepted)
-				json.NewEncoder(w).Encode(map[string]string{"message": "disliked"})
+			}
+
+			_, err = config.Conn.Exec("UPDATE votes SET vote_value = -1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 				return
 			}
+			w.WriteHeader(http.StatusAccepted)
+			json.NewEncoder(w).Encode(map[string]string{"message": "disliked"})
+			return
 		}
-	} else if r.Method == http.MethodGet {
+
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "unknown action", Error: "request_error"})
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		userID := 0
 		if id, err := utils.CheckSession(w, r); err == nil {
 			userID = id
 		}
 
-		query := `SELECT
+		limit := 0
+		offset := 0
+		if l := r.URL.Query().Get("limit"); l != "" {
+			if v, err := strconv.Atoi(l); err == nil && v > 0 {
+				limit = v
+			}
+		}
+		if o := r.URL.Query().Get("offset"); o != "" {
+			if v, err := strconv.Atoi(o); err == nil && v >= 0 {
+				offset = v
+			}
+		}
+
+		baseQuery := `SELECT
             posts.id,
             posts.title,
             posts.content,
             posts.image_url,
             posts.created_at,
             users.nick_name,
-            EXISTS (
-                SELECT 1 FROM votes
-                WHERE post_id = posts.id
-                AND user_id = ?
-                AND vote_value = 1
-            ) AS is_liked,
-            EXISTS (
-                SELECT 1 FROM votes
-                WHERE post_id = posts.id
-                AND user_id = ?
-                AND vote_value = -1
-            ) AS is_disliked,
+            EXISTS (SELECT 1 FROM votes WHERE post_id = posts.id AND user_id = ? AND vote_value = 1) AS is_liked,
+            EXISTS (SELECT 1 FROM votes WHERE post_id = posts.id AND user_id = ? AND vote_value = -1) AS is_disliked,
             (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = 1) AS like_count,
             (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = -1) AS dislike_count,
-			(SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
+            (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
         FROM posts
         INNER JOIN users ON posts.user_id = users.id
-        ORDER BY posts.created_at DESC;`
+        ORDER BY posts.created_at DESC`
 
-		potes, err := config.Conn.Query(query, userID, userID)
+		var rows *sql.Rows
+		var err error
+		if limit > 0 {
+			q := baseQuery + " LIMIT ? OFFSET ?"
+			rows, err = config.Conn.Query(q, userID, userID, limit, offset)
+		} else {
+			rows, err = config.Conn.Query(baseQuery, userID, userID)
+		}
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Internal Server Error",
-				Error:   "server_error",
-			})
+			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 			return
 		}
-		defer potes.Close()
-		var allpostes []utils.Posts
+		defer rows.Close()
 
-		for potes.Next() {
+		var posts []utils.Posts
+		for rows.Next() {
 			var p utils.Posts
-			var Time time.Time
-			err := potes.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &Time, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount, &p.CommentsCount)
-			if err != nil {
-				fmt.Println("Scan error:", err)
+			var created time.Time
+			if err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &created, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount, &p.CommentsCount); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{
-					Success: false,
-					Message: "Internal Server Error",
-					Error:   "server_error",
-				})
+				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 				return
 			}
-			p.Creat_at = utils.GetDuration(Time)
-			allpostes = append(allpostes, p)
+			p.Creat_at = utils.GetDuration(created)
+			posts = append(posts, p)
 		}
-		if err = potes.Err(); err != nil {
+		if err := rows.Err(); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Internal Server Error",
-				Error:   "server_error",
-			})
+			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 			return
 		}
 
-		feed := utils.FeedStruct{}
-		feed.AllPosts = append(feed.AllPosts, allpostes...)
-
-		if len(allpostes) == 0 {
-			fmt.Println("no feed")
-			// Send back an empty list cleanly instead of hanging
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(utils.ResponseApi{Success: true, Data: feed})
-			return
-		}
-
+		feed := utils.FeedStruct{AllPosts: posts}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: true,
-			Data:    feed,
-		})
+		json.NewEncoder(w).Encode(utils.ResponseApi{Success: true, Data: feed})
 		return
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Method Not Allowed",
-			Error:   "method_error",
-		})
 	}
+
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Method Not Allowed", Error: "method_error"})
 }

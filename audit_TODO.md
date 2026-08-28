@@ -1,6 +1,4 @@
 Audit remediation TODOs
-
-- Fix: `frontend/templates/register.html` — change `name="Nickname"` to `name="nickname"` so the form payload keys match backend `RegisterData` JSON tags.
 - Fix: In `backend/handlers/HandleMessages` (in `backend/handlers/handleSendMessage.go`) enrich outgoing WebSocket messages with `sender_name` and `timestamp` before calling `SendToUser` so real-time messages include name and date.
 - Fix: In `backend/handlers/hnadleGetUser.go` `GetUsersList` — add `ORDER BY` clause to sort users either alphabetically or by last message timestamp (depending on desired behaviour). To sort by last message, join `direct_messages` and use `MAX(timestamp)` grouped by user.
 - Fix: In `frontend/js/componentes/messages.js` cleanup callback references `wsProvider.off` (undefined). Use the `off` function imported from `../shared/ws-provider.js` and remove listeners accordingly. Also ensure `connect()` is called (it is in `frontend/app.js`) and `disconnect()` on logout.

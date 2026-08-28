@@ -16,34 +16,6 @@ export default function ChatPage() {
 
   let chatHistory = [];
 
-  // const ws = new WebSocket(`ws://localhost:9090/ws`);
-
-  // ws.onopen = () => {
-  //   console.log("WebSocket connected to Go server securely.");
-  // };
-
-  // ws.onmessage = (event) => {
-  //   try {
-  //     const incomingMsg = JSON.parse(event.data);
-  //     chatHistory.AllMessages.push(incomingMsg);
-  //   } catch (e) {
-  //     chatHistory.AllMessages.push({
-  //       content: event.data,
-  //       sender_id: null,
-  //       create_time: new Date().toLocaleTimeString(),
-  //     });
-  //   }
-
-  //   updateChatDOM();
-  // };
-
-  // ws.onerror = (error) => {
-  //   console.error("WebSocket Error Details:", error);
-  // };
-
-  // ws.onclose = () => {
-  //   console.log("Persistent connection with Go server dropped.");
-  // };
 
   document.body.addEventListener("submit", (e) => {
     e.preventDefault();

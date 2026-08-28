@@ -1,5 +1,6 @@
 import { routes } from "./js/routes/routes.js";
-import { connect, disconnect } from "./js/shared/ws-provider.js";
+import { connect, disconnect, on } from "./js/shared/ws-provider.js";
+import Baner from "./js/componentes/ui/baner.js";
 
 const getPath = () => {
   const hash = window.location.hash.slice(1);
@@ -86,8 +87,19 @@ const urlLocationHandler = async () => {
     return;
   }
 
-  // Keep one shared WS connection alive for the whole session
   if (loggedIn) connect();
+
+  if (loggedIn) {
+    on("new_message", (payload) => {
+      try {
+        const data = payload?.data || payload;
+        Baner(
+          "New message",
+          `${data.sender_name || "Someone"}: ${data.snippet || ""}`,
+        );
+      } catch (e) {}
+    });
+  }
 
   const { route, params } = matchRoute(location);
 

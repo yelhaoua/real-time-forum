@@ -1,25 +1,21 @@
 import escapeHtml from "../shared/formate-text.js";
 import MainHeaders from "../shared/main-headers.js";
-import { on, send } from "../shared/ws-provider.js";
+import { off, on, send } from "../shared/ws-provider.js";
 import NavBar from "./nave-bare.js";
 import Banner from "./ui/baner.js";
-// import wsProvider from "../shared/ws-provider.js";
 
 const MSG_LIMIT = 10;
 
-// Module-level cleanup reference to unmount previous handlers when changing routes
 let currentCleanup = null;
 
 export default function Messages() {
   MainHeaders();
 
-  // Run cleanup if user re-mounts the view
   if (currentCleanup) {
     currentCleanup();
     currentCleanup = null;
   }
 
-  // Load Styles
   for (const href of [
     "../../assets/styles/messages.css",
     "../../assets/styles/chat-page.css",
@@ -34,7 +30,6 @@ export default function Messages() {
 
   NavBar();
 
-  // Render Shell DOM
   document.getElementById("app").innerHTML = `
     <div class="Messages-box">
       <div id="users-list"></div>
@@ -67,7 +62,6 @@ export default function Messages() {
       </div>
     </div>`;
 
-  // Local Scoped State (No Classes)
   let users = [];
   let activeUser = null;
   let allMessages = [];
@@ -75,7 +69,6 @@ export default function Messages() {
   let allLoaded = false;
   let loadingMore = false;
 
-  // DOM Node Caching
   const elements = {
     usersList: document.querySelector("#users-list"),
     chatName: document.querySelectorAll("#user-chat .chat-user-name"),
@@ -87,24 +80,23 @@ export default function Messages() {
     backButton: document.querySelector("#user-chat .mobile-back-btn"),
   };
 
-  // ── Render Functions ────────────────────────────────────────────────────────
 
   function createMessageHTML(msg) {
     const incoming = String(msg.sender_id) === String(activeUser?.id);
     const name = escapeHtml(msg.sender_name || (incoming ? "" : "You"));
     const content = escapeHtml(msg.content || "");
-    const time = escapeHtml(
-      msg.create_time || msg.creat_time || new Date().toLocaleTimeString(),
-    );
+    const rawTime =
+      msg.create_time || msg.creat_time || new Date().toISOString();
+    const time = escapeHtml(formatTimestamp(rawTime));
     const avatar = msg.sender_avatar || "../../assets/images/download.jpeg";
 
     if (incoming) {
       return `
         <div class="message-row incoming" data-temp-id="${msg.temp_id || ""}">
           <div class="chat-avatar msg-avatar"><img src="${avatar}" alt="Avatar"></div>
-          <div>
-            <h5>${name}</h5>
-            <div class="message-content"><p>${content}</p><span class="message-time">${time}</span></div>
+          <div class="message-bubble incoming-bubble">
+            <div class="message-meta"><h5>${name}</h5><span class="message-time">${time}</span></div>
+            <div class="message-content"><p>${content}</p></div>
           </div>
         </div>`;
     }
@@ -112,10 +104,41 @@ export default function Messages() {
     return `
       <div class="message-row outgoing" data-temp-id="${msg.temp_id || ""}">
         <div style="text-align:right">
-          <h5>${name}</h5>
-          <div class="message-content"><div><p>${content}</p><span class="message-time">${time}</span></div></div>
+          <div class="message-bubble outgoing-bubble">
+            <div class="message-meta"><span class="message-time">${time}</span><h5>${name}</h5></div>
+            <div class="message-content"><div><p>${content}</p></div></div>
+          </div>
         </div>
       </div>`;
+  }
+
+  function formatTimestamp(ts) {
+    let date;
+    try {
+      date = new Date(ts);
+      if (isNaN(date)) date = new Date();
+    } catch (e) {
+      date = new Date();
+    }
+
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 60) return "now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    const sameDay = now.toDateString() === date.toDateString();
+    if (sameDay) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    if (yesterday.toDateString() === date.toDateString()) return "Yesterday";
+    const daysDiff = Math.floor(diff / 86400);
+    if (daysDiff < 7) return date.toLocaleDateString([], { weekday: "short" });
+    return date.toLocaleDateString();
   }
 
   function appendSingleMessage(msg) {
@@ -185,7 +208,6 @@ export default function Messages() {
     if (elements.sendButton) elements.sendButton.disabled = !activeUser;
   }
 
-
   async function fetchUsers() {
     try {
       const res = await fetch("http://localhost:9090/getallusers", {
@@ -207,9 +229,13 @@ export default function Messages() {
       }
 
       elements.usersList.innerHTML = users
-        .map(
-          (u) => `
-        <div class="user-row ${u.is_online ? "online" : "offline"}" data-id="${u.id}">
+        .map((u) => {
+          const badge =
+            u.unread_count && u.unread_count > 0
+              ? `<span class="unread-badge">${u.unread_count}</span>`
+              : "";
+          return `
+        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
           <div class="user-avatar-wrap">
             <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
             <span class="online-dot"></span>
@@ -218,8 +244,9 @@ export default function Messages() {
             <span class="user-name">${escapeHtml(u.user_name)}</span>
             <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
           </div>
-        </div>`,
-        )
+          ${badge}
+        </div>`;
+        })
         .join("");
     } catch (err) {
       Banner("Request Error", "Unable to load user list.");
@@ -262,8 +289,6 @@ export default function Messages() {
     }
   }
 
-
-
   function selectUser(user) {
     activeUser = user;
     allMessages = [];
@@ -285,10 +310,44 @@ export default function Messages() {
 
     updateHeader();
     renderFullChatBody();
-    if (user) fetchMessagesForUser(0);
+    if (user) {
+      fetchMessagesForUser(0);
+      fetch("http://localhost:9090/notifications/mark_read", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sender_id: Number(user.id) }),
+      })
+        .then(() => {
+          const u = users.find((x) => String(x.id) === String(user.id));
+          if (u) u.unread_count = 0;
+          if (elements.usersList) {
+            elements.usersList.innerHTML = users
+              .map((u) => {
+                const badge =
+                  u.unread_count && u.unread_count > 0
+                    ? `<span class="unread-badge">${u.unread_count}</span>`
+                    : "";
+                return `
+        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
+          <div class="user-avatar-wrap">
+            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
+            <span class="online-dot"></span>
+          </div>
+          <div class="user-info">
+            <span class="user-name">${escapeHtml(u.user_name)}</span>
+            <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
+          </div>
+          ${badge}
+        </div>`;
+              })
+              .join("");
+          }
+        })
+        .catch(() => {});
+    }
   }
 
-  // Event Handlers
   function onChatMessage(msg) {
     if (!activeUser) return;
     const sid = String(msg.sender_id ?? "");
@@ -299,6 +358,38 @@ export default function Messages() {
 
     allMessages.push(msg);
     appendSingleMessage(msg);
+  }
+
+  function onNewMessage(notification) {
+    try {
+      const sid = String(
+        notification.sender_id ?? notification.data?.sender_id ?? "",
+      );
+      const senderId = sid;
+      const user = users.find((u) => String(u.id) === senderId);
+      if (user) {
+        user.has_unread = true;
+        if (elements.usersList) {
+          elements.usersList.innerHTML = users
+            .map(
+              (u) => `
+        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
+          <div class="user-avatar-wrap">
+            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
+            <span class="online-dot"></span>
+          </div>
+          <div class="user-info">
+            <span class="user-name">${escapeHtml(u.user_name)}</span>
+            <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
+          </div>
+        </div>`,
+            )
+            .join("");
+        }
+      }
+    } catch (err) {
+      console.error("new message notif error", err);
+    }
   }
 
   function handleScroll() {
@@ -346,7 +437,7 @@ export default function Messages() {
       ...payload,
       sender_id: -1,
       sender_name: "You",
-      create_time: new Date().toLocaleTimeString(),
+      create_time: new Date().toISOString(),
     };
 
     allMessages.push(optimisticMsg);
@@ -367,8 +458,8 @@ export default function Messages() {
     selectUser(null);
   }
 
-  // Attach Listeners
   on("message", onChatMessage);
+  on("new_message", onNewMessage);
   if (elements.usersList)
     elements.usersList.addEventListener("click", handleUserClick);
   if (elements.chatBody)
@@ -378,12 +469,11 @@ export default function Messages() {
   if (elements.backButton)
     elements.backButton.addEventListener("click", handleBack);
 
-  // Initialize
   fetchUsers();
 
-  // Define cleanup callback for route unmounting
   currentCleanup = () => {
-    wsProvider.off("message", onChatMessage);
+    off("message", onChatMessage);
+    off("new_message", onNewMessage);
     if (elements.usersList)
       elements.usersList.removeEventListener("click", handleUserClick);
     if (elements.chatBody)

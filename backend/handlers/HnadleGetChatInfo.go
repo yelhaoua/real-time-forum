@@ -143,7 +143,6 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		allMessages = append(allMessages, message)
 	}
 
-	// reverse so messages are chronological (ASC) for the frontend
 	for i, j := 0, len(allMessages)-1; i < j; i, j = i+1, j-1 {
 		allMessages[i], allMessages[j] = allMessages[j], allMessages[i]
 	}

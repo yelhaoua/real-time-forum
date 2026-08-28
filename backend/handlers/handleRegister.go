@@ -113,7 +113,6 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Prevent logged-in users from registering again
 	_, err := utils.CheckSession(w, r)
 	if err == nil {
 		w.WriteHeader(http.StatusForbidden)

@@ -17,8 +17,8 @@ import (
 )
 
 type LoginRequest struct {
-	LoginInput string `json:"email"`    // Accepting either email or nickname from frontend
-	Username   string `json:"username"` // Fallback in case frontend sends "username" instead
+	LoginInput string `json:"email"`    
+	Username   string `json:"username"` 
 	Password   string `json:"pass"`
 }
 
@@ -51,7 +51,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Resolve whichever input field was provided
 	identifier := strings.TrimSpace(req.LoginInput)
 	if identifier == "" {
 		identifier = strings.TrimSpace(req.Username)
@@ -74,7 +73,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err := config.Conn.QueryRow(query, identifier, identifier).Scan(&userID, &hashedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			// Maintain uniform response to prevent user enumeration
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,
@@ -103,7 +101,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Delete old sessions for this user (Optional: enforce single session)
 	_, _ = config.Conn.Exec(`DELETE FROM sessions WHERE user_id = ?`, userID)
 
 	sessionToken := uuid.New().String()
@@ -127,7 +124,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    sessionToken,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true, // Set to true in production with HTTPS
+		Secure:   true,
 		Expires:  expiresAt,
 		MaxAge:   86400,
 		SameSite: http.SameSiteLaxMode,

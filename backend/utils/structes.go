@@ -16,17 +16,17 @@ type LoginError struct {
 }
 
 type Posts struct {
-	Id           int    `json:"id"`
-	Title        string `json:"title"`
-	UserName     string `json:"user_name"`
-	Content      string `json:"content"`
-	Creat_at     string `json:"creat_at"`
-	Image_url    string `json:"image_url"`
-	Isliked      bool   `json:"is_like"`
-	IsDisliked   bool   `json:"is_dislike"`
-	LikeCount    int    `json:"like_count"`
-	DislikeCount int    `json:"dislike_count"`
-	CommentsCount int	`json:"comment_count"`
+	Id            int    `json:"id"`
+	Title         string `json:"title"`
+	UserName      string `json:"user_name"`
+	Content       string `json:"content"`
+	Creat_at      string `json:"creat_at"`
+	Image_url     string `json:"image_url"`
+	Isliked       bool   `json:"is_like"`
+	IsDisliked    bool   `json:"is_dislike"`
+	LikeCount     int    `json:"like_count"`
+	DislikeCount  int    `json:"dislike_count"`
+	CommentsCount int    `json:"comment_count"`
 }
 
 type Comment struct {
@@ -58,8 +58,9 @@ type Message struct {
 }
 
 type UserData struct {
-    Id           string `json:"id"`
-    UserName     string `json:"user_name"`
-    ProfileImage string `json:"profile_image"`
-    IsOnline     bool   `json:"is_online"`
+	Id           string `json:"id"`
+	UserName     string `json:"user_name"`
+	ProfileImage string `json:"profile_image"`
+	IsOnline     bool   `json:"is_online"`
+	UnreadCount  int    `json:"unread_count"`
 }

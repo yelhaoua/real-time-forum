@@ -165,7 +165,6 @@ async function HandlePostActions(e) {
   }
 
   const commentBtn = e.target.closest(".post-comments");
-  // Helper to check login status
   async function isLoggedIn() {
     try {
       const res = await fetch("http://localhost:9090/checksession", {
@@ -184,7 +183,6 @@ async function HandlePostActions(e) {
     if (await isLoggedIn()) {
       window.location.hash = `/post/${postId}`;
     } else {
-      // redirect to login if not authenticated
       window.location.hash = "/login";
     }
     return;
@@ -203,65 +201,64 @@ async function HandlePostActions(e) {
 }
 
 async function loadPosts() {
-  const res = await fetch("http://localhost:9090/posts", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  if (typeof POSTS_LIMIT === "undefined") return;
+  if (POSTS_LOADING || POSTS_ALL_LOADED) return;
+  POSTS_LOADING = true;
 
-  const result = await res.json();
+  try {
+    const res = await fetch(
+      `http://localhost:9090/posts?limit=${POSTS_LIMIT}&offset=${POSTS_OFFSET}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+    const result = await res.json().catch(() => ({}));
 
-  if (!res.ok) {
-    console.log(result);
-    Baner(result.error, result.message);
-    return;
-  }
+    if (!res.ok) {
+      Baner(
+        result.error || "request_error",
+        result.message || "Failed to load posts",
+      );
+      POSTS_LOADING = false;
+      return;
+    }
 
-  const posts = result.data.all_posts;
+    const posts = result.data?.all_posts || [];
+    if (!posts.length) POSTS_ALL_LOADED = true;
 
-  let postsHTML = "";
-  if (posts) {
-    postsHTML = posts
+    const cardContainer = document.querySelector(".card-container");
+    if (!cardContainer) return;
+
+    const postsHTML = posts
       .map(
         (post) => `
         <article class="card feed-card" data-post-id="${post.id}">
             <div class="post-header">
               <div class="post-author">
-                <img
-                  src="./assets/images/download.jpeg"
-                  alt="Author"
-                />
+                <img src="./assets/images/download.jpeg" alt="Author" />
                 <div class="author-info">
                   <h4>${post.user_name}</h4>
                   <span>${post.creat_at}</span>
                 </div>
               </div>
-              <i
-                class="ri-more-fill"
-                style="color: var(--text-muted); cursor: pointer"
-              ></i>
+              <i class="ri-more-fill" style="color: var(--text-muted); cursor: pointer"></i>
             </div>
             <div class="post-content">
               <h3> ${escapeHTML(post.title)} </h3>
               <p> ${escapeHTML(post.content)}</p>
             </div>
-              ${post.image_url ? '<img class="post-image"src="' + post.image_url + '" alt=""/>' : ""}
-
+              ${post.image_url ? '<img class="post-image" src="' + post.image_url + '" alt=""/>' : ""}
               <div class="post-footer">
                 <span class="post-like" data-id="${post.id}">
-                  <i class="${post.is_like ? "fa-solid" : "fa-regular"} fa-heart"
-                    style="${post.is_like ? "color: var(--accent-red);" : ""}"></i>
+                  <i class="${post.is_like ? "fa-solid" : "fa-regular"} fa-heart" style="${post.is_like ? "color: var(--accent-red);" : ""}"></i>
                   <span class="like-count">${post.like_count}</span>
                 </span>
-
                 <span class="post-dislike" data-id="${post.id}">
-                  <i class="${post.is_dislike ? "fa-solid" : "fa-regular"} fa-thumbs-down"
-                    style="${post.is_dislike ? "color: var(--accent-red);" : ""}"></i>
+                  <i class="${post.is_dislike ? "fa-solid" : "fa-regular"} fa-thumbs-down" style="${post.is_dislike ? "color: var(--accent-red);" : ""}"></i>
                   <span class="dislike-count">${post.dislike_count}</span>
                 </span>
-
                 <span class="post-comments" data-id="${post.id}">
                   <i class="fa-regular fa-comment"></i>
                   <span class="comment-count">${post.comment_count}</span>
@@ -271,34 +268,59 @@ async function loadPosts() {
       `,
       )
       .join("");
-  } else {
-    postsHTML = `
-    <p style="
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    text-align: center;
-    ">There no Posts</p>`;
+
+    if (POSTS_OFFSET === 0) cardContainer.innerHTML = postsHTML;
+    else cardContainer.insertAdjacentHTML("beforeend", postsHTML);
+
+    if (!cardContainer._hasClickHandler) {
+      cardContainer.addEventListener("click", HandlePostActions);
+      cardContainer._hasClickHandler = true;
+    }
+
+    POSTS_OFFSET += posts.length;
+  } catch (err) {
+    console.error("Failed to fetch posts", err);
+  } finally {
+    POSTS_LOADING = false;
   }
-
-  const cardContainer = document.querySelector(".card-container");
-  cardContainer.innerHTML = postsHTML;
-  const charContainer = document.querySelector(".chat-contaner");
-
-  cardContainer.addEventListener("click", HandlePostActions);
 }
 
 export default async function FeedPage() {
   document.getElementById("dynamic_style").href =
     "../../assets/styles/main-style.css";
 
-  // let link = document.createElement("link");
-  // link.rel = "stylesheet";
-  // link.href = "";
-  // document.head.appendChild(link);
+
 
   await NavBar();
 
-  loadPosts();
+  window.POSTS_OFFSET = 0;
+  window.POSTS_LIMIT = 10;
+  window.POSTS_LOADING = false;
+  window.POSTS_ALL_LOADED = false;
+
+  await loadPosts();
+
+  const cardContainer = document.querySelector(".card-container");
+  if (!cardContainer) return;
+
+  let sentinel = document.getElementById("feed-sentinel");
+  if (!sentinel) {
+    sentinel = document.createElement("div");
+    sentinel.id = "feed-sentinel";
+    sentinel.style.padding = "1px";
+    cardContainer.appendChild(sentinel);
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !POSTS_LOADING && !POSTS_ALL_LOADED) {
+          loadPosts();
+        }
+      });
+    },
+    { root: null, rootMargin: "400px", threshold: 0.1 },
+  );
+
+  observer.observe(sentinel);
 }

@@ -11,10 +11,10 @@ func Routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", handler.HandleRoot)
-	mux.Handle("/register" ,middleware.RateLimit(http.HandlerFunc( handler.HandleRegister)))
-	mux.Handle("/login" ,middleware.RateLimit(http.HandlerFunc( handler.LoginHandler)))
+	mux.Handle("/register", middleware.RateLimit(http.HandlerFunc(handler.HandleRegister)))
+	mux.Handle("/login", middleware.RateLimit(http.HandlerFunc(handler.LoginHandler)))
 	mux.HandleFunc("/logout", handler.LogoutHandler)
-	mux.Handle("/craet-post" ,middleware.RateLimit(http.HandlerFunc( handler.HnadleCreatPost)))
+	mux.Handle("/craet-post", middleware.RateLimit(http.HandlerFunc(handler.HnadleCreatPost)))
 	mux.HandleFunc("/post/{id}", handler.HnadlePostDetailes)
 	mux.HandleFunc("/posts", handler.FeedHanlder)
 	mux.HandleFunc("/comment/{id}", handler.HnadleComments)
@@ -25,6 +25,7 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/ws", handler.HandleSendMessage)
 	mux.HandleFunc("/messages", handler.GetMessages)
 	mux.HandleFunc("/getallusers", handler.GetUsersList)
+	mux.HandleFunc("/notifications/mark_read", handler.MarkNotificationsRead)
 	mux.HandleFunc("/checksession", handler.HnadleCheakSession)
 
 	return mux

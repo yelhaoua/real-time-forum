@@ -58,9 +58,10 @@ type Message struct {
 }
 
 type UserData struct {
-	Id           string `json:"id"`
-	UserName     string `json:"user_name"`
-	ProfileImage string `json:"profile_image"`
-	IsOnline     bool   `json:"is_online"`
-	UnreadCount  int    `json:"unread_count"`
+	Id            string `json:"id"`
+	UserName      string `json:"user_name"`
+	ProfileImage  string `json:"profile_image"`
+	IsOnline      bool   `json:"is_online"`
+	UnreadCount   int    `json:"unread_count"`
+	LastMessageAt string `json:"last_message_at"`
 }

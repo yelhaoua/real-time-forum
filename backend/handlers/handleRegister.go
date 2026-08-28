@@ -22,6 +22,7 @@ type RegisterData struct {
 	LastName  string `json:"last-name"`
 	Email     string `json:"email"`
 	Age       int    `json:"user-age"`
+	BirthDate string `json:"user-birthdate"`
 	Gender    string `json:"user-gender"`
 	Password  string `json:"password"`
 }
@@ -33,6 +34,7 @@ type RegisterErrors struct {
 	Email     string `json:"email,omitempty"`
 	Password  string `json:"password,omitempty"`
 	Age       string `json:"age,omitempty"`
+	BirthDate string `json:"birthdate,omitempty"`
 	Gender    string `json:"gender,omitempty"`
 }
 
@@ -49,15 +51,25 @@ func IsValidName(name string) bool {
 	return len(trimmed) >= 2 && len(trimmed) <= 50
 }
 
+func calculateAge(birthDate time.Time) int {
+	now := time.Now()
+	age := now.Year() - birthDate.Year()
+	if now.Month() < birthDate.Month() || (now.Month() == birthDate.Month() && now.Day() < birthDate.Day()) {
+		age--
+	}
+	return age
+}
+
 func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
 	var errs RegisterErrors
 	hasErr := false
 
-	// Normalize text inputs
 	data.Nickname = strings.TrimSpace(data.Nickname)
 	data.FirstName = strings.TrimSpace(data.FirstName)
 	data.LastName = strings.TrimSpace(data.LastName)
 	data.Email = strings.ToLower(strings.TrimSpace(data.Email))
+	data.BirthDate = strings.TrimSpace(data.BirthDate)
+	data.Gender = strings.TrimSpace(data.Gender)
 
 	if !IsValidName(data.Nickname) {
 		hasErr = true
@@ -84,9 +96,21 @@ func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
 		errs.Password = "Password must be at least 8 characters long"
 	}
 
-	if data.Age < 13 || data.Age > 120 {
+	if data.BirthDate == "" {
 		hasErr = true
-		errs.Age = "Age must be between 13 and 120"
+		errs.BirthDate = "Please choose your birth date"
+	} else {
+		birthDate, err := time.Parse("2006-01-02", data.BirthDate)
+		if err != nil {
+			hasErr = true
+			errs.BirthDate = "Birth date is invalid"
+		} else {
+			data.Age = calculateAge(birthDate)
+			if data.Age < 18 {
+				hasErr = true
+				errs.BirthDate = "You must be at least 18 years old"
+			}
+		}
 	}
 
 	if data.Gender == "" {

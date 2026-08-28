@@ -328,7 +328,8 @@ form {
   color: var(--blue);
 }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   border: 0;
   background: transparent;
@@ -337,10 +338,31 @@ form {
   color: var(--ink);
   padding: 14px 48px 14px 48px;
   border-radius: var(--radius-field);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.field select {
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.field input[type="date"] {
+  color: var(--ink);
+}
+
+.field input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.8;
 }
 
 .field input::placeholder {
   color: var(--faint);
+}
+
+.select-field {
+  overflow: hidden;
 }
 
 .error,

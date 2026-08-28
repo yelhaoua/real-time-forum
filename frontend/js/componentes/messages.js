@@ -8,8 +8,6 @@ const MSG_LIMIT = 10;
 let currentCleanup = null;
 
 export default function Messages() {
-
-
   if (currentCleanup) {
     currentCleanup();
     currentCleanup = null;
@@ -78,7 +76,6 @@ export default function Messages() {
     sendButton: document.querySelector("#user-chat .send-message-btn"),
     backButton: document.querySelector("#user-chat .mobile-back-btn"),
   };
-
 
   function createMessageHTML(msg) {
     const incoming = String(msg.sender_id) === String(activeUser?.id);
@@ -207,6 +204,63 @@ export default function Messages() {
     if (elements.sendButton) elements.sendButton.disabled = !activeUser;
   }
 
+  function sortUsersByActivity(list) {
+    return [...list].sort((a, b) => {
+      const aHasMessage = !!(
+        a.last_message_at && String(a.last_message_at).trim()
+      );
+      const bHasMessage = !!(
+        b.last_message_at && String(b.last_message_at).trim()
+      );
+
+      if (aHasMessage !== bHasMessage) {
+        return aHasMessage ? -1 : 1;
+      }
+
+      if (aHasMessage && bHasMessage) {
+        const timeDiff =
+          new Date(b.last_message_at) - new Date(a.last_message_at);
+        if (timeDiff !== 0) return timeDiff;
+      }
+
+      return (a.user_name || "").localeCompare(b.user_name || "", undefined, {
+        sensitivity: "base",
+      });
+    });
+  }
+
+  function renderUsersList() {
+    if (!elements.usersList) return;
+
+    if (!users.length) {
+      elements.usersList.innerHTML = `<div class="users-empty-state"><p>No users available.</p></div>`;
+      return;
+    }
+
+    const sortedUsers = sortUsersByActivity(users);
+
+    elements.usersList.innerHTML = sortedUsers
+      .map((u) => {
+        const badge =
+          u.unread_count && u.unread_count > 0
+            ? `<span class="unread-badge">${u.unread_count}</span>`
+            : "";
+        return `
+        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
+          <div class="user-avatar-wrap">
+            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
+            <span class="online-dot"></span>
+          </div>
+          <div class="user-info">
+            <span class="user-name">${escapeHtml(u.user_name)}</span>
+            <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
+          </div>
+          ${badge}
+        </div>`;
+      })
+      .join("");
+  }
+
   async function fetchUsers() {
     try {
       const res = await fetch("http://localhost:9090/getallusers", {
@@ -220,33 +274,7 @@ export default function Messages() {
       }
 
       users = result.data || [];
-      if (!elements.usersList) return;
-
-      if (!users.length) {
-        elements.usersList.innerHTML = `<div class="users-empty-state"><p>No users available.</p></div>`;
-        return;
-      }
-
-      elements.usersList.innerHTML = users
-        .map((u) => {
-          const badge =
-            u.unread_count && u.unread_count > 0
-              ? `<span class="unread-badge">${u.unread_count}</span>`
-              : "";
-          return `
-        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
-          <div class="user-avatar-wrap">
-            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
-            <span class="online-dot"></span>
-          </div>
-          <div class="user-info">
-            <span class="user-name">${escapeHtml(u.user_name)}</span>
-            <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
-          </div>
-          ${badge}
-        </div>`;
-        })
-        .join("");
+      renderUsersList();
     } catch (err) {
       Banner("Request Error", "Unable to load user list.");
     }
@@ -321,26 +349,8 @@ export default function Messages() {
           const u = users.find((x) => String(x.id) === String(user.id));
           if (u) u.unread_count = 0;
           if (elements.usersList) {
-            elements.usersList.innerHTML = users
-              .map((u) => {
-                const badge =
-                  u.unread_count && u.unread_count > 0
-                    ? `<span class="unread-badge">${u.unread_count}</span>`
-                    : "";
-                return `
-        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
-          <div class="user-avatar-wrap">
-            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
-            <span class="online-dot"></span>
-          </div>
-          <div class="user-info">
-            <span class="user-name">${escapeHtml(u.user_name)}</span>
-            <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
-          </div>
-          ${badge}
-        </div>`;
-              })
-              .join("");
+            users = sortUsersByActivity(users);
+            renderUsersList();
           }
         })
         .catch(() => {});
@@ -369,21 +379,8 @@ export default function Messages() {
       if (user) {
         user.has_unread = true;
         if (elements.usersList) {
-          elements.usersList.innerHTML = users
-            .map(
-              (u) => `
-        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
-          <div class="user-avatar-wrap">
-            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
-            <span class="online-dot"></span>
-          </div>
-          <div class="user-info">
-            <span class="user-name">${escapeHtml(u.user_name)}</span>
-            <span class="user-status">${u.is_online ? "Online" : "Offline"}</span>
-          </div>
-        </div>`,
-            )
-            .join("");
+          users = sortUsersByActivity(users);
+          renderUsersList();
         }
       }
     } catch (err) {

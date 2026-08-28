@@ -149,11 +149,22 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := `SELECT id, nick_name, profile_image,
-	COALESCE((SELECT COUNT(*) FROM notifications WHERE user_id = ? AND sender_id = users.id AND is_read = 0), 0) AS unread_count
-	FROM users WHERE id != ? ORDER BY nick_name ASC`
+	query := `SELECT
+		u.id,
+		u.nick_name,
+		u.profile_image,
+		COALESCE((SELECT COUNT(*) FROM notifications WHERE user_id = ? AND sender_id = u.id AND is_read = 0), 0) AS unread_count,
+		COALESCE((
+			SELECT MAX(timestamp)
+			FROM direct_messages
+			WHERE (sender_id = ? AND recipient_id = u.id)
+			   OR (sender_id = u.id AND recipient_id = ?)
+		), '') AS last_message_at
+	FROM users u
+	WHERE u.id != ?
+	ORDER BY last_message_at IS NULL, last_message_at DESC, u.nick_name ASC`
 
-	rows, err := config.Conn.Query(query, userId, userId)
+	rows, err := config.Conn.Query(query, userId, userId, userId, userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
@@ -169,7 +180,7 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		var user utils.UserData
-		err := rows.Scan(&user.Id, &user.UserName, &user.ProfileImage, &user.UnreadCount)
+		err := rows.Scan(&user.Id, &user.UserName, &user.ProfileImage, &user.UnreadCount, &user.LastMessageAt)
 		if err != nil {
 			fmt.Println(user, err)
 			w.WriteHeader(http.StatusInternalServerError)

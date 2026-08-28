@@ -24,7 +24,6 @@ export default function Messages() {
 
   NavBar();
 
-  // 1. Inject HTML into DOM FIRST
   document.getElementById("app").innerHTML = `
     <div class="Messages-box">
       <div id="users-list"></div>
@@ -64,7 +63,6 @@ export default function Messages() {
   let allLoaded = false;
   let loadingMore = false;
 
-  // 2. Query DOM elements AFTER inserting innerHTML
   const elements = {
     usersList: document.querySelector("#users-list"),
     chatName: document.querySelectorAll("#user-chat .chat-user-name"),
@@ -192,6 +190,14 @@ export default function Messages() {
           ? "Online"
           : "Offline"
         : "Choose a contact to begin";
+      const statusDot = document.querySelector("#user-chat .status-dot");
+      if (statusDot) {
+        if (activeUser && activeUser.is_online) {
+          statusDot.classList.add("online");
+        } else {
+          statusDot.classList.remove("online");
+        }
+      }
     }
 
     if (elements.messageInput) {
@@ -365,7 +371,6 @@ export default function Messages() {
     const nowIso =
       msg.create_time || msg.creat_time || new Date().toISOString();
 
-    // Update timestamps and re-sort list, but DO NOT increment unread_count here
     const otherId =
       activeUser && String(activeUser.id) === sid
         ? sid
@@ -387,6 +392,40 @@ export default function Messages() {
     appendSingleMessage(msg);
   }
 
+  function onUserOnline(payload) {
+    try {
+      const id = String(
+        payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
+      );
+      if (!id) return;
+      const u = users.find((x) => String(x.id) === id);
+      if (u) u.is_online = true;
+      if (activeUser && String(activeUser.id) === id)
+        activeUser.is_online = true;
+      renderUsersList();
+      updateHeader();
+    } catch (err) {
+      console.error("user_online handler error", err);
+    }
+  }
+
+  function onUserOffline(payload) {
+    try {
+      const id = String(
+        payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
+      );
+      if (!id) return;
+      const u = users.find((x) => String(x.id) === id);
+      if (u) u.is_online = false;
+      if (activeUser && String(activeUser.id) === id)
+        activeUser.is_online = false;
+      renderUsersList();
+      updateHeader();
+    } catch (err) {
+      console.error("user_offline handler error", err);
+    }
+  }
+
   function onNewMessage(notification) {
     try {
       const data = notification.data || notification;
@@ -398,7 +437,6 @@ export default function Messages() {
       if (user) {
         user.last_message_at = data.create_time || data.creat_time || nowIso;
 
-        // Single source of truth for unread count increments:
         if (!activeUser || String(activeUser.id) !== senderId) {
           user.unread_count = (user.unread_count || 0) + 1;
           user.has_unread = true;
@@ -412,30 +450,29 @@ export default function Messages() {
     }
   }
 
-function onNewMessage(notification) {
-  try {
-    const data = notification.data || notification;
-    const senderId = String(data.sender_id ?? notification.sender_id ?? "");
-    const nowIso = new Date().toISOString();
+  function onNewMessage(notification) {
+    try {
+      const data = notification.data || notification;
+      const senderId = String(data.sender_id ?? notification.sender_id ?? "");
+      const nowIso = new Date().toISOString();
 
-    const user = users.find((u) => String(u.id) === senderId);
+      const user = users.find((u) => String(u.id) === senderId);
 
-    if (user) {
-      user.last_message_at = data.create_time || data.creat_time || nowIso;
+      if (user) {
+        user.last_message_at = data.create_time || data.creat_time || nowIso;
 
-      // Single source of truth for unread count increments:
-      if (!activeUser || String(activeUser.id) !== senderId) {
-        user.unread_count = (user.unread_count || 0) + 1;
-        user.has_unread = true;
+        if (!activeUser || String(activeUser.id) !== senderId) {
+          user.unread_count = (user.unread_count || 0) + 1;
+          user.has_unread = true;
+        }
+
+        renderUsersList();
       }
-
-      renderUsersList();
+    } catch (err) {
+      console.error("new message notification error", err);
+      Baner("Error", "Failed to process incoming message.", "error");
     }
-  } catch (err) {
-    console.error("new message notification error", err);
-    Baner("Error", "Failed to process incoming message.", "error");
   }
-}
 
   function onNewMessage(notification) {
     try {
@@ -542,9 +579,10 @@ function onNewMessage(notification) {
     selectUser(null);
   }
 
-  // 3. Attach listeners to valid DOM elements
   on("message", onChatMessage);
   on("new_message", onNewMessage);
+  on("user_online", onUserOnline);
+  on("user_offline", onUserOffline);
   if (elements.usersList)
     elements.usersList.addEventListener("click", handleUserClick);
   if (elements.chatBody)
@@ -559,6 +597,8 @@ function onNewMessage(notification) {
   currentCleanup = () => {
     off("message", onChatMessage);
     off("new_message", onNewMessage);
+    off("user_online", onUserOnline);
+    off("user_offline", onUserOffline);
     if (elements.usersList)
       elements.usersList.removeEventListener("click", handleUserClick);
     if (elements.chatBody)

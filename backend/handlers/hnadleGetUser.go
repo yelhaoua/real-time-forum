@@ -257,16 +257,16 @@ func MarkNotificationsRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = config.Conn.Exec(`UPDATE notifications SET is_read = 1 WHERE user_id = ? AND sender_id = ? AND is_read = 0`, userId, payload.SenderID)
+	_, err = config.Conn.Exec(`DELETE FROM notifications WHERE user_id = ? AND sender_id = ? AND is_read = 0`, userId, payload.SenderID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "could not update notifications",
+			Message: "could not delete notifications",
 			Error:   "server_error",
 		})
 		return
 	}
 
-	json.NewEncoder(w).Encode(utils.ResponseApi{Success: true, Message: "notifications marked read"})
+	json.NewEncoder(w).Encode(utils.ResponseApi{Success: true, Message: "notifications deleted"})
 }

@@ -6,6 +6,8 @@
   --bg-card: #ffffff;
   --text-main: #1e293b;
   --text-muted: #64748b;
+  --status-online: #21a05a;
+  --status-offline: #9ca3af;
   --primary: #3b82f6;
   --border-color: #e2e8f0;
   --accent-red: #ef4444;
@@ -46,7 +48,6 @@ header {
   color: var(--primary);
 }
 
-/* --- Hamburger Toggle Button --- */
 .hamburger-btn {
   display: none;
   background: none;
@@ -69,7 +70,6 @@ header {
   display: inline-block;
 }
 
-/* --- Drawer Layout (Desktop Default) --- */
 .nav-drawer {
   display: flex;
   align-items: center;
@@ -148,7 +148,6 @@ header {
   display: none;
 }
 
-/* --- Mobile View & Slide-In Drawer --- */
 @media (max-width: 768px) {
   header {
     padding: 14px 20px;
@@ -164,7 +163,6 @@ header {
     justify-content: space-between;
   }
 
-  /* Overlay Dim Background */
   .nav-overlay {
     display: block;
     position: fixed;
@@ -185,7 +183,6 @@ header {
     pointer-events: auto;
   }
 
-  /* Slide Drawer */
   .nav-drawer {
     position: fixed;
     top: 0;
@@ -202,7 +199,6 @@ header {
     margin-left: 0;
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
 
-    /* Sliding Animation */
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }

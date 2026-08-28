@@ -94,7 +94,6 @@ const urlLocationHandler = async () => {
       try {
         const currentPath = getPath();
 
-        // Suppress notifications on any chat route
         if (currentPath === "/chat-page" || currentPath.startsWith("/chat/")) {
           return;
         }

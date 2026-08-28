@@ -94,6 +94,9 @@ func HandleMessages() {
 			if err != nil {
 				log.Println("notification insert err:", err)
 			}
+
+			
+			_, _ = config.Conn.Exec(`DELETE FROM notifications WHERE user_id = ? AND sender_id = ? AND is_read = 0`, msg.SenderID, msg.RecipientID)
 			SendToUser(Hub_, msg.RecipientID, msg)
 			SendToUser(Hub_, msg.SenderID, msg)
 

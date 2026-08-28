@@ -1,73 +1,132 @@
-// Global WebSocket provider — one connection shared across the entire app.
-// Components subscribe to message types; the provider handles connect/reconnect.
+// websocket.js
 
 const WS_URL = "ws://localhost:9090/ws";
-const RECONNECT_DELAY = 3000;
+const BASE_RECONNECT_DELAY = 1000;
+const MAX_RECONNECT_DELAY = 30000;
 
-const wsProvider = {
-  ws: null,
-  _listeners: new Map(), // type → Set<handler>
-  _reconnectTimer: null,
-  _intentionalClose: false,
+// متغيرات خاصة بالـ Module (مخفية تماماً وخالية من this)
+let ws = null;
+let reconnectTimer = null;
+let reconnectAttempts = 0;
+let isIntentionalClose = false;
 
-  // Connect (idempotent — safe to call multiple times)
-  connect() {
-    if (this.ws && this.ws.readyState < WebSocket.CLOSING) return;
+const listeners = new Map(); // type -> Set<handler>
+const queue = []; // طابور الرسائل في حالة عدم الجاهزية
 
-    this._intentionalClose = false;
-    this.ws = new WebSocket(WS_URL);
+// تنظيف الأحداث القديمة لمنع التداخل
+function cleanupWs() {
+  if (ws) {
+    ws.onopen = null;
+    ws.onmessage = null;
+    ws.onclose = null;
+    ws.onerror = null;
+    ws = null;
+  }
+}
 
-    this.ws.onmessage = (event) => {
-      let msg;
-      try { msg = JSON.parse(event.data); } catch { return; }
+// إطلاق الأحداث للمستمعين
+function emit(type, data) {
+  listeners.get(type)?.forEach((fn) => fn(data));
+}
 
-      const type = msg.type || "message";
-      this._emit(type, msg);
-      this._emit("*", msg); // wildcard — receives everything
-    };
+// تفريغ طابور الرسائل عند فتح الاتصال
+function flushQueue() {
+  while (queue.length > 0 && ws?.readyState === WebSocket.OPEN) {
+    const payload = queue.shift();
+    ws.send(JSON.stringify(payload));
+  }
+}
 
-    this.ws.onclose = () => {
-      if (this._intentionalClose) return;
-      // Auto-reconnect on unexpected close
-      this._reconnectTimer = setTimeout(() => this.connect(), RECONNECT_DELAY);
-    };
+// 1. بدء الاتصال (Idempotent)
+export function connect() {
+  if (ws && ws.readyState < WebSocket.CLOSING) return;
 
-    this.ws.onerror = (err) => console.error("[ws-provider] error:", err);
-  },
+  isIntentionalClose = false;
+  clearTimeout(reconnectTimer);
 
-  // Disconnect and stop reconnecting (call on logout)
-  disconnect() {
-    this._intentionalClose = true;
-    clearTimeout(this._reconnectTimer);
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
+  ws = new WebSocket(WS_URL);
+
+  ws.onopen = () => {
+    reconnectAttempts = 0;
+    flushQueue();
+    emit("connection", { status: "connected" });
+  };
+
+  ws.onmessage = (event) => {
+    let msg;
+    try {
+      msg = JSON.parse(event.data);
+    } catch {
+      return;
     }
-  },
 
-  // Send a payload — returns true if sent, false if not connected
-  send(payload) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(payload));
-      return true;
-    }
-    return false;
-  },
+    const type = msg.type || "message";
+    emit(type, msg);
+    emit("*", msg); // Wildcard
+  };
 
-  // Subscribe to a message type (use "*" for all messages)
-  on(type, handler) {
-    if (!this._listeners.has(type)) this._listeners.set(type, new Set());
-    this._listeners.get(type).add(handler);
-  },
+  ws.onclose = () => {
+    cleanupWs();
+    if (isIntentionalClose) return;
 
-  // Unsubscribe
-  off(type, handler) {
-    this._listeners.get(type)?.delete(handler);
-  },
+    emit("connection", { status: "disconnected" });
 
-  _emit(type, msg) {
-    this._listeners.get(type)?.forEach((fn) => fn(msg));
-  },
-};
+    // حساب وقت إعادة الاتصال الأسي (Exponential Backoff)
+    const delay = Math.min(
+      BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttempts),
+      MAX_RECONNECT_DELAY,
+    );
+    reconnectAttempts++;
+    reconnectTimer = setTimeout(connect, delay);
+  };
 
-export default wsProvider;
+  ws.onerror = (err) => {
+    console.error("[ws] error:", err);
+  };
+}
+
+// 2. إغلاق الاتصال نهائياً
+export function disconnect() {
+  isIntentionalClose = true;
+  clearTimeout(reconnectTimer);
+  if (ws) {
+    ws.close();
+    cleanupWs();
+  }
+}
+
+// 3. إرسال بيانات (يدعم التخزين المؤقت إذا كان الاتصال يجهز)
+export function send(payload) {
+  if (ws?.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(payload));
+    return true;
+  }
+
+  if (!ws || ws.readyState === WebSocket.CONNECTING) {
+    queue.push(payload);
+    if (!ws) connect();
+    return true;
+  }
+
+  return false;
+}
+
+// 4. الاشتراك في الأسلوب الوظيفي (ترجع دالة إلغاء تلقائية)
+export function on(type, handler) {
+  if (!listeners.has(type)) {
+    listeners.set(type, new Set());
+  }
+  listeners.get(type).add(handler);
+
+  // Unsubscribe function
+  return () => off(type, handler);
+}
+
+// 5. إلغاء الاشتراك يدوياً
+export function off(type, handler) {
+  const handlers = listeners.get(type);
+  if (handlers) {
+    handlers.delete(handler);
+    if (handlers.size === 0) listeners.delete(type);
+  }
+}

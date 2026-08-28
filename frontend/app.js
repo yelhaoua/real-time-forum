@@ -1,5 +1,5 @@
 import { routes } from "./js/routes/routes.js";
-import wsProvider from "./js/shared/ws-provider.js";
+import { connect, disconnect } from "./js/shared/ws-provider.js";
 
 const getPath = () => {
   const hash = window.location.hash.slice(1);
@@ -51,7 +51,10 @@ const matchRoute = (path) => {
 
 async function isLoggedIn() {
   try {
-    const req = await fetch("http://localhost:9090/checksession", { method: "GET", credentials: "include" });
+    const req = await fetch("http://localhost:9090/checksession", {
+      method: "GET",
+      credentials: "include",
+    });
     return req.ok;
   } catch {
     return false;
@@ -65,8 +68,15 @@ const urlLocationHandler = async () => {
   const location = getPath();
   const loggedIn = await isLoggedIn();
 
-  if (!loggedIn && AUTH_ONLY.some((p) => location === p || (p.includes(":") && location.startsWith(p.split(":")[0])))) {
-    wsProvider.disconnect();
+  if (
+    !loggedIn &&
+    AUTH_ONLY.some(
+      (p) =>
+        location === p ||
+        (p.includes(":") && location.startsWith(p.split(":")[0])),
+    )
+  ) {
+    disconnect();
     window.location.hash = "#/login";
     return;
   }
@@ -77,7 +87,7 @@ const urlLocationHandler = async () => {
   }
 
   // Keep one shared WS connection alive for the whole session
-  if (loggedIn) wsProvider.connect();
+  if (loggedIn) connect();
 
   const { route, params } = matchRoute(location);
 

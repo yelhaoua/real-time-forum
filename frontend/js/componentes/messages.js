@@ -1,8 +1,9 @@
 import escapeHtml from "../shared/formate-text.js";
 import MainHeaders from "../shared/main-headers.js";
+import { on, send } from "../shared/ws-provider.js";
 import NavBar from "./nave-bare.js";
 import Banner from "./ui/baner.js";
-import wsProvider from "../shared/ws-provider.js";
+// import wsProvider from "../shared/ws-provider.js";
 
 const MSG_LIMIT = 10;
 
@@ -123,7 +124,6 @@ export default function Messages() {
     const placeholder = elements.chatBody.querySelector(".chat-placeholder");
     if (placeholder) placeholder.remove();
 
-    // If server echoed optimistic temp_id, replace existing element
     if (msg.temp_id) {
       const optEl = elements.chatBody.querySelector(
         `[data-temp-id="${msg.temp_id}"]`,
@@ -185,7 +185,6 @@ export default function Messages() {
     if (elements.sendButton) elements.sendButton.disabled = !activeUser;
   }
 
-  // ── Network Operations ─────────────────────────────────────────────────────
 
   async function fetchUsers() {
     try {
@@ -263,7 +262,7 @@ export default function Messages() {
     }
   }
 
-  // ── Interaction Logic ──────────────────────────────────────────────────────
+
 
   function selectUser(user) {
     activeUser = user;
@@ -354,7 +353,7 @@ export default function Messages() {
     appendSingleMessage(optimisticMsg);
     elements.messageInput.value = "";
 
-    if (!wsProvider.send(payload)) {
+    if (!send(payload)) {
       allMessages = allMessages.filter((m) => m.temp_id !== tempId);
       const optNode = elements.chatBody.querySelector(
         `[data-temp-id="${tempId}"]`,
@@ -369,7 +368,7 @@ export default function Messages() {
   }
 
   // Attach Listeners
-  wsProvider.on("message", onChatMessage);
+  on("message", onChatMessage);
   if (elements.usersList)
     elements.usersList.addEventListener("click", handleUserClick);
   if (elements.chatBody)

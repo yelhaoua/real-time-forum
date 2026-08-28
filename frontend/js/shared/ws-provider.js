@@ -51,6 +51,8 @@ export function connect() {
     try {
       msg = JSON.parse(event.data);
     } catch {
+      console.error("Failed to parse WebSocket message:", event.data);
+      Baner("Error", "Received malformed WebSocket message.", "error");
       return;
     }
 

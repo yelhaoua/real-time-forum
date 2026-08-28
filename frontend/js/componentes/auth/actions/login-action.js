@@ -68,10 +68,8 @@ export default async function LoginAction(e) {
 
     return res;
   } catch (err) {
-    return {
-      success: false,
-      error: "server_error",
-      message: "Internal server error or server is unreachable.",
-    };
+    console.error("Login request failed:", err);
+    Baner("Error", "Failed to login. Please try again later.", "error");
+    
   }
 }

@@ -37,7 +37,7 @@ export default function ChatPage() {
 
         inputElement.value = "";
       } else {
-        Baner("Connection Error", "WebSocket connection is closed. Try again.");
+        Baner("Connection Error", "WebSocket connection is closed. Try again." , "error");
       }
     }
   });
@@ -52,7 +52,7 @@ export default function ChatPage() {
       const res = await req.json();
 
       if (!req.ok) {
-        Baner(res.error, res.message);
+        Baner(res.error, res.message , "error");
         setTimeout(() => (window.location.href = "/"), 1000);
         return;
       }
@@ -61,6 +61,7 @@ export default function ChatPage() {
       updateChatDOM();
     } catch (error) {
       console.error("Failed to fetch messages:", error);
+      Baner("Error", "Failed to fetch messages. Please try again later.", "error");
     }
   }
 

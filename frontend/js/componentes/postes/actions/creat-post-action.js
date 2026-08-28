@@ -22,10 +22,10 @@ export default async function CreatePostAction(e) {
 
     return await req.json();
   } catch (error) {
-    return {
-      success: false,
-      message: "Unable to create post right now.",
-    };
+    console.error("Failed to create post:", error);
+
+    Baner("Error", "Failed to create post. Please try again later.", "error");
+    
   } finally {
     form.dataset.submitting = "false";
   }

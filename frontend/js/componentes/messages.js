@@ -1,7 +1,7 @@
 import escapeHtml from "../shared/formate-text.js";
 import { off, on, send } from "../shared/ws-provider.js";
-import NavBar from "./nave-bare.js";
-import Banner from "./ui/baner.js";
+import NavBar from "../componentes/nave-bare.js";
+import Baner from "../componentes/ui/baner.js";
 
 const MSG_LIMIT = 10;
 
@@ -13,10 +13,7 @@ export default function Messages() {
     currentCleanup = null;
   }
 
-  for (const href of [
-    "../../assets/styles/messages.css",
-    "../../assets/styles/chat-page.css",
-  ]) {
+  for (const href of ["../../assets/styles/chat-page.css"]) {
     if (!document.querySelector(`link[href="${href}"]`)) {
       Object.assign(document.head.appendChild(document.createElement("link")), {
         rel: "stylesheet",
@@ -27,6 +24,7 @@ export default function Messages() {
 
   NavBar();
 
+  // 1. Inject HTML into DOM FIRST
   document.getElementById("app").innerHTML = `
     <div class="Messages-box">
       <div id="users-list"></div>
@@ -66,6 +64,7 @@ export default function Messages() {
   let allLoaded = false;
   let loadingMore = false;
 
+  // 2. Query DOM elements AFTER inserting innerHTML
   const elements = {
     usersList: document.querySelector("#users-list"),
     chatName: document.querySelectorAll("#user-chat .chat-user-name"),
@@ -112,9 +111,10 @@ export default function Messages() {
     let date;
     try {
       date = new Date(ts);
-      if (isNaN(date)) date = new Date();
+      if (isNaN(date.getTime())) date = new Date();
     } catch (e) {
       date = new Date();
+      Baner("Error", "Failed to format timestamp.", "error");
     }
 
     const now = new Date();
@@ -245,8 +245,12 @@ export default function Messages() {
           u.unread_count && u.unread_count > 0
             ? `<span class="unread-badge">${u.unread_count}</span>`
             : "";
+        const isActive = activeUser && String(activeUser.id) === String(u.id);
+
         return `
-        <div class="user-row ${u.is_online ? "online" : "offline"} ${u.has_unread ? "has-unread" : ""}" data-id="${u.id}">
+        <div class="user-row ${u.is_online ? "online" : "offline"} ${
+          isActive ? "active" : ""
+        }" data-id="${u.id}">
           <div class="user-avatar-wrap">
             <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
             <span class="online-dot"></span>
@@ -269,14 +273,14 @@ export default function Messages() {
       });
       const result = await res.json();
       if (!res.ok) {
-        Banner(result.error, result.message);
+        Baner(result.error, result.message, "error");
         return;
       }
 
       users = result.data || [];
       renderUsersList();
     } catch (err) {
-      Banner("Request Error", "Unable to load user list.");
+      Baner("Request Error", "Unable to load user list.", "error");
     }
   }
 
@@ -289,7 +293,7 @@ export default function Messages() {
       );
       const result = await res.json();
       if (!res.ok) {
-        Banner(result.error, result.message);
+        Baner(result.error, result.message, "error");
         return;
       }
 
@@ -311,6 +315,11 @@ export default function Messages() {
       }
     } catch (err) {
       console.error("Failed fetching chat history:", err);
+      Baner(
+        "Error",
+        "Failed to fetch chat history. Please try again later.",
+        "error",
+      );
     } finally {
       loadingMore = false;
     }
@@ -326,43 +335,52 @@ export default function Messages() {
     document
       .querySelector(".Messages-box")
       ?.classList.toggle("chat-open", !!user);
-    document
-      .querySelectorAll(".user-row")
-      .forEach((row) =>
-        row.classList.toggle(
-          "active",
-          !!user && row.dataset.id === String(user.id),
-        ),
-      );
 
     updateHeader();
     renderFullChatBody();
+
     if (user) {
+      const u = users.find((x) => String(x.id) === String(user.id));
+      if (u) {
+        u.unread_count = 0;
+        u.has_unread = false;
+      }
+      renderUsersList();
+
       fetchMessagesForUser(0);
       fetch("http://localhost:9090/notifications/mark_read", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender_id: Number(user.id) }),
-      })
-        .then(() => {
-          const u = users.find((x) => String(x.id) === String(user.id));
-          if (u) u.unread_count = 0;
-          if (elements.usersList) {
-            users = sortUsersByActivity(users);
-            renderUsersList();
-          }
-        })
-        .catch(() => {});
+      }).catch(() => {});
+    } else {
+      renderUsersList();
     }
   }
 
   function onChatMessage(msg) {
-    if (!activeUser) return;
     const sid = String(msg.sender_id ?? "");
     const rid = String(msg.recipient_id ?? "");
-    const uid = String(activeUser.id);
+    const nowIso =
+      msg.create_time || msg.creat_time || new Date().toISOString();
 
+    // Update timestamps and re-sort list, but DO NOT increment unread_count here
+    const otherId =
+      activeUser && String(activeUser.id) === sid
+        ? sid
+        : sid !== ""
+          ? sid
+          : rid;
+    const userToUpdate = users.find((u) => String(u.id) === otherId);
+
+    if (userToUpdate) {
+      userToUpdate.last_message_at = nowIso;
+      renderUsersList();
+    }
+
+    if (!activeUser) return;
+    const uid = String(activeUser.id);
     if (sid !== uid && rid !== uid) return;
 
     allMessages.push(msg);
@@ -371,20 +389,75 @@ export default function Messages() {
 
   function onNewMessage(notification) {
     try {
-      const sid = String(
-        notification.sender_id ?? notification.data?.sender_id ?? "",
-      );
-      const senderId = sid;
+      const data = notification.data || notification;
+      const senderId = String(data.sender_id ?? notification.sender_id ?? "");
+      const nowIso = new Date().toISOString();
+
       const user = users.find((u) => String(u.id) === senderId);
+
       if (user) {
-        user.has_unread = true;
-        if (elements.usersList) {
-          users = sortUsersByActivity(users);
-          renderUsersList();
+        user.last_message_at = data.create_time || data.creat_time || nowIso;
+
+        // Single source of truth for unread count increments:
+        if (!activeUser || String(activeUser.id) !== senderId) {
+          user.unread_count = (user.unread_count || 0) + 1;
+          user.has_unread = true;
         }
+
+        renderUsersList();
       }
     } catch (err) {
-      console.error("new message notif error", err);
+      console.error("new message notification error", err);
+      Baner("Error", "Failed to process incoming message.", "error");
+    }
+  }
+
+function onNewMessage(notification) {
+  try {
+    const data = notification.data || notification;
+    const senderId = String(data.sender_id ?? notification.sender_id ?? "");
+    const nowIso = new Date().toISOString();
+
+    const user = users.find((u) => String(u.id) === senderId);
+
+    if (user) {
+      user.last_message_at = data.create_time || data.creat_time || nowIso;
+
+      // Single source of truth for unread count increments:
+      if (!activeUser || String(activeUser.id) !== senderId) {
+        user.unread_count = (user.unread_count || 0) + 1;
+        user.has_unread = true;
+      }
+
+      renderUsersList();
+    }
+  } catch (err) {
+    console.error("new message notification error", err);
+    Baner("Error", "Failed to process incoming message.", "error");
+  }
+}
+
+  function onNewMessage(notification) {
+    try {
+      const data = notification.data || notification;
+      const senderId = String(data.sender_id ?? notification.sender_id ?? "");
+      const nowIso = new Date().toISOString();
+
+      const user = users.find((u) => String(u.id) === senderId);
+
+      if (user) {
+        user.last_message_at = data.create_time || data.creat_time || nowIso;
+
+        if (!activeUser || String(activeUser.id) !== senderId) {
+          user.unread_count = (user.unread_count || 0) + 1;
+          user.has_unread = true;
+        }
+
+        renderUsersList();
+      }
+    } catch (err) {
+      console.error("new message notification error", err);
+      Baner("Error", "Failed to process incoming message.", "error");
     }
   }
 
@@ -412,9 +485,10 @@ export default function Messages() {
   function handleSend(e) {
     e.preventDefault();
     if (!activeUser) {
-      Banner(
+      Baner(
         "Select a user first",
         "Choose a contact before sending a message.",
+        "warning",
       );
       return;
     }
@@ -423,6 +497,8 @@ export default function Messages() {
     if (!text) return;
 
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const nowIso = new Date().toISOString();
+
     const payload = {
       content: text,
       recipient_id: Number(activeUser.id),
@@ -433,12 +509,20 @@ export default function Messages() {
       ...payload,
       sender_id: -1,
       sender_name: "You",
-      create_time: new Date().toISOString(),
+      create_time: nowIso,
     };
 
     allMessages.push(optimisticMsg);
     appendSingleMessage(optimisticMsg);
     elements.messageInput.value = "";
+
+    const recipientUser = users.find(
+      (u) => String(u.id) === String(activeUser.id),
+    );
+    if (recipientUser) {
+      recipientUser.last_message_at = nowIso;
+      renderUsersList();
+    }
 
     if (!send(payload)) {
       allMessages = allMessages.filter((m) => m.temp_id !== tempId);
@@ -446,7 +530,11 @@ export default function Messages() {
         `[data-temp-id="${tempId}"]`,
       );
       if (optNode) optNode.remove();
-      Banner("Connection Error", "WebSocket connection is closed. Try again.");
+      Baner(
+        "Connection Error",
+        "WebSocket connection is closed. Try again.",
+        "error",
+      );
     }
   }
 
@@ -454,6 +542,7 @@ export default function Messages() {
     selectUser(null);
   }
 
+  // 3. Attach listeners to valid DOM elements
   on("message", onChatMessage);
   on("new_message", onNewMessage);
   if (elements.usersList)

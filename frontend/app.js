@@ -92,12 +92,23 @@ const urlLocationHandler = async () => {
   if (loggedIn) {
     on("new_message", (payload) => {
       try {
+        const currentPath = getPath();
+
+        // Suppress notifications on any chat route
+        if (currentPath === "/chat-page" || currentPath.startsWith("/chat/")) {
+          return;
+        }
+
         const data = payload?.data || payload;
         Baner(
           "New message",
           `${data.sender_name || "Someone"}: ${data.snippet || ""}`,
+          "info",
         );
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error handling new_message event:", e);
+        Baner("Error", "Failed to display new message.", "error");
+      }
     });
   }
 
@@ -121,6 +132,7 @@ const urlLocationHandler = async () => {
     document.title = route.title;
   } catch (err) {
     console.error("Failed to render page route:", err);
+    Baner("Error", "Failed to load the page. Please try again later.", "error");
   }
 };
 

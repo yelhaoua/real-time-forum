@@ -1,5 +1,6 @@
 import CheckSession from "../../shared/checkSession.js";
 import Banner from "../ui/baner.js";
+
 import LoginAction from "./actions/login-action.js";
 
 export default async function loginforum() {
@@ -34,11 +35,11 @@ async function handleFormSubmit(e) {
   if (!res.success) {
     const errorTitle = res.error || "Login Error";
     const errorMessage = res.message || "Invalid email or password.";
-    Banner(errorTitle, errorMessage);
+    Banner(errorTitle, errorMessage , "error");
     return;
   }
 
-  Banner("Success", res.message || "Login successful!");
+  Banner("Success", res.message || "Login successful!", "success");
   setTimeout(() => {
     window.location.hash = "#/";
   }, 1000);

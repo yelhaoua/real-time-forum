@@ -168,6 +168,6 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(res.LastInsertId())
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
-		Message: "post create succsesfuly",
+		Message: "Post created successfully",
 	})
 }

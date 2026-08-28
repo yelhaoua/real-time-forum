@@ -52,8 +52,8 @@ func HnadleAddComments(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(&utils.ResponseApi{
 			Success: false,
-			Message: "bad request",
-			Error:   "request_error",
+			Message: "invalid comment length",
+			Error:   "input_error",
 		})
 		return
 	}

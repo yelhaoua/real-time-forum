@@ -38,7 +38,11 @@ export default function CommentForm(postId) {
         Baner(res.message);
 
         console.log(res);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Failed to create comment:", error);
+        Baner("Error", "Failed to create comment. Please try again later.", "error");
+
+      }
     }
   });
 

@@ -8,7 +8,10 @@ export default async function PostesDetailesAction(postId) {
     const res = await req.json();
 
     return res;
-  } catch (error) {}
+  } catch (error) {
+    console.error("Failed to fetch post details:", error);
+    Baner("Error", "Failed to fetch post details. Please try again later.", "error");
+  }
 }
 
 export async function GetCommetesAction(id) {
@@ -22,5 +25,8 @@ export async function GetCommetesAction(id) {
     const res = await req.json();
 
     return res;
-  } catch (error) {}
+  } catch (error) {
+    console.error("Failed to fetch comments:", error);
+    Baner("Error", "Failed to fetch comments. Please try again later.", "error");
+  }
 }

@@ -32,12 +32,12 @@ async function handleFormSubmit(e) {
   if (!res.success) {
     Banner(
       res.error || "Registration Failed",
-      res.message || "Please fix the errors below.",
+      res.message || "Please fix the errors below.", "error"
     );
     return;
   }
 
-  Banner("Success", res.message || "Registration completed!");
+  Banner("Success", res.message || "Registration completed!" , "success");
   setTimeout(() => {
     window.location.hash = "#/login";
   }, 1000);

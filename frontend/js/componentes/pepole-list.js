@@ -1,4 +1,4 @@
-import Baner from "./ui/baner.js";
+
 
 export default function ChatList() {
   if (
@@ -102,7 +102,10 @@ export default function ChatList() {
       }
       users = res.data;
       renderUsers(users);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      Baner("Error", "Failed to fetch users. Please try again later.", "error");
+    }
   });
 
   renderUsers(users);

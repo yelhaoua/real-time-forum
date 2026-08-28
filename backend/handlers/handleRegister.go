@@ -220,6 +220,6 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
-		Message: "Registration successful",
+		Message: "Registration successfuly",
 	})
 }

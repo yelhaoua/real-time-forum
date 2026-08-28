@@ -172,6 +172,8 @@ async function HandlePostActions(e) {
       });
       return res.ok;
     } catch (e) {
+      console.error("Failed to check session:", e);
+      Baner("Error", "Failed to check session. Please try again later.", "error");
       return false;
     }
   }

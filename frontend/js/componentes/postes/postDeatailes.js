@@ -21,7 +21,7 @@ export default async function PostDetailes() {
 
   const res = await PostesDetailesAction(postId);
   if (!res.success) {
-    Baner(res.error, res.message);
+    Baner(res.error, res.message , "error");
     return;
   }
   if (res.data) {

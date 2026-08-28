@@ -122,12 +122,8 @@ export default async function RegisterAction(e) {
 
   catch (error) {
     console.error("Register network error:", error);
-
-    return {
-      success: false,
-        error: "server_error",
-        message: "Internal server error or server is unreachable.",
-    }
+    Baner("Error", "Failed to register. Please try again later.", "error");
+    
 
     ;
   }

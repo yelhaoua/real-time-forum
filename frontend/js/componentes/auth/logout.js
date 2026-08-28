@@ -10,5 +10,6 @@ export default async function logout() {
     }
   } catch (err) {
     console.error(err);
+    Baner("Error", "Logout failed. Please try again.", "error");
   }
 }

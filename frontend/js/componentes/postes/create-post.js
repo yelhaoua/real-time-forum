@@ -1,6 +1,5 @@
 import NavBar from "../nave-bare.js";
 import Baner from "../ui/baner.js";
-import MainHeaders from "../../shared/main-headers.js";
 import CreatePostAction from "./actions/creat-post-action.js";
 
 export default async function CreatePost() {

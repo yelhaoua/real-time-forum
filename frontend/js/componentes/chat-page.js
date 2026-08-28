@@ -1,8 +1,7 @@
-import MainHeaders from "../shared/main-headers.js";
 import Baner from "./ui/baner.js";
 
 export default function ChatPage() {
-  MainHeaders();
+
 
   let link = document.createElement("link");
   link.rel = "stylesheet";

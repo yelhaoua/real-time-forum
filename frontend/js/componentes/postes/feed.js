@@ -1,5 +1,4 @@
 import escapeHTML from "../../shared/formate-text.js";
-import MainHeaders from "../../shared/main-headers.js";
 import NavBar from "../nave-bare.js";
 
 function clearOppositeVote(

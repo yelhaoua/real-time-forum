@@ -1,5 +1,4 @@
 import CheckSession from "../../shared/checkSession.js";
-import MainHeaders from "../../shared/main-headers.js";
 import PostesDetailesAction, {
   GetCommetesAction,
 } from "./actions/post-details-action.js";

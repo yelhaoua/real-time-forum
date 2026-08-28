@@ -1,5 +1,4 @@
 import escapeHtml from "../shared/formate-text.js";
-import MainHeaders from "../shared/main-headers.js";
 import { off, on, send } from "../shared/ws-provider.js";
 import NavBar from "./nave-bare.js";
 import Banner from "./ui/baner.js";
@@ -9,7 +8,7 @@ const MSG_LIMIT = 10;
 let currentCleanup = null;
 
 export default function Messages() {
-  MainHeaders();
+
 
   if (currentCleanup) {
     currentCleanup();

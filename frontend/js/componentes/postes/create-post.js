@@ -8,28 +8,37 @@ export default async function CreatePost() {
   document.getElementById("dynamic_style").href =
     "../../assets/styles/creat-post-style.css";
 
-  document.body.addEventListener("submit", async (e) => {
-    document.querySelector(".action-btn").disabled = true;
+  const form = document.getElementById("creat-post-form");
+  if (!form) return;
 
-    let title_err = document.querySelector(".title-err");
-    let desc_err = document.querySelector(".desc-err");
-    let img_err = document.querySelector(".img-err");
-    title_err.innerHTML = "";
-    desc_err.innerHTML = "";
-    img_err.innerHTML = "";
-    if (e.target.id === "creat-post-form") {
-      const res = await CreatePostAction(e);
-      if (!res.success) {
-        if (res.data?.title_error || res.data?.desc_error) {
-          title_err.innerHTML = res.data.title_error;
-          desc_err.innerHTML = res.data.desc_error;
-          img_err.innerHTML = res.data.image_error;
-          return;
-        }
-        Baner(res.message);
-        return;
+  const submitButton = form.querySelector(".action-btn.mention-btn");
+  const titleErr = form.querySelector(".title-err");
+  const descErr = form.querySelector(".desc-err");
+  const imgErr = form.querySelector(".img-err");
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    if (submitButton) submitButton.disabled = true;
+    titleErr.innerHTML = "";
+    descErr.innerHTML = "";
+    imgErr.innerHTML = "";
+
+    const res = await CreatePostAction(e);
+    if (!res || !res.success) {
+      if (res?.data?.title_error || res?.data?.desc_error) {
+        titleErr.innerHTML = res.data.title_error;
+        descErr.innerHTML = res.data.desc_error;
+        imgErr.innerHTML = res.data.image_error;
+      } else {
+        Baner(res?.message || "Unable to create post right now.");
       }
-      Baner(res.message);
+      if (submitButton) submitButton.disabled = false;
+      return;
     }
-  });
+
+    Baner(res.message);
+    form.reset();
+    if (submitButton) submitButton.disabled = false;
+  };
 }

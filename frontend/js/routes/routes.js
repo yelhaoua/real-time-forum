@@ -26,7 +26,6 @@ export const routes = {
   },
   "/craet-post": {
     title: "Create Post",
-
     template: "../../templates/creat-post.html",
     init: CreatePost,
   },

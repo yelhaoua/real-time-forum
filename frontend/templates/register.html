@@ -68,19 +68,20 @@
           </div>
 
           <div>
-            <label class="field-label" for="user-birthdate"
-              >Date of birth</label
-            >
+            <label class="field-label" for="user-age">Age</label>
             <div class="field">
-              <span class="ic"><i class="fa-regular fa-calendar"></i></span>
+              <span class="ic"><i class="fa-regular fa-user"></i></span>
               <input
-                id="user-birthdate"
-                name="user-birthdate"
-                type="date"
+                id="user-age"
+                name="user-age"
+                type="number"
+                min="18"
+                max="120"
+                placeholder="18"
                 required
               />
             </div>
-            <span class="error" id="user-birthdate-Err"></span>
+            <span class="error" id="user-age-Err"></span>
           </div>
 
           <div>

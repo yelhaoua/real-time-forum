@@ -2,10 +2,7 @@ import Logout from "./auth/logout.js";
 import Banner from "./ui/baner.js";
 
 export default async function NavBar() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "../../assets/styles/nav-var.css";
-  document.head.appendChild(link);
+
 
   const renderNav = (user = null) => {
     const isAuth = !!user;

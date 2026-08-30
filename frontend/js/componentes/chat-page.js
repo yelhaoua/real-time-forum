@@ -1,12 +1,10 @@
 import Baner from "./ui/baner.js";
 
 export default function ChatPage() {
-
-
-  let link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "../../assets/styles/chat-page.css";
-  document.head.appendChild(link);
+  const styleTag = document.getElementById("dynamic_style");
+  if (styleTag) {
+    styleTag.href = "../../assets/styles/chat-page.css";
+  }
 
   document.getElementById("nav-bar").innerHTML = "";
 
@@ -14,7 +12,6 @@ export default function ChatPage() {
   const id = urlParts[urlParts.length - 1];
 
   let chatHistory = [];
-
 
   document.body.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -37,7 +34,11 @@ export default function ChatPage() {
 
         inputElement.value = "";
       } else {
-        Baner("Connection Error", "WebSocket connection is closed. Try again." , "error");
+        Baner(
+          "Connection Error",
+          "WebSocket connection is closed. Try again.",
+          "error",
+        );
       }
     }
   });
@@ -52,7 +53,7 @@ export default function ChatPage() {
       const res = await req.json();
 
       if (!req.ok) {
-        Baner(res.error, res.message , "error");
+        Baner(res.error, res.message, "error");
         setTimeout(() => (window.location.href = "/"), 1000);
         return;
       }
@@ -61,7 +62,11 @@ export default function ChatPage() {
       updateChatDOM();
     } catch (error) {
       console.error("Failed to fetch messages:", error);
-      Baner("Error", "Failed to fetch messages. Please try again later.", "error");
+      Baner(
+        "Error",
+        "Failed to fetch messages. Please try again later.",
+        "error",
+      );
     }
   }
 

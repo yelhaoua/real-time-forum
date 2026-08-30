@@ -22,10 +22,6 @@ func testTAble() {
     profile_image TEXT DEFAULT '/static/images/default-banner.png', 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );`,
-		`CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE
-)`,
 		`CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -79,7 +75,7 @@ FOREIGN KEY (user_id) REFERENCES users(id)
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
 )`,
-    `CREATE TABLE IF NOT EXISTS notifications (
+		`CREATE TABLE IF NOT EXISTS notifications (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   sender_id INTEGER,

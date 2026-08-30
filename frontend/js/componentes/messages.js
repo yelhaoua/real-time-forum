@@ -8,18 +8,13 @@ const MSG_LIMIT = 10;
 let currentCleanup = null;
 
 export default function Messages() {
+  const styleTag = document.getElementById("dynamic_style");
+  if (styleTag) {
+    styleTag.href = "../../assets/styles/chat-page.css";
+  }
   if (currentCleanup) {
     currentCleanup();
     currentCleanup = null;
-  }
-
-  for (const href of ["../../assets/styles/chat-page.css"]) {
-    if (!document.querySelector(`link[href="${href}"]`)) {
-      Object.assign(document.head.appendChild(document.createElement("link")), {
-        rel: "stylesheet",
-        href,
-      });
-    }
   }
 
   NavBar();

@@ -4,6 +4,7 @@
   box-sizing: border-box;
   text-decoration: none;
   font-family: "Poppins", sans-serif;
+  overflow-wrap: anywhere;
 }
 
 body {
@@ -542,6 +543,7 @@ body {
 }
 
 @media (max-width: 1024px) {
+
   .chat-container,
   .chat-contaner {
     display: none;
@@ -549,6 +551,7 @@ body {
 }
 
 @media (max-width: 768px) {
+
   .feed-layout,
   .post-detail-layout {
     grid-template-columns: 1fr;
@@ -567,6 +570,7 @@ body {
 }
 
 @media (max-width: 480px) {
+
   .feed-layout,
   .post-detail-layout {
     padding: 14px 10px 32px;

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,7 +22,7 @@ type RegisterData struct {
 	FirstName string `json:"first-name"`
 	LastName  string `json:"last-name"`
 	Email     string `json:"email"`
-	Age       int    `json:"user-age"`
+	Age       string `json:"user-age"`
 	BirthDate string `json:"user-birthdate"`
 	Gender    string `json:"user-gender"`
 	Password  string `json:"password"`
@@ -96,21 +97,10 @@ func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
 		errs.Password = "Password must be at least 8 characters long"
 	}
 
-	if data.BirthDate == "" {
+	age, err := strconv.Atoi(data.Age)
+	if err != nil || age < 18 {
 		hasErr = true
-		errs.BirthDate = "Please choose your birth date"
-	} else {
-		birthDate, err := time.Parse("2006-01-02", data.BirthDate)
-		if err != nil {
-			hasErr = true
-			errs.BirthDate = "Birth date is invalid"
-		} else {
-			data.Age = calculateAge(birthDate)
-			if data.Age < 18 {
-				hasErr = true
-				errs.BirthDate = "You must be at least 18 years old"
-			}
-		}
+		errs.Age = "You must be at least 18 years old"
 	}
 
 	if data.Gender == "" {
@@ -149,6 +139,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 	var data RegisterData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		fmt.Println("err", err)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,

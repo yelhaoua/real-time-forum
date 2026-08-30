@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"real-time-forum/config"
@@ -17,32 +15,6 @@ import (
 
 	"github.com/google/uuid"
 )
-
-func checkcategori(categori []string) bool {
-	if len(categori) == 0 {
-		return true
-	}
-	for _, val := range categori {
-		num, err := strconv.Atoi(val)
-		if err != nil {
-			return true
-		}
-		if num < 1 || num > 7 {
-			return true
-		}
-	}
-	return false
-}
-
-func InsertInCategorise(categorise []string, DB *sql.DB, id int) error {
-	for _, val := range categorise {
-		_, err := DB.Exec(`INSERT INTO post_categories (post_id , category_id) VALUES (?, ?)`, id, val)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 
 func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
@@ -59,6 +31,9 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	const MAXUPLOADSIZE = 1024 * 1024
+
+	r.Body = http.MaxBytesReader(w, r.Body, MAXUPLOADSIZE)
 
 	id, err := utils.CheckSession(w, r)
 	if err != nil {
@@ -79,13 +54,13 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		ImgErr     string `json:"image_error"`
 	}
 
-	err = r.ParseMultipartForm(10 << 20)
+	err = r.ParseMultipartForm(MAXUPLOADSIZE)
 	if err != nil {
 
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: false,
-			Message: "invalid from content",
+			Message: "File too large. Maximum size is 1MB",
 			Error:   "form-error",
 		})
 		return
@@ -126,6 +101,16 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 			os.Mkdir(imgDir, os.ModePerm)
 		}
 		imageExt := filepath.Ext(handler.Filename)
+
+		if imageExt != ".jpg" && imageExt != ".jpeg" && imageExt != ".png" && imageExt != ".gif" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(utils.ResponseApi{
+				Success: false,
+				Message: "Invalid image format. Only JPG, JPEG, PNG, and GIF are allowed.",
+				Error:   "image_error",
+			})
+			return
+		}
 		newImagName := uuid.New().String() + imageExt
 		imagpath = path.Join(imgDir, newImagName)
 		dst, err := os.Create(imagpath)

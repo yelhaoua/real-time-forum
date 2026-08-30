@@ -1,54 +1,54 @@
-import { routes } from "./js/routes/routes.js";
-import { connect, disconnect, on } from "./js/shared/ws-provider.js";
-import Baner from "./js/componentes/ui/baner.js";
+import { connect, disconnect, on } from "./js/ws.js";
+import { Banner } from "./js/ui.js";
+import { LoginPage, RegisterPage, LogoutPage } from "./js/pages/auth.js";
+import FeedPage from "./js/pages/feed.js";
+import PostPage from "./js/pages/post.js";
+import CreatePostPage from "./js/pages/create.js";
+import MessagesPage from "./js/pages/messages.js";
 
-const getPath = () => {
-  const hash = window.location.hash.slice(1);
-  return hash || "/";
+const ROUTES = {
+  "/": { title: "Home", init: FeedPage },
+  "/login": { title: "Login", init: LoginPage },
+  "/register": { title: "Register", init: RegisterPage },
+  "/logout": { title: "Logout", init: LogoutPage },
+  "/create-post": { title: "Create Post", init: CreatePostPage },
+  "/messages": { title: "Messages", init: MessagesPage },
+  "/post/:id": { title: "Post", init: PostPage },
+  404: { title: "Not Found", init: () => {
+    document.getElementById("app").innerHTML = `<div style="text-align:center;padding:80px"><h2>Page not found</h2><a href="#/">Go Home</a></div>`;
+  }},
 };
 
-const matchRoute = (path) => {
-  if (routes[path]) {
-    return {
-      route: routes[path],
-      params: {},
-    };
-  }
+const AUTH_ONLY = ["/", "/create-post", "/messages", "/post/"];
+const GUEST_ONLY = ["/login", "/register"];
 
-  for (const routePath in routes) {
-    const routeParts = routePath.split("/");
-    const pathParts = path.split("/");
+function getPath() {
+  return window.location.hash.slice(1) || "/";
+}
 
-    if (routeParts.length !== pathParts.length) continue;
+function matchRoute(path) {
+  if (ROUTES[path]) return { route: ROUTES[path], params: {} };
+
+  for (const routePath in ROUTES) {
+    const rParts = routePath.split("/");
+    const pParts = path.split("/");
+    if (rParts.length !== pParts.length) continue;
 
     let matched = true;
     const params = {};
-
-    for (let i = 0; i < routeParts.length; i++) {
-      const routePart = routeParts[i];
-      const pathPart = pathParts[i];
-
-      if (routePart.startsWith(":")) {
-        params[routePart.slice(1)] = pathPart;
-      } else if (routePart !== pathPart) {
+    for (let i = 0; i < rParts.length; i++) {
+      if (rParts[i].startsWith(":")) {
+        params[rParts[i].slice(1)] = pParts[i];
+      } else if (rParts[i] !== pParts[i]) {
         matched = false;
         break;
       }
     }
-
-    if (matched) {
-      return {
-        route: routes[routePath],
-        params,
-      };
-    }
+    if (matched) return { route: ROUTES[routePath], params };
   }
 
-  return {
-    route: routes[404],
-    params: {},
-  };
-};
+  return { route: ROUTES[404], params: {} };
+}
 
 async function isLoggedIn() {
   try {
@@ -62,99 +62,42 @@ async function isLoggedIn() {
   }
 }
 
-const AUTH_ONLY = ["/", "/craet-post", "/chat-page", "/chat/:id"];
-const GUEST_ONLY = ["/login", "/register"];
+// Register new_message notification handler once (app-level)
+on("new_message", (payload) => {
+  const path = getPath();
+  if (path === "/messages") return;
+  const data = payload?.data || payload;
+  Banner("New message", `${data.sender_name || "Someone"}: ${data.snippet || data.content || ""}`, "info");
+});
 
-const urlLocationHandler = async () => {
-  const location = getPath();
+async function urlLocationHandler() {
+  const path = getPath();
   const loggedIn = await isLoggedIn();
 
-  if (
-    !loggedIn &&
-    AUTH_ONLY.some(
-      (p) =>
-        location === p ||
-        (p.includes(":") && location.startsWith(p.split(":")[0])),
-    )
-  ) {
+  if (!loggedIn && AUTH_ONLY.some((p) => path === p || path.startsWith(p))) {
     disconnect();
     window.location.hash = "#/login";
     return;
   }
 
-  if (loggedIn && GUEST_ONLY.includes(location)) {
+  if (loggedIn && GUEST_ONLY.includes(path)) {
     window.location.hash = "#/";
     return;
   }
 
   if (loggedIn) connect();
 
-  if (loggedIn) {
-    on("new_message", (payload) => {
-      try {
-        const currentPath = getPath();
-
-        if (currentPath === "/chat-page" || currentPath.startsWith("/chat/")) {
-          return;
-        }
-
-        const data = payload?.data || payload;
-        Baner(
-          "New message",
-          `${data.sender_name || "Someone"}: ${data.snippet || ""}`,
-          "info",
-        );
-      } catch (e) {
-        console.error("Error handling new_message event:", e);
-        Baner("Error", "Failed to display new message.", "error");
-      }
-    });
-  }
-
-  const { route, params } = matchRoute(location);
+  const { route, params } = matchRoute(path);
+  document.getElementById("app").innerHTML = "";
 
   try {
-    const response = await fetch(route.template);
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} - Template not found`);
-    }
-
-    const html = await response.text();
-
-    document.getElementById("app").innerHTML = html;
-
-    if (typeof route.init === "function") {
-      await route.init(params);
-    }
-
+    if (typeof route.init === "function") await route.init(params);
     document.title = route.title;
   } catch (err) {
-    console.error("Failed to render page route:", err);
-    Baner("Error", "Failed to load the page. Please try again later.", "error");
+    console.error("Failed to render page:", err);
+    Banner("Error", "Failed to load the page. Please try again.", "error");
   }
-};
-
-window.addEventListener("click", (e) => {
-  const anchor = e.target.closest("a");
-
-  if (!anchor) return;
-
-  const href = anchor.getAttribute("href");
-
-  if (!href) return;
-
-  if (href.startsWith("#/")) {
-    e.preventDefault();
-    window.location.hash = href;
-  }
-
-  if (href === "/logout") {
-    e.preventDefault();
-    window.location.hash = "#/logout";
-  }
-});
+}
 
 window.addEventListener("hashchange", urlLocationHandler);
-
 window.addEventListener("DOMContentLoaded", urlLocationHandler);

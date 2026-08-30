@@ -4,9 +4,11 @@ import { disconnect } from "../ws.js";
 // ── Login ──────────────────────────────────────────────────────────────────
 
 export async function LoginPage() {
+  document.body.removeAttribute("unresolved");
+  document.body.classList.add("auth-page");
   document.getElementById("nav-bar").innerHTML = "";
   document.getElementById("app").innerHTML = `
-    <main class="card auth-card">
+    <main class="auth-card">
       <section class="brand auth-brand">
         <div class="logo">
           <span class="wordmark">Zone01<span>Forum</span></span>
@@ -104,10 +106,11 @@ export async function LoginPage() {
 // ── Register ───────────────────────────────────────────────────────────────
 
 export async function RegisterPage() {
+  document.body.classList.add("auth-page");
   document.getElementById("nav-bar").innerHTML = "";
   document.getElementById("app").innerHTML = `
     <div class="container register-shell">
-      <main class="card register-card">
+      <main class="register-card">
         <section class="brand register-brand">
           <div class="logo">
             <span class="wordmark">Zone01<span>Forum</span></span>

@@ -62,7 +62,8 @@ async function isLoggedIn() {
   }
 }
 
-// Register new_message notification handler once (app-level)
+document.body.removeAttribute("unresolved");
+
 on("new_message", (payload) => {
   const path = getPath();
   if (path === "/messages") return;
@@ -74,7 +75,7 @@ async function urlLocationHandler() {
   const path = getPath();
   const loggedIn = await isLoggedIn();
 
-  if (!loggedIn && AUTH_ONLY.some((p) => path === p || path.startsWith(p))) {
+  if (!loggedIn && AUTH_ONLY.some((p) => path === p || (p.length > 1 && path.startsWith(p)))) {
     disconnect();
     window.location.hash = "#/login";
     return;
@@ -88,6 +89,7 @@ async function urlLocationHandler() {
   if (loggedIn) connect();
 
   const { route, params } = matchRoute(path);
+  document.body.classList.remove("auth-page");
   document.getElementById("app").innerHTML = "";
 
   try {
@@ -100,4 +102,6 @@ async function urlLocationHandler() {
 }
 
 window.addEventListener("hashchange", urlLocationHandler);
-window.addEventListener("DOMContentLoaded", urlLocationHandler);
+
+// Modules are deferred — DOM is already ready when this runs
+urlLocationHandler();

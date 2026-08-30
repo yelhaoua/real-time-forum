@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -16,10 +17,16 @@ func init() {
 func main() {
 	mux := routes.Routes()
 	config.DbConnect()
+	hub := handler.NewHub()
+	fmt.Println("hub", hub)
+	handler.Hub_ = hub
+	go handler.Managehub(hub)
+	go handler.HandleMessages()
 
 	fs := http.FileServer(http.Dir("./uploads"))
 
-	mux.Handle("/uploads/",
+	mux.Handle(
+		"/uploads/",
 		http.StripPrefix("/uploads/", fs),
 	)
 	log.Fatal(http.ListenAndServe(":9090", mux))

@@ -46,8 +46,13 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("upgrade err:", err)
 		return
 	}
-
-	Register(Hub_, userID, conn)
+	client := &Client{
+		UserID: userID,
+		Conn:   conn,
+		Send:   make(chan any, bufferSize),
+	}
+	Hub_.Register <- client
+	go WritePump(Hub_, client)
 
 	broadcast <- WSMessage{Type: "user_online", SenderID: userID}
 
@@ -95,7 +100,6 @@ func HandleMessages() {
 				log.Println("notification insert err:", err)
 			}
 
-			
 			_, _ = config.Conn.Exec(`DELETE FROM notifications WHERE user_id = ? AND sender_id = ? AND is_read = 0`, msg.SenderID, msg.RecipientID)
 			SendToUser(Hub_, msg.RecipientID, msg)
 			SendToUser(Hub_, msg.SenderID, msg)

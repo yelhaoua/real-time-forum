@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 
@@ -19,15 +21,75 @@ type Client struct {
 }
 
 type Hub struct {
-	Mu      sync.RWMutex
-	Clients map[int]map[*Client]bool 
+	Mu           sync.RWMutex
+	Clients      map[int]map[*Client]bool
+	Register     chan *Client
+	Unregister   chan *Client
+	BroadcastAll chan []byte
 }
 
 var Hub_ = NewHub()
 
 func NewHub() *Hub {
 	return &Hub{
-		Clients: make(map[int]map[*Client]bool),
+		Clients:      make(map[int]map[*Client]bool),
+		Register:     make(chan *Client),
+		Unregister:   make(chan *Client),
+		BroadcastAll: make(chan []byte),
+	}
+}
+
+func Managehub(hub *Hub) {
+	fmt.Println("hna")
+	for {
+		select {
+		case client := <-hub.Register:
+			fmt.Println(client)
+
+			hub.Mu.Lock()
+
+			if hub.Clients[client.UserID] == nil {
+				hub.Clients[client.UserID] = make(map[*Client]bool)
+			}
+			hub.Clients[client.UserID][client] = true
+			hub.Mu.Unlock()
+			fmt.Println("c", hub.Clients)
+
+		case client := <-hub.Unregister:
+			hub.Mu.Lock()
+
+			conns, ok := hub.Clients[client.UserID]
+			if ok {
+				_, ok := conns[client]
+				if ok {
+					delete(conns, client)
+					close(client.Send)
+				}
+			}
+			if len(conns) == 0 {
+				delete(hub.Clients, client.UserID)
+			}
+			hub.Mu.Unlock()
+
+		case message := <-hub.BroadcastAll:
+			hub.Mu.Lock()
+			for id, conns := range hub.Clients {
+				for client := range conns {
+					select {
+					case client.Send <- message:
+					default:
+						close(client.Send)
+						delete(conns, client)
+						client.Conn.Close()
+					}
+				}
+				if len(conns) == 0 {
+					delete(hub.Clients, id)
+				}
+			}
+			hub.Mu.Unlock()
+
+		}
 	}
 }
 
@@ -35,7 +97,7 @@ func WritePump(h *Hub, client *Client) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer func() {
 		ticker.Stop()
-		Unregister(h, client)
+		h.Unregister <- client
 	}()
 
 	for {
@@ -59,44 +121,6 @@ func WritePump(h *Hub, client *Client) {
 	}
 }
 
-func Register(h *Hub, userID int, conn *websocket.Conn) *Client {
-	client := &Client{
-		UserID: userID,
-		Conn:   conn,
-		Send:   make(chan any, bufferSize),
-	}
-
-	h.Mu.Lock()
-	if h.Clients[userID] == nil {
-		h.Clients[userID] = make(map[*Client]bool)
-	}
-	h.Clients[userID][client] = true
-	h.Mu.Unlock()
-
-	go WritePump(h, client)
-	return client
-}
-
-func Unregister(h *Hub, client *Client) {
-	h.Mu.Lock()
-	defer h.Mu.Unlock()
-
-	conns, exists := h.Clients[client.UserID]
-	if !exists {
-		return
-	}
-
-	if _, found := conns[client]; found {
-		delete(conns, client)
-		close(client.Send)
-		client.Conn.Close()
-	}
-
-	if len(conns) == 0 {
-		delete(h.Clients, client.UserID)
-	}
-}
-
 func IsOnline(h *Hub, userID int) bool {
 	h.Mu.RLock()
 	defer h.Mu.RUnlock()
@@ -111,7 +135,7 @@ func SendToUser(h *Hub, userID int, msg any) {
 		select {
 		case client.Send <- msg:
 		default:
-			go Unregister(h, client)
+			delete(h.Clients, client.UserID)
 		}
 	}
 }
@@ -124,16 +148,9 @@ func Notify(h *Hub, userID int, notifType string, data any) {
 }
 
 func BroadcastAll(h *Hub, msg any) {
-	h.Mu.RLock()
-	defer h.Mu.RUnlock()
-
-	for _, conns := range h.Clients {
-		for client := range conns {
-			select {
-			case client.Send <- msg:
-			default:
-				go Unregister(h, client)
-			}
-		}
+	message, err := json.Marshal(msg)
+	if err != nil {
+		return
 	}
+	h.BroadcastAll <- message
 }

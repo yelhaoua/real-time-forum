@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -25,7 +24,7 @@ type Hub struct {
 	Clients      map[int]map[*Client]bool
 	Register     chan *Client
 	Unregister   chan *Client
-	BroadcastAll chan []byte
+	BroadcastAll chan any
 }
 
 var Hub_ = NewHub()
@@ -35,7 +34,7 @@ func NewHub() *Hub {
 		Clients:      make(map[int]map[*Client]bool),
 		Register:     make(chan *Client),
 		Unregister:   make(chan *Client),
-		BroadcastAll: make(chan []byte),
+		BroadcastAll: make(chan any),
 	}
 }
 
@@ -148,9 +147,5 @@ func Notify(h *Hub, userID int, notifType string, data any) {
 }
 
 func BroadcastAll(h *Hub, msg any) {
-	message, err := json.Marshal(msg)
-	if err != nil {
-		return
-	}
-	h.BroadcastAll <- message
+	h.BroadcastAll <- msg
 }

@@ -10,10 +10,6 @@ import (
 	"real-time-forum/routes"
 )
 
-func init() {
-	go handler.HandleMessages()
-}
-
 func main() {
 	mux := routes.Routes()
 	config.DbConnect()

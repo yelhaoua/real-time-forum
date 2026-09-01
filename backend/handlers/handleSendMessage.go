@@ -82,11 +82,11 @@ func HandleMessages() {
 				msg.SenderName = senderName
 			}
 
-			msg.CreatTime = time.Now().Format(time.RFC3339)
+			msg.CreatTime = time.Now().Format(time.RFC3339Nano)
 
 			_, err := config.Conn.Exec(
 				`INSERT INTO direct_messages (sender_id, recipient_id, content, timestamp) VALUES (?, ?, ?, ?)`,
-				msg.SenderID, msg.RecipientID, msg.Content, time.Now(),
+				msg.SenderID, msg.RecipientID, msg.Content, msg.CreatTime,
 			)
 			if err != nil {
 				log.Println("db insert err:", err)

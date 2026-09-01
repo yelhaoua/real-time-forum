@@ -241,7 +241,8 @@ async function loadPosts() {
                 <img src="./assets/images/download.jpeg" alt="Author" />
                 <div class="author-info">
                   <h4>${post.user_name}</h4>
-                  <span>${post.creat_at}</span>
+                  <span>${post.creat_at} - ${post.category_name ? `<span class="post-category">${escapeHTML(post.category_name)}</span>` : ""}</span>
+                  
                 </div>
               </div>
               <i class="ri-more-fill" style="color: var(--text-muted); cursor: pointer"></i>

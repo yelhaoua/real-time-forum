@@ -67,6 +67,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	}
 	postTitle := r.FormValue("posttitle")
 	postDesc := r.FormValue("postdesc")
+	postCategory := r.FormValue("category")
 	hassErr := false
 	if len(postTitle) > 50 || len(postTitle) < 3 {
 		hassErr = true
@@ -76,6 +77,11 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	if len(postDesc) > 500 || len(postDesc) < 10 {
 		hassErr = true
 		postErrors.DescErr = "your description must have betwen 10 and 500 char"
+	}
+
+	if postCategory == "" {
+		hassErr = true
+		postErrors.CateErr = "please select a category"
 	}
 
 	if hassErr {
@@ -150,7 +156,41 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Println(res.LastInsertId())
+
+	postId, err := res.LastInsertId()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Error while saving data",
+			Error:   "server_error",
+		})
+		return
+	}
+
+	var categoryId int64
+	err = config.Conn.QueryRow(`SELECT id FROM categories WHERE name = ?`, postCategory).Scan(&categoryId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Invalid category",
+			Error:   "form-error",
+		})
+		return
+	}
+
+	_, err = config.Conn.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "Error while saving data",
+			Error:   "server_error",
+		})
+		return
+	}
+
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
 		Message: "Post created successfully",

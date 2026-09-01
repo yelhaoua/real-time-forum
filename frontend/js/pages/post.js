@@ -34,7 +34,7 @@ export default async function PostPage(params) {
             <img src="./assets/images/download.jpeg" alt="Author" />
             <div class="author-info">
               <h4>${escapeHtml(post.user_name)}</h4>
-              <span>${escapeHtml(post.created_at)}</span>
+              <span>${escapeHtml(post.created_at)} ${post.category_name ? `- <span class="post-category">${escapeHtml(post.category_name)}</span>` : ""}</span>
             </div>
           </div>
           <i class="ri-more-fill" style="color:var(--muted);cursor:pointer"></i>

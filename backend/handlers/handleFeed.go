@@ -153,9 +153,12 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
             EXISTS (SELECT 1 FROM votes WHERE post_id = posts.id AND user_id = ? AND vote_value = -1) AS is_disliked,
             (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = 1) AS like_count,
             (SELECT COUNT(*) FROM votes WHERE post_id = posts.id AND vote_value = -1) AS dislike_count,
-            (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count
+            (SELECT COUNT(*) FROM comments WHERE post_id = posts.id) AS comment_count,
+            categories.name AS category_name
         FROM posts
         INNER JOIN users ON posts.user_id = users.id
+        LEFT JOIN post_categories ON post_categories.post_id = posts.id
+        LEFT JOIN categories ON categories.id = post_categories.category_id
         ORDER BY posts.created_at DESC`
 
 		var rows *sql.Rows
@@ -177,12 +180,14 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			var p utils.Posts
 			var created time.Time
-			if err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &created, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount, &p.CommentsCount); err != nil {
+			var categoryName sql.NullString
+			if err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &created, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount, &p.CommentsCount, &categoryName); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
 				return
 			}
 			p.Creat_at = utils.GetDuration(created)
+			p.CategoryName = categoryName.String
 			posts = append(posts, p)
 		}
 		if err := rows.Err(); err != nil {

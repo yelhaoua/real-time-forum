@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -53,6 +54,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		Isliked      int    `json:"is_liked"`
 		IsDisliked   int    `json:"is_disliked"`
 		CommentCount int    `json:"comment_count"`
+		CategoryName string `json:"category_name"`
 	}
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
@@ -141,6 +143,25 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	res = config.Conn.QueryRow(query, postID)
 	err = res.Scan(&post.CommentCount)
 	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(utils.ResponseApi{
+			Success: false,
+			Message: "server error pleas try agin later",
+			Error:   "server",
+		})
+		return
+	}
+
+	query = `
+	SELECT categories.name
+	FROM post_categories
+	INNER JOIN categories ON categories.id = post_categories.category_id
+	WHERE post_categories.post_id = ?
+`
+	res = config.Conn.QueryRow(query, postID)
+	err = res.Scan(&post.CategoryName)
+	if err != nil && err != sql.ErrNoRows {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{

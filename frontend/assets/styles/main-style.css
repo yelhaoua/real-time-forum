@@ -241,6 +241,17 @@ body {
   font-weight: 500;
 }
 
+.post-category {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 12%, transparent);
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-bottom: 8px;
+}
+
 .post-image {
   width: 100%;
   border-radius: 12px;

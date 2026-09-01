@@ -26,6 +26,7 @@ type Posts struct {
 	IsDisliked    bool   `json:"is_dislike"`
 	LikeCount     int    `json:"like_count"`
 	DislikeCount  int    `json:"dislike_count"`
+	CategoryName  string `json:"category_name"`
 	CommentsCount int    `json:"comment_count"`
 }
 

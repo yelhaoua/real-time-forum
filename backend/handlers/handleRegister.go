@@ -48,8 +48,9 @@ func ValidateEmail(email string) bool {
 }
 
 func IsValidName(name string) bool {
+
 	trimmed := strings.TrimSpace(name)
-	return len(trimmed) >= 2 && len(trimmed) <= 50
+	return len(trimmed) >= 2 && len(trimmed) <= 50 && !strings.ContainsRune(name, '\x00') 
 }
 
 func calculateAge(birthDate time.Time) int {

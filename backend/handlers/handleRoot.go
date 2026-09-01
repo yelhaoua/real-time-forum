@@ -6,12 +6,16 @@ import (
 	"path/filepath"
 )
 
+
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
-	path := filepath.Join("./frontend", r.URL.Path)
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		http.ServeFile(w, r, "./frontend/index.html")
+	frontendDir := "../frontend"
+
+	path := filepath.Join(frontendDir, r.URL.Path)
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) || info.IsDir() {
+		http.ServeFile(w, r, filepath.Join(frontendDir, "index.html"))
 		return
 	}
-	http.FileServer(http.Dir("./frontend")).ServeHTTP(w, r)
+	
+	http.FileServer(http.Dir(frontendDir)).ServeHTTP(w, r)
 }

@@ -1,11 +1,13 @@
 package config
 
-import "fmt"
+import (
+	"log"
+)
 
 func testTAble() {
 	tx, err := Conn.Begin()
 	if err != nil {
-		fmt.Println("Error starting transaction:", err)
+		log.Fatal("Error starting transaction:", err)
 		return
 	}
 
@@ -37,6 +39,10 @@ func testTAble() {
     PRIMARY KEY (post_id, category_id),
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+)`,
+		`CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
 )`,
 		`CREATE TABLE IF NOT EXISTS sessions (
 id INTEGER PRIMARY KEY AUTOINCREMENT ,
@@ -91,7 +97,7 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 	for _, q := range queries {
 		if _, err := tx.Exec(q); err != nil {
 			tx.Rollback()
-			fmt.Println("Error creating table:", err)
+			log.Fatal("Error creating table:", err)
 			return
 		}
 	}
@@ -99,12 +105,11 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 		"sport", "games", "filmes", "kitchen", "news", "market", "others")
 	if err != nil {
 		tx.Rollback()
-		fmt.Println("Error inserting categories:", err)
-		return
+		log.Fatal("Error inserting categories:", err)
 	}
 	err = tx.Commit()
 	if err != nil {
-		fmt.Println("Error commiting transaction:", err)
+		log.Fatal("Error commiting transaction:", err)
 	}
-	fmt.Println("All Good")
+	log.Println("All Good")
 }

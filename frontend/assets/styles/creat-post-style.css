@@ -51,7 +51,8 @@
 }
 
 .input-wrapper input,
-.input-wrapper textarea {
+.input-wrapper textarea,
+.input-wrapper select {
   flex: 1;
   background-color: #f7f8fa;
   border: 1px solid transparent;
@@ -63,12 +64,19 @@
   transition: all 0.2s ease;
 }
 
+.input-wrapper select {
+  margin-top: 8px;
+  appearance: none;
+  cursor: pointer;
+}
+
 .input-wrapper textarea {
   margin-top: 8px;
 }
 
 .input-wrapper input:focus,
-.input-wrapper textarea:focus {
+.input-wrapper textarea:focus,
+.input-wrapper select:focus {
   background-color: #ffffff;
   border-color: #cbd5e1;
 }
@@ -239,6 +247,7 @@
 
 .title-err,
 .desc-err,
+.category-err,
 .img-err {
   margin-top: 4px;
   font-size: 13px;

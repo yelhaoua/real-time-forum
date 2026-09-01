@@ -19,6 +19,19 @@ export default async function CreatePostPage() {
               <textarea name="postdesc" minlength="10" maxlength="500" placeholder="New Post Description"></textarea>
             </div>
             <div class="desc-err"></div>
+            <div class="input-wrapper">
+              <select name="category" required>
+                <option value="" disabled selected>Select category</option>
+                <option value="sport">Sport</option>
+                <option value="games">Games</option>
+                <option value="filmes">Filmes</option>
+                <option value="kitchen">Kitchen</option>
+                <option value="news">News</option>
+                <option value="market">Market</option>
+                <option value="others">Others</option>
+              </select>
+            </div>
+            <div class="category-err"></div>
           </div>
         </div>
         <hr class="divider" />
@@ -40,6 +53,7 @@ export default async function CreatePostPage() {
   const titleErr = form.querySelector(".title-err");
   const descErr = form.querySelector(".desc-err");
   const imgErr = form.querySelector(".img-err");
+  const categoryErr = form.querySelector(".category-err");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -49,6 +63,7 @@ export default async function CreatePostPage() {
     titleErr.innerHTML = "";
     descErr.innerHTML = "";
     imgErr.innerHTML = "";
+    categoryErr.innerHTML = "";
 
     try {
       const req = await fetch("http://localhost:9090/craet-post", {
@@ -59,10 +74,11 @@ export default async function CreatePostPage() {
       const res = await req.json();
 
       if (!req.ok || !res.success) {
-        if (res?.data?.title_error || res?.data?.desc_error) {
+        if (res?.data?.title_error || res?.data?.desc_error || res?.data?.cate_error) {
           titleErr.innerHTML = res.data.title_error || "";
           descErr.innerHTML = res.data.desc_error || "";
           imgErr.innerHTML = res.data.image_error || "";
+          categoryErr.innerHTML = res.data.cate_error || "";
         } else {
           Banner("Error", res?.message || "Unable to create post right now.", "error");
         }

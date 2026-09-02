@@ -126,7 +126,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	query = `SELECT nick_name FROM users WHERE id = ?`
-	res = config.Conn.QueryRow(query, userId)
+	res = config.Conn.QueryRow(query, post.Userid)
 	err = res.Scan(&post.NickName)
 	if err != nil {
 		fmt.Println(err)

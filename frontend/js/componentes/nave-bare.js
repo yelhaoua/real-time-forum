@@ -43,7 +43,7 @@ export default async function NavBar() {
               ? `
             <div class="user-nav-profile">
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+                src="../../assets/images/download.jpeg"
                 alt="User"
               />
               <span class="user-nav-name">${user}</span>

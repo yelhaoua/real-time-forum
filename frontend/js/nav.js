@@ -29,7 +29,7 @@ export default async function NavBar() {
           </nav>
           ${isAuth ? `
             <div class="user-nav-profile">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="User" />
+              <img src="../assets/images/download.jpeg" alt="User" />
               <span class="user-nav-name">${user}</span>
               <button id="logoutBtn" class="nav-action-btn" type="button">Logout</button>
             </div>

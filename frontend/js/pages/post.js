@@ -62,7 +62,7 @@ export default async function PostPage(params) {
       <div class="comment-form-wrap">
         <form id="new-form-comment" class="share-box comment-form-card">
           <div class="share-top">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="avatar" />
+            <img src="../../assets/images/download.jpeg" alt="Avatar" class="avatar" />
             <div class="input-container">
               <div class="input-wrapper">
                 <input type="text" name="newcomment" placeholder="Write a comment..." />
@@ -151,7 +151,7 @@ async function loadComments(postId) {
 function commentHTML(comment) {
   return `
     <div class="single-comment">
-      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="avatar" />
+      <img src="../../assets/images/download.jpeg" alt="Avatar" class="avatar" />
       <div class="comment-text-box">
         <p class="comments-body">${escapeHtml(comment.content)}</p>
       </div>

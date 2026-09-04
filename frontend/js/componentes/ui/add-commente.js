@@ -53,7 +53,7 @@ export default function CommentForm(postId) {
     <form id="new-form-comment" class="share-box comment-form-card">
         <div class="share-top">
             <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+            src="../../../assets"
             alt="User Avatar"
             class="avatar"
             />

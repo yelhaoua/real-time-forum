@@ -53,14 +53,6 @@ func IsValidName(name string) bool {
 	return len(trimmed) >= 2 && len(trimmed) <= 50 && !strings.ContainsRune(name, '\x00') 
 }
 
-func calculateAge(birthDate time.Time) int {
-	now := time.Now()
-	age := now.Year() - birthDate.Year()
-	if now.Month() < birthDate.Month() || (now.Month() == birthDate.Month() && now.Day() < birthDate.Day()) {
-		age--
-	}
-	return age
-}
 
 func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
 	var errs RegisterErrors

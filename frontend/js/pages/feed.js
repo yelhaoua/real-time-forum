@@ -40,11 +40,16 @@ async function toggleVote(postId, btn, action) {
     });
     const result = await res.json().catch(() => ({}));
     if (!res.ok) {
-      Banner(result.error || "request_error", result.message || "Action failed", "error");
+      Banner(
+        result.error || "request_error",
+        result.message || "Action failed",
+        "error",
+      );
       return;
     }
 
-    const activated = result.message === "liked" || result.message === "disliked";
+    const activated =
+      result.message === "liked" || result.message === "disliked";
     if (activated) {
       icon.style.color = "var(--accent-red, var(--red))";
       icon.classList.replace("fa-regular", "fa-solid");
@@ -71,10 +76,16 @@ async function toggleVote(postId, btn, action) {
 
 async function handlePostClick(e) {
   const likeBtn = e.target.closest(".post-like");
-  if (likeBtn) { await toggleVote(likeBtn.dataset.id, likeBtn, "like"); return; }
+  if (likeBtn) {
+    await toggleVote(likeBtn.dataset.id, likeBtn, "like");
+    return;
+  }
 
   const dislikeBtn = e.target.closest(".post-dislike");
-  if (dislikeBtn) { await toggleVote(dislikeBtn.dataset.id, dislikeBtn, "dislike"); return; }
+  if (dislikeBtn) {
+    await toggleVote(dislikeBtn.dataset.id, dislikeBtn, "dislike");
+    return;
+  }
 
   if (e.target.closest(".ri-more-fill")) return;
 
@@ -124,14 +135,21 @@ async function loadPosts() {
   loading = true;
 
   try {
-    const res = await fetch(`http://localhost:9090/posts?limit=${LIMIT}&offset=${offset}`, {
-      method: "GET",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    });
+    const res = await fetch(
+      `http://localhost:9090/posts?limit=${LIMIT}&offset=${offset}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      },
+    );
     const result = await res.json().catch(() => ({}));
     if (!res.ok) {
-      Banner(result.error || "request_error", result.message || "Failed to load posts", "error");
+      Banner(
+        result.error || "request_error",
+        result.message || "Failed to load posts",
+        "error",
+      );
       return;
     }
 
@@ -180,8 +198,25 @@ export default async function FeedPage() {
   sentinel.style.padding = "1px";
   container.appendChild(sentinel);
 
+  // window.addEventListener("scroll", () => {
+  //   const rect = sentinel.getBoundingClientRect();
+  //   if (rect.top <= window.innerHeight) {
+  //     loadPosts();
+
+  //   }
+  // });
+
   new IntersectionObserver(
-    (entries) => entries.forEach((e) => { if (e.isIntersecting) loadPosts(); }),
+    (entries) =>
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          container.removeChild(sentinel);
+          loadPosts();
+        }
+          container.appendChild(sentinel);
+
+        
+      }),
     { rootMargin: "400px", threshold: 0.1 },
   ).observe(sentinel);
 }

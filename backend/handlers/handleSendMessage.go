@@ -75,8 +75,34 @@ func HandleMessages() {
 
 		case "message":
 			var senderName string
+			var recipientName string
+			queryCheck := `SELECT nick_name FROM users WHERE id = ?`
+			fmt.Println("all Data", msg)
+			if err := config.Conn.QueryRow(queryCheck, msg.RecipientID).Scan(&recipientName); err != nil {
+				log.Println("recipient lookup err:", err)
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Recipient not found."})
+				continue
+			}
+			if msg.RecipientID == msg.SenderID {
+				log.Println("Sender and recipient are the same. Ignoring message.")
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Cannot send message to yourself."})
+				continue
+			}
+			if msg.Content == "" {
+				log.Println("Empty message content. Ignoring message.")
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Message content cannot be empty."})
+				continue
+			}
+
+			if msg.SenderID == 0 || msg.RecipientID == 0 {
+				log.Println("Invalid sender or recipient ID. Ignoring message.")
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Invalid sender or recipient ID."})
+				continue
+			}
 			if err := config.Conn.QueryRow("SELECT nick_name FROM users WHERE id = ?", msg.SenderID).Scan(&senderName); err != nil {
 				log.Println("sender lookup err:", err)
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Sender not found."})
+				continue
 			} else {
 				msg.SenderName = senderName
 			}
@@ -89,14 +115,17 @@ func HandleMessages() {
 			)
 			if err != nil {
 				log.Println("db insert err:", err)
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Failed to send message."})
+				continue
 			}
 
 			_, err = config.Conn.Exec(
 				`INSERT INTO notifications (user_id, sender_id, type, snippet, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
 				msg.RecipientID, msg.SenderID, "new_message", msg.Content, 0, time.Now(),
 			)
-			if err != nil {
+			if err != nil {	fmt.Println("Received message from user:", msg.SenderID, "to user:", msg.RecipientID, "Content:", msg.Content)
 				log.Println("notification insert err:", err)
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Failed to send notification."})
 			}
 
 			_, _ = config.Conn.Exec(`DELETE FROM notifications WHERE user_id = ? AND sender_id = ? AND is_read = 0`, msg.SenderID, msg.RecipientID)

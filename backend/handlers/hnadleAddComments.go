@@ -41,6 +41,15 @@ func HnadleAddComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	queryCheck := `SLECT id FROM posts WHERE id = ?`
+	row := config.Conn.QueryRow(queryCheck, postId)
+	var id int
+	err = row.Scan(&id)
+	if err != nil {
+		PrintError(w, "not_found", "Post not found.", http.StatusNotFound)
+		return
+	}
+
 	query := `
 	INSERT INTO comments
 	("post_id"  ,"user_id" ,"content" ,created_at) 

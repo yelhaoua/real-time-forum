@@ -112,33 +112,20 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Method not allowed",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	_, err := utils.CheckSession(w, r)
 	if err == nil {
-		w.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Already authenticated",
-		})
+		PrintError(w, "auth_error", "You are already logged in", http.StatusBadRequest)
 		return
 	}
 
 	var data RegisterData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		fmt.Println("err", err)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Invalid JSON payload",
-			Error:   "input_error",
-		})
+		PrintError(w, "request_error", "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
@@ -155,12 +142,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Server error",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -192,12 +174,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Database error, please try again later",
-			Error:   "database_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

@@ -16,6 +16,15 @@ import (
 	"github.com/google/uuid"
 )
 
+func PrintError(w http.ResponseWriter, err string, message string, statusCode int) {
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(utils.ResponseApi{
+		Success: false,
+		Message: message,
+		Error:   err,
+	})
+}
+
 func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
 	if r.Method == "OPTIONS" {
@@ -24,11 +33,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "method not allowed",
-		})
+		PrintError(w, "", "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	const MAXUPLOADSIZE = 1024 * 1024
@@ -37,11 +42,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 
 	id, err := utils.CheckSession(w, r)
 	if err != nil {
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "you session is invalid pleas log in",
-			Error:   "auth_err",
-		})
+		PrintError(w, "auth_err", "you session is invalid pleas log in", http.StatusUnauthorized)
 		return
 	}
 
@@ -57,12 +58,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	err = r.ParseMultipartForm(MAXUPLOADSIZE)
 	if err != nil {
 
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "File too large. Maximum size is 1MB",
-			Error:   "form-error",
-		})
+		PrintError(w, "form-error", "File too large. Maximum size is 1MB", http.StatusBadRequest)
 		return
 	}
 	postTitle := r.FormValue("posttitle")
@@ -109,24 +105,14 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		imageExt := filepath.Ext(handler.Filename)
 
 		if imageExt != ".jpg" && imageExt != ".jpeg" && imageExt != ".png" && imageExt != ".gif" {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Invalid image format. Only JPG, JPEG, PNG, and GIF are allowed.",
-				Error:   "image_error",
-			})
+			PrintError(w, "image_error", "Invalid image format. Only JPG, JPEG, PNG, and GIF are allowed.", http.StatusBadRequest)
 			return
 		}
 		newImagName := uuid.New().String() + imageExt
 		imagpath = path.Join(imgDir, newImagName)
 		dst, err := os.Create(imagpath)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Error in saving image",
-				Error:   "server_error",
-			})
+			PrintError(w, "server_error", "Error in saving image", http.StatusInternalServerError)
 			return
 		}
 
@@ -134,12 +120,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 
 		_, err = io.Copy(dst, file)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Error in saving image",
-				Error:   "server_error",
-			})
+			PrintError(w, "server_error", "Error in saving image", http.StatusInternalServerError)
 			return
 		}
 		imagpath = fmt.Sprintf("http://localhost:9090/%s", imagpath)
@@ -148,46 +129,26 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 	query := `INSERT INTO posts (user_id  ,title ,content ,image_url ,created_at) VALUES (? ,? ,? ,? ,?)`
 	res, err := config.Conn.Exec(query, id, postTitle, postDesc, imagpath, time.Now())
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Error while saving data",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Error while saving data", http.StatusInternalServerError)
 		return
 	}
 
 	postId, err := res.LastInsertId()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Error while saving data",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Error while saving data", http.StatusInternalServerError)
 		return
 	}
 
 	var categoryId int64
 	err = config.Conn.QueryRow(`SELECT id FROM categories WHERE name = ?`, postCategory).Scan(&categoryId)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Invalid category",
-			Error:   "form-error",
-		})
+		PrintError(w, "server_error", "Error while saving data", http.StatusInternalServerError)
 		return
 	}
 
 	_, err = config.Conn.Exec(`INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)`, postId, categoryId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Error while saving data",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Error while saving data", http.StatusInternalServerError)
 		return
 	}
 

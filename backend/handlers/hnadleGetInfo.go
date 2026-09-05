@@ -18,21 +18,11 @@ func HnadleGetInfo(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(&utils.ResponseApi{
-			Success: false,
-			Message: "pleas log in",
-			Error:   "unauthorized_error",
-		})
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(&utils.ResponseApi{
-			Success: false,
-			Message: "method not allowed",
-			Error:   "method_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	var user_name string
@@ -41,12 +31,7 @@ func HnadleGetInfo(w http.ResponseWriter, r *http.Request) {
 
 	err = config.Conn.QueryRow(query, userID).Scan(&user_name)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&utils.ResponseApi{
-			Success: false,
-			Message: "internal server error",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

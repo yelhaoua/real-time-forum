@@ -21,21 +21,11 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "please log in ",
-			Error:   "unauthorized_error",
-		})
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "method not allowed",
-			Error:   "method_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -52,22 +42,12 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 
 	numChatID, err := strconv.Atoi(ChatID)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "invalid chat id",
-			Error:   "chat-error",
-		})
+		PrintError(w, "input_error", "Invalid chat ID", http.StatusBadRequest)
 		return
 	}
 	fmt.Println(userID, ChatID)
 	if userID == numChatID {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "invalid chat id",
-			Error:   "chat-error",
-		})
+		PrintError(w, "input_error", "You cannot chat with yourself", http.StatusBadRequest)
 		return
 	}
 
@@ -105,22 +85,12 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 
 	res, err := config.Conn.Query(query, userID, ChatID, ChatID, userID, limit, offset)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "InternalServerError",
-			Error:   "server-error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	if res.Err() != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "InternalServerError",
-			Error:   "server-error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -132,12 +102,7 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		err = res.Scan(&message.Sender_id, &message.Sender_name, &message.Recipient_id, &message.Recipient_name, &message.Content, &message.Creat_time)
 		if err != nil {
 			fmt.Println("err", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "InternalServerError scan err",
-				Error:   "server-error",
-			})
+			PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 		allMessages = append(allMessages, message)

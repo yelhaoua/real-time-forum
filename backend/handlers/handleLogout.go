@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -17,12 +16,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Method not allowed",
-			Error:   "request_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 

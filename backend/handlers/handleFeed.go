@@ -23,14 +23,14 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 		userID, err := utils.CheckSession(w, r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Authentication required.", Error: "authorized_error"})
+			PrintError(w, "authorized_error", "Authentication required.", http.StatusUnauthorized)
 			return
 		}
 
 		var action utils.Actions
 		if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "invalid json", Error: "request_error"})
+			PrintError(w, "request_error", "invalid json", http.StatusBadRequest)
 			return
 		}
 
@@ -40,24 +40,21 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			if err == sql.ErrNoRows {
 				_, err = config.Conn.Exec("INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, 1)", action.ID, userID)
 				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+					PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
 				json.NewEncoder(w).Encode(map[string]string{"message": "liked"})
 				return
 			} else if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+				PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
 
 			if currentVote == 1 {
 				_, err = config.Conn.Exec("DELETE FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID)
 				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+					PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
@@ -67,8 +64,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 
 			_, err = config.Conn.Exec("UPDATE votes SET vote_value = 1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+				PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
 			w.WriteHeader(http.StatusAccepted)
@@ -82,24 +78,21 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			if err == sql.ErrNoRows {
 				_, err = config.Conn.Exec("INSERT INTO votes(post_id, user_id, vote_value) VALUES(?, ?, -1)", action.ID, userID)
 				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+					PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
 				json.NewEncoder(w).Encode(map[string]string{"message": "disliked"})
 				return
 			} else if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+				PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
 
 			if currentVote == -1 {
 				_, err = config.Conn.Exec("DELETE FROM votes WHERE post_id = ? AND user_id = ?", action.ID, userID)
 				if err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+					PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 					return
 				}
 				w.WriteHeader(http.StatusAccepted)
@@ -109,8 +102,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 
 			_, err = config.Conn.Exec("UPDATE votes SET vote_value = -1 WHERE post_id = ? AND user_id = ?", action.ID, userID)
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+				PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
 			w.WriteHeader(http.StatusAccepted)
@@ -118,8 +110,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "unknown action", Error: "request_error"})
+		PrintError(w, "request_error", "unknown action", http.StatusBadRequest)
 		return
 	}
 
@@ -170,8 +161,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			rows, err = config.Conn.Query(baseQuery, userID, userID)
 		}
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+			PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
@@ -182,8 +172,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			var created time.Time
 			var categoryName sql.NullString
 			if err := rows.Scan(&p.Id, &p.Title, &p.Content, &p.Image_url, &created, &p.UserName, &p.Isliked, &p.IsDisliked, &p.LikeCount, &p.DislikeCount, &p.CommentsCount, &categoryName); err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+				PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
 			p.Creat_at = utils.GetDuration(created)
@@ -191,8 +180,7 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			posts = append(posts, p)
 		}
 		if err := rows.Err(); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Internal Server Error", Error: "server_error"})
+			PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
@@ -202,6 +190,5 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "Method Not Allowed", Error: "method_error"})
+	PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 }

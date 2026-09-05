@@ -36,8 +36,7 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "unauthorized", Error: "unauthorized_error"})
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 
@@ -122,8 +121,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "bad request", Error: "request_error"})
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 	rows, err := config.Conn.Query(
@@ -131,8 +129,7 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		userID, userID,
 	)
 	if err != nil || rows.Err() != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{Success: false, Message: "db error", Error: "db_error"})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()

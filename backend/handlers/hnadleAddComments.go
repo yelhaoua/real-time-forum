@@ -19,24 +19,12 @@ func HnadleAddComments(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "pleas log in",
-			Error:   "unauthorized_error",
-		})
-
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 
 	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "method not allowed",
-			Error:   "method_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -49,12 +37,7 @@ func HnadleAddComments(w http.ResponseWriter, r *http.Request) {
 	postId := r.PathValue("postId")
 
 	if len(data.Newcomment) > 100 || len(data.Newcomment) < 3 {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(&utils.ResponseApi{
-			Success: false,
-			Message: "invalid comment length",
-			Error:   "input_error",
-		})
+		PrintError(w, "input_error", "Comment must be between 3 and 100 characters.", http.StatusBadRequest)
 		return
 	}
 
@@ -66,12 +49,7 @@ func HnadleAddComments(w http.ResponseWriter, r *http.Request) {
 
 	_, err = config.Conn.Exec(query, postId, userID, data.Newcomment, time.Now())
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(&utils.ResponseApi{
-			Success: false,
-			Message: "internal server error",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

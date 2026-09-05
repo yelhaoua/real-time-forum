@@ -23,22 +23,12 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	userId, err := utils.CheckSession(w, r)
 	if err != nil {
 		fmt.Println("Error", err)
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "pleas log in",
-			Error:   "authorized_error",
-		})
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 
 	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Method Not Allowed",
-			Error:   "request_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	var post struct {
@@ -58,12 +48,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	}
 	postID, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Bad Request",
-			Error:   "request_error",
-		})
+		PrintError(w, "input_error", "Invalid post ID", http.StatusBadRequest)
 		return
 	}
 
@@ -73,12 +58,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	err = res.Scan(&post.Postid, &post.Userid, &post.Title, &post.Content, &post.Imageurl, &timeCreates)
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "post not found",
-			Error:   "request_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	query = `
@@ -91,12 +71,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	err = res.Scan(&post.LikeCount, &post.DislikeCount)
 	if err != nil {
 
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error pleas try agin later",
-			Error:   "server",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	query = `	
@@ -117,12 +92,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	err = res.Scan(&post.Isliked, &post.IsDisliked)
 	if err != nil {
 		fmt.Println("err", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error pleas try agin later",
-			Error:   "server",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	query = `SELECT nick_name FROM users WHERE id = ?`
@@ -130,12 +100,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	err = res.Scan(&post.NickName)
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error pleas try agin later",
-			Error:   "server",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -144,12 +109,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	err = res.Scan(&post.CommentCount)
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error pleas try agin later",
-			Error:   "server",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -163,12 +123,7 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	err = res.Scan(&post.CategoryName)
 	if err != nil && err != sql.ErrNoRows {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error pleas try agin later",
-			Error:   "server",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

@@ -20,22 +20,12 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "please log in ",
-			Error:   "unauthorized_error",
-		})
+		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)
 		return
 	}
 
 	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "method not allowed",
-			Error:   "method_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -74,22 +64,11 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 	res, err := config.Conn.Query(query, userID, postID)
 	if err != nil {
 		fmt.Println("err1", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error ",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	if res.Err() != nil {
-		fmt.Println("err2", res.Err())
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error ",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
@@ -100,12 +79,7 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 		err = res.Scan(&c.Id, &c.Content, &create, &c.Like_Count, &c.Dislike_Count, &c.IsLiked)
 		if err != nil {
 			fmt.Println("", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "server error ",
-				Error:   "server_error",
-			})
+			PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 		c.CreatedAt = utils.GetDuration(create)
@@ -113,12 +87,7 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 		allCommentes = append(allCommentes, c)
 	}
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "server error",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	fmt.Println("hnnaaa", allCommentes)

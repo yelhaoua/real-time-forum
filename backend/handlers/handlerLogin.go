@@ -31,23 +31,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Method not allowed",
-			Error:   "request_error",
-		})
+		PrintError(w, "method_error", "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Invalid JSON body",
-			Error:   "request_error",
-		})
+		PrintError(w, "request_error", "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
@@ -57,12 +47,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if identifier == "" || req.Password == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Credentials are required",
-			Error:   "input_error",
-		})
+		PrintError(w, "input_error", "Username/email and password are required", http.StatusBadRequest)
 		return
 	}
 
@@ -73,31 +58,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err := config.Conn.QueryRow(query, identifier, identifier).Scan(&userID, &hashedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(utils.ResponseApi{
-				Success: false,
-				Message: "Invalid username/email or password",
-				Error:   "auth_error",
-			})
+			PrintError(w, "auth_error", "Invalid username/email or password", http.StatusUnauthorized)
 			return
 		}
 
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Internal server error",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.Password)); err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Invalid username/email or password",
-			Error:   "auth_error",
-		})
+		PrintError(w, "auth_error", "Invalid username/email or password", http.StatusUnauthorized)
 		return
 	}
 
@@ -110,12 +80,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = config.Conn.Exec(sessionQuery, userID, sessionToken, expiresAt)
 	if err != nil {
 		fmt.Println("err", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ResponseApi{
-			Success: false,
-			Message: "Could not create session",
-			Error:   "server_error",
-		})
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

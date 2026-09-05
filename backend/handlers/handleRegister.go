@@ -50,9 +50,8 @@ func ValidateEmail(email string) bool {
 func IsValidName(name string) bool {
 
 	trimmed := strings.TrimSpace(name)
-	return len(trimmed) >= 2 && len(trimmed) <= 50 && !strings.ContainsRune(name, '\x00') 
+	return len(trimmed) >= 2 && len(trimmed) <= 50 && !strings.ContainsRune(name, '\x00')
 }
-
 
 func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
 	var errs RegisterErrors
@@ -149,7 +148,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	query := `INSERT INTO users (nick_name, frist_name, last_name, email, age, gender, password, created_at) 
 	          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-	_, err = config.Conn.Exec(
+	lastInsert, err := config.Conn.Exec(
 		query,
 		data.Nickname, data.FirstName, data.LastName, data.Email,
 		data.Age, data.Gender, string(hashedPassword), time.Now(),
@@ -177,6 +176,20 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+	lastID, errorr := lastInsert.LastInsertId()
+	if errorr != nil {
+		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	BroadcastAll(Hub_, map[string]any{
+		"type": "new_user",
+		"data": utils.UserData{
+			Id:       int(lastID),
+			UserName: data.Nickname,
+			IsOnline: false,
+		},
+	})
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(utils.ResponseApi{

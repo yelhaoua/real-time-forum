@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"real-time-forum/config"
 	"real-time-forum/utils"
@@ -192,13 +193,13 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var dbIdInt int
-		fmt.Sscanf(user.Id, "%d", &dbIdInt)
+		fmt.Sscanf(strconv.Itoa(user.Id), "%d", &dbIdInt)
 
 		user.IsOnline = IsOnline(Hub_, dbIdInt)
 		users = append(users, user)
 
 	}
-
+	
 	if err := rows.Err(); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(utils.ResponseApi{

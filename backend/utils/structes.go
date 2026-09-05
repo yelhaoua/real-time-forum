@@ -59,7 +59,7 @@ type Message struct {
 }
 
 type UserData struct {
-	Id            string `json:"id"`
+	Id            int    `json:"id"`
 	UserName      string `json:"user_name"`
 	ProfileImage  string `json:"profile_image"`
 	IsOnline      bool   `json:"is_online"`

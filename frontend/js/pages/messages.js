@@ -291,6 +291,13 @@ export default function MessagesPage() {
     }
   }
 
+  function onNewUser(payload) {
+    const data = payload.data || payload;
+    if (!data?.id || users.some((x) => String(x.id) === String(data.id))) return;
+    users.push({ ...data, unread_count: data.unread_count || 0 });
+    renderUsers();
+  }
+
   function onUserOnline(payload) {
     const id = String(payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "");
     if (!id) return;
@@ -355,6 +362,7 @@ export default function MessagesPage() {
 
   on("message", onChatMessage);
   on("new_message", onNewMessage);
+  on("new_user", onNewUser);
   on("user_online", onUserOnline);
   on("user_offline", onUserOffline);
   el.usersList?.addEventListener("click", handleUserClick);
@@ -367,6 +375,7 @@ export default function MessagesPage() {
   currentCleanup = () => {
     off("message", onChatMessage);
     off("new_message", onNewMessage);
+    off("new_user", onNewUser);
     off("user_online", onUserOnline);
     off("user_offline", onUserOffline);
     el.usersList?.removeEventListener("click", handleUserClick);

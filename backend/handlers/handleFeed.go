@@ -33,6 +33,20 @@ func FeedHanlder(w http.ResponseWriter, r *http.Request) {
 			PrintError(w, "request_error", "invalid json", http.StatusBadRequest)
 			return
 		}
+		
+		qurey := "SELECT id FROM posts WHERE id = ?"
+
+		var postID int
+		err = config.Conn.QueryRow(qurey, action.ID).Scan(&postID)
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusNotFound)
+			PrintError(w, "request_error", "post not found", http.StatusNotFound)
+			return
+		} else if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 
 		if action.Actions == "like" {
 			var currentVote int

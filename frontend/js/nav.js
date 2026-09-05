@@ -6,7 +6,7 @@ export default async function NavBar() {
     return `
       <header class="top-nav">
         <div class="nav-left">
-          <div class="logo"><i class="ri-hexagon-fill"></i></div>
+          <div class="logo"><img src="../assets/images/icon.webp" alt="Logo"  width="60" height="60"/></div>
           <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
             <i class="fa-solid fa-bars icon-open"></i>
             <i class="fa-solid fa-xmark icon-close"></i>

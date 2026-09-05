@@ -1,3 +1,4 @@
+import escapeHtml from "./shared/formate-text.js";
 import { Banner } from "./ui.js";
 
 export default async function NavBar() {
@@ -18,26 +19,34 @@ export default async function NavBar() {
             <a href="#/" class="nav-item active">
               <i class="ri-home-4-line"></i> Home Page
             </a>
-            ${isAuth ? `
+            ${
+              isAuth
+                ? `
               <a href="#/create-post" class="nav-item">
                 <i class="ri-team-line"></i> New Post
               </a>
               <a href="#/messages" class="nav-item">
                 <i class="ri-chat-3-line"></i> Messages
               </a>
-            ` : ""}
+            `
+                : ""
+            }
           </nav>
-          ${isAuth ? `
+          ${
+            isAuth
+              ? `
             <div class="user-nav-profile">
               <img src="../assets/images/download.jpeg" alt="User" />
-              <span class="user-nav-name">${user}</span>
+              <span class="user-nav-name">${escapeHtml(user)}</span>
               <button id="logoutBtn" class="nav-action-btn" type="button">Logout</button>
             </div>
-          ` : `
+          `
+              : `
             <div class="user-nav-profile">
               <a href="#/login" class="nav-action-btn">Login</a>
             </div>
-          `}
+          `
+          }
         </div>
       </header>`;
   };
@@ -54,18 +63,20 @@ export default async function NavBar() {
     navContainer.innerHTML = req.ok ? renderNav(res.data) : renderNav(null);
 
     if (req.ok) {
-      document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-        try {
-          const r = await fetch("http://localhost:9090/logout", {
-            method: "POST",
-            credentials: "include",
-          });
-          if (r.ok) window.location.hash = "#/login";
-        } catch (err) {
-          console.error(err);
-          Banner("Error", "Logout failed.", "error");
-        }
-      });
+      document
+        .getElementById("logoutBtn")
+        ?.addEventListener("click", async () => {
+          try {
+            const r = await fetch("http://localhost:9090/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+            if (r.ok) window.location.hash = "#/login";
+          } catch (err) {
+            console.error(err);
+            Banner("Error", "Logout failed.", "error");
+          }
+        });
     }
 
     const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -81,11 +92,13 @@ export default async function NavBar() {
 
     hamburgerBtn?.addEventListener("click", toggleMenu);
     navOverlay?.addEventListener("click", toggleMenu);
-    navDrawer?.querySelectorAll(".nav-item, .nav-action-btn").forEach((link) => {
-      link.addEventListener("click", () => {
-        if (navDrawer.classList.contains("is-open")) toggleMenu();
+    navDrawer
+      ?.querySelectorAll(".nav-item, .nav-action-btn")
+      .forEach((link) => {
+        link.addEventListener("click", () => {
+          if (navDrawer.classList.contains("is-open")) toggleMenu();
+        });
       });
-    });
   } catch (error) {
     console.error("Failed to fetch user info:", error);
     Banner("Error", "Failed to load user information.", "error");

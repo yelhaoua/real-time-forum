@@ -1,5 +1,6 @@
 import { connect, disconnect, on } from "./js/ws.js";
 import { Banner } from "./js/ui.js";
+import CheckSession from "./js/shared/checkSession.js";
 import { LoginPage, RegisterPage, LogoutPage } from "./js/pages/auth.js";
 import FeedPage from "./js/pages/feed.js";
 import PostPage from "./js/pages/post.js";
@@ -50,18 +51,6 @@ function matchRoute(path) {
   return { route: ROUTES[404], params: {} };
 }
 
-async function isLoggedIn() {
-  try {
-    const req = await fetch("http://localhost:9090/checksession", {
-      method: "GET",
-      credentials: "include",
-    });
-    return req.ok;
-  } catch {
-    return false;
-  }
-}
-
 document.body.removeAttribute("unresolved");
 
 on("new_message", (payload) => {
@@ -71,9 +60,14 @@ on("new_message", (payload) => {
   Banner("New message", `${data.sender_name || "Someone"}: ${data.snippet || data.content || ""}`, "info");
 });
 
+on("session_expired", () => {
+  Banner("Session expired", "You have been logged out. Please log in again.", "error");
+  window.location.hash = "#/login";
+});
+
 async function urlLocationHandler() {
   const path = getPath();
-  const loggedIn = await isLoggedIn();
+  const loggedIn = await CheckSession();
 
   if (!loggedIn && AUTH_ONLY.some((p) => path === p || (p.length > 1 && path.startsWith(p)))) {
     disconnect();

@@ -325,7 +325,7 @@ export default function MessagesPage() {
     if (user) selectUser(user);
   }
 
-  function handleSend(e) {
+  async function handleSend(e) {
     e.preventDefault();
     if (!activeUser) {
       Banner("Select a user first", "Choose a contact before sending.", "warning");
@@ -346,7 +346,7 @@ export default function MessagesPage() {
     const u = users.find((x) => String(x.id) === String(activeUser.id));
     if (u) { u.last_message_at = nowIso; renderUsers(); }
 
-    if (!send(payload)) {
+    if (!(await send(payload))) {
       allMessages = allMessages.filter((m) => m.temp_id !== tempId);
       el.chatBody?.querySelector(`[data-temp-id="${tempId}"]`)?.remove();
       Banner("Connection Error", "WebSocket connection is closed. Try again.", "error");

@@ -1,3 +1,5 @@
+import CheckSession from "./shared/checkSession.js";
+
 const WS_URL = "ws://localhost:9090/ws";
 const BASE_RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_DELAY = 30000;
@@ -79,7 +81,14 @@ export function disconnect() {
   }
 }
 
-export function send(payload) {
+export async function send(payload) {
+  if (!(await CheckSession())) {
+    disconnect();
+    emit("connection", { status: "disconnected" });
+    emit("session_expired", {});
+    return false;
+  }
+
   if (ws?.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(payload));
     return true;

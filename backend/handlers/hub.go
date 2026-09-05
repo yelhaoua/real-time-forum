@@ -120,6 +120,20 @@ func WritePump(h *Hub, client *Client) {
 	}
 }
 
+func DisconnectUser(h *Hub, userID int) {
+	h.Mu.RLock()
+	clients := make([]*Client, 0, len(h.Clients[userID]))
+	for client := range h.Clients[userID] {
+		clients = append(clients, client)
+	}
+	h.Mu.RUnlock()
+
+	for _, client := range clients {
+		client.Conn.Close()
+		h.Unregister <- client
+	}
+}
+
 func IsOnline(h *Hub, userID int) bool {
 	h.Mu.RLock()
 	defer h.Mu.RUnlock()

@@ -489,20 +489,16 @@ body {
   border-radius: 14px;
   font-size: 14px;
   line-height: 1.5;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .incoming .message-content {
   background-color: var(--surface);
   color: var(--ink);
-  border: 1px solid var(--line);
   border-top-left-radius: 2px;
 }
 
 .outgoing .message-content {
-  background-color: var(--blue);
   color: var(--surface);
-  border-top-right-radius: 2px;
 }
 
 .message-time {

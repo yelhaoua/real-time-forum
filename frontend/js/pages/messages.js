@@ -243,7 +243,7 @@ export default function MessagesPage() {
     if (!activeUser) return;
     try {
       const res = await fetch(
-        `http://localhost:9090/getcahtinfo/${activeUser.id}?limit=${MSG_LIMIT}&offset=${targetOffset}`,
+        `http://localhost:9090/getchatinfo/${activeUser.id}?limit=${MSG_LIMIT}&offset=${targetOffset}`,
         { method: "GET", credentials: "include" },
       );
       const result = await res.json();

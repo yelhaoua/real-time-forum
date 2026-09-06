@@ -38,7 +38,7 @@ export default function MessagesPage() {
           </div>
           <div class="chat-input-footer">
             <form class="chat-input-form" id="messageform">
-              <input type="text" name="message-content" class="message-input" placeholder="Select a user to start messaging..." autocomplete="off" disabled>
+              <input type="text" name="message-content" class="message-input" maxlength="100" placeholder="Select a user to start messaging..." autocomplete="off" disabled>
               <button type="submit" class="send-message-btn" disabled><i class="fa-regular fa-paper-plane"></i></button>
             </form>
           </div>

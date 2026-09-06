@@ -88,6 +88,13 @@ func HandleMessages() {
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Cannot send message to yourself."})
 				continue
 			}
+			
+			if len(msg.Content) > 100 {
+				log.Println("Message content exceeds 100 characters. Ignoring message.")
+				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Message content cannot exceed 100 characters."})
+				continue
+			}
+
 			if msg.Content == "" {
 				log.Println("Empty message content. Ignoring message.")
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Message content cannot be empty."})

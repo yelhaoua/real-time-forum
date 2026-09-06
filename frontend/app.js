@@ -15,20 +15,21 @@ const ROUTES = {
   "/create-post": { title: "Create Post", init: CreatePostPage },
   "/messages": { title: "Messages", init: MessagesPage },
   "/post/:id": { title: "Post", init: PostPage },
-  404: {
-    title: "Not Found",
-    init: () => {
-      document.getElementById("app").innerHTML =
-        `<div style="text-align:center;padding:80px"><h2>Page not found</h2><a href="#/">Go Home</a></div>`;
-    },
-  },
+  404: { title: "Not Found", init: () => {
+    document.getElementById("app").innerHTML = `<div class="not-found-page">
+  <div class="not-found-code">404</div>
+  <h2 class="not-found-title">Page not found</h2>
+  <p class="not-found-message">The page you're looking for doesn't exist or may have been moved.</p>
+  <a href="#/" class="not-found-btn">Go Home</a>
+</div>`;
+  }},
 };
 
 const AUTH_ONLY = ["/", "/create-post", "/messages", "/post/"];
 const GUEST_ONLY = ["/login", "/register"];
 
 function getPath() {
-  return window.location.hash.slice(1) ;
+  return window.location.hash.slice(1) || "/";
 }
 
 function matchRoute(path) {
@@ -57,35 +58,31 @@ function matchRoute(path) {
 
 document.body.removeAttribute("unresolved");
 
+if (window.location.pathname !== "/" && window.location.pathname !== "") {
+  const path = window.location.pathname + window.location.search;
+  window.history.replaceState(null, "", "/"); // clean the visible URL
+  window.location.hash = "#" + path;
+}
+
+console.log("Current route:", window.location.hash);
+
 on("new_message", (payload) => {
   const path = getPath();
   if (path === "/messages") return;
   const data = payload?.data || payload;
-  Banner(
-    "New message",
-    `${data.sender_name || "Someone"}: ${data.snippet || data.content || ""}`,
-    "info",
-  );
+  Banner("New message", `${data.sender_name || "Someone"}: ${data.snippet || data.content || ""}`, "info");
 });
 
 on("session_expired", () => {
-  Banner(
-    "Session expired",
-    "You have been logged out. Please log in again.",
-    "error",
-  );
+  Banner("Session expired", "You have been logged out. Please log in again.", "error");
   window.location.hash = "#/login";
 });
 
 async function urlLocationHandler() {
   const path = getPath();
   const loggedIn = await CheckSession();
-  console.log(path);
 
-  if (
-    !loggedIn &&
-    AUTH_ONLY.some((p) => path === p || (p.length > 1 && path.startsWith(p)))
-  ) {
+  if (!loggedIn && AUTH_ONLY.some((p) => path === p || (p.length > 1 && path.startsWith(p)))) {
     disconnect();
     window.location.hash = "#/login";
     return;
@@ -97,10 +94,6 @@ async function urlLocationHandler() {
   }
 
   if (loggedIn) connect();
-
-  if (loggedIn && !AUTH_ONLY.includes(path)) {
-    console.log("enter ");
-  }
 
   const { route, params } = matchRoute(path);
   document.body.classList.remove("auth-page");

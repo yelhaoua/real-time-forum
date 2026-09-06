@@ -31,7 +31,7 @@ export default async function PostPage(params) {
       <div class="card" data-post-id="${post.post_id}">
         <div class="post-header">
           <div class="post-author">
-            <img src="./assets/images/download.jpeg" alt="Author" />
+            <img src="/assets/images/download.jpeg" alt="Author" />
             <div class="author-info">
               <h4>${escapeHtml(post.user_name)}</h4>
               <span>${escapeHtml(post.created_at)} ${post.category_name ? `- <span class="post-category">${escapeHtml(post.category_name)}</span>` : ""}</span>
@@ -62,7 +62,7 @@ export default async function PostPage(params) {
       <div class="comment-form-wrap">
         <form id="new-form-comment" class="share-box comment-form-card">
           <div class="share-top">
-            <img src="../../assets/images/download.jpeg" alt="Avatar" class="avatar" />
+            <img src="/assets/images/download.jpeg" alt="Avatar" class="avatar" />
             <div class="input-container">
               <div class="input-wrapper">
                 <input type="text" name="newcomment" placeholder="Write a comment..." />
@@ -151,7 +151,7 @@ async function loadComments(postId) {
 function commentHTML(comment) {
   return `
     <div class="single-comment">
-      <img src="../../assets/images/download.jpeg" alt="Avatar" class="avatar" />
+      <img src="/assets/images/download.jpeg" alt="Avatar" class="avatar" />
       <div class="comment-text-box">
         <p class="comments-body">${escapeHtml(comment.content)}</p>
       </div>

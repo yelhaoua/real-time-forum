@@ -26,7 +26,7 @@ export default function MessagesPage() {
           <div class="chat-header">
             <div class="active-user-info">
               <a href="#/" class="back-home-btn"><i class="fa-solid fa-angle-left"></i></a>
-              <div class="chat-avatar"><img src="../../assets/images/download.jpeg" alt="Avatar"></div>
+              <div class="chat-avatar"><img src="/assets/images/download.jpeg" alt="Avatar"></div>
               <div class="item-text">
                 <h4 class="chat-user-name">Select a user</h4>
                 <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span></p>
@@ -104,7 +104,7 @@ export default function MessagesPage() {
     if (incoming) {
       return `
         <div class="message-row incoming" data-temp-id="${msg.temp_id || ""}">
-          <div class="chat-avatar msg-avatar"><img src="../../assets/images/download.jpeg" alt="Avatar"></div>
+          <div class="chat-avatar msg-avatar"><img src="/assets/images/download.jpeg" alt="Avatar"></div>
           <div class="message-bubble incoming-bubble">
             <div class="message-meta"><h5>${name}</h5><span class="message-time">${time}</span></div>
             <div class="message-content"><p>${content}</p></div>
@@ -208,7 +208,7 @@ export default function MessagesPage() {
         return `
         <div class="user-row ${u.is_online ? "online" : "offline"} ${isActive ? "active" : ""}" data-id="${u.id}">
           <div class="user-avatar-wrap">
-            <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
+            <img src="/assets/images/download.jpeg" alt="Avatar" class="user-avatar">
             <span class="online-dot"></span>
           </div>
           <div class="user-info">

@@ -8,7 +8,7 @@ export default async function CreatePostPage() {
     <div style="display:flex;justify-content:center;padding:32px 16px">
       <form id="creat-post-form" method="post" class="share-box create-post-card" style="max-width:640px;width:100%">
         <div class="share-top">
-          <img src="../../assets/images/download.jpeg" alt="Avatar" class="avatar" />
+          <img src="/assets/images/download.jpeg" alt="Avatar" class="avatar" />
           <div class="input-container">
             <div class="input-wrapper">
               <input type="text" name="posttitle" minlength="3" maxlength="50" placeholder="New Post Title" />

@@ -100,7 +100,7 @@ function postHTML(post) {
     <article class="card feed-card" data-post-id="${post.id}">
       <div class="post-header">
         <div class="post-author">
-          <img src="./assets/images/download.jpeg" alt="Author" />
+          <img src="/assets/images/download.jpeg" alt="Author" />
           <div class="author-info">
             <h4>${escapeHtml(post.user_name)}</h4>
             <span>${escapeHtml(post.creat_at)} - ${post.category_name ? `<span class="post-category">${escapeHtml(post.category_name)}</span>` : ""}</span>

@@ -7,7 +7,7 @@ export default async function NavBar() {
     return `
       <header class="top-nav">
         <div class="nav-left">
-          <div class="logo"><img src="../assets/images/icon.webp" alt="Logo"  width="60" height="60"/></div>
+          <div class="logo"><img src="/assets/images/icon.webp" alt="Logo"  width="60" height="60"/></div>
           <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Navigation">
             <i class="fa-solid fa-bars icon-open"></i>
             <i class="fa-solid fa-xmark icon-close"></i>
@@ -36,7 +36,7 @@ export default async function NavBar() {
             isAuth
               ? `
             <div class="user-nav-profile">
-              <img src="../assets/images/download.jpeg" alt="User" />
+              <img src="/assets/images/download.jpeg" alt="User" />
               <span class="user-nav-name">${escapeHtml(user)}</span>
               <button id="logoutBtn" class="nav-action-btn" type="button">Logout</button>
             </div>

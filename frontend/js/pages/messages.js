@@ -69,14 +69,19 @@ export default function MessagesPage() {
     try {
       date = new Date(ts);
       if (isNaN(date.getTime())) date = new Date();
-    } catch { date = new Date(); }
+    } catch {
+      date = new Date();
+    }
 
     const now = new Date();
     const diff = Math.floor((now - date) / 1000);
     if (diff < 60) return "now";
     if (diff < 3600) return `${Math.floor(diff / 60)}m`;
     if (now.toDateString() === date.toDateString()) {
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     }
     const yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
@@ -90,7 +95,11 @@ export default function MessagesPage() {
     const incoming = String(msg.sender_id) === String(activeUser?.id);
     const name = escapeHtml(msg.sender_name || (incoming ? "" : "You"));
     const content = escapeHtml(msg.content || "");
-    const time = escapeHtml(formatTimestamp(msg.create_time || msg.creat_time || new Date().toISOString()));
+    const time = escapeHtml(
+      formatTimestamp(
+        msg.create_time || msg.creat_time || new Date().toISOString(),
+      ),
+    );
 
     if (incoming) {
       return `
@@ -117,8 +126,13 @@ export default function MessagesPage() {
     if (!el.chatBody) return;
     el.chatBody.querySelector(".chat-placeholder")?.remove();
     if (msg.temp_id) {
-      const existing = el.chatBody.querySelector(`[data-temp-id="${msg.temp_id}"]`);
-      if (existing) { existing.outerHTML = msgHTML(msg); return; }
+      const existing = el.chatBody.querySelector(
+        `[data-temp-id="${msg.temp_id}"]`,
+      );
+      if (existing) {
+        existing.outerHTML = msgHTML(msg);
+        return;
+      }
     }
     el.chatBody.insertAdjacentHTML("beforeend", msgHTML(msg));
     el.chatBody.scrollTo({ top: el.chatBody.scrollHeight, behavior: "smooth" });
@@ -128,26 +142,37 @@ export default function MessagesPage() {
     if (!el.chatBody) return;
     if (!activeUser || !allMessages.length) {
       el.chatBody.innerHTML = `<div class="chat-placeholder"><p>${
-        activeUser ? "No messages yet. Send the first message." : "Select a user to start a conversation."
+        activeUser
+          ? "No messages yet. Send the first message."
+          : "Select a user to start a conversation."
       }</p></div>`;
       return;
     }
     el.chatBody.innerHTML = allMessages.map(msgHTML).join("");
-    el.chatBody.scrollTo({ top: el.chatBody.scrollHeight, behavior: "instant" });
+    el.chatBody.scrollTo({
+      top: el.chatBody.scrollHeight,
+      behavior: "instant",
+    });
   }
 
   function updateHeader() {
-    el.chatNames.forEach((n) => { n.textContent = activeUser ? activeUser.user_name : "Select a user"; });
+    el.chatNames.forEach((n) => {
+      n.textContent = activeUser ? activeUser.user_name : "Select a user";
+    });
     if (el.chatStatus) {
       el.chatStatus.textContent = activeUser
-        ? (activeUser.is_online ? "Online" : "Offline")
+        ? activeUser.is_online
+          ? "Online"
+          : "Offline"
         : "Choose a contact to begin";
       const dot = document.querySelector("#user-chat .status-dot");
-      if (dot) dot.classList.toggle("online", !!(activeUser?.is_online));
+      if (dot) dot.classList.toggle("online", !!activeUser?.is_online);
     }
     if (el.messageInput) {
       el.messageInput.disabled = !activeUser;
-      el.messageInput.placeholder = activeUser ? "Type a message..." : "Select a user to start messaging...";
+      el.messageInput.placeholder = activeUser
+        ? "Type a message..."
+        : "Select a user to start messaging...";
     }
     if (el.sendButton) el.sendButton.disabled = !activeUser;
   }
@@ -161,7 +186,9 @@ export default function MessagesPage() {
         const diff = new Date(b.last_message_at) - new Date(a.last_message_at);
         if (diff !== 0) return diff;
       }
-      return (a.user_name || "").localeCompare(b.user_name || "", undefined, { sensitivity: "base" });
+      return (a.user_name || "").localeCompare(b.user_name || "", undefined, {
+        sensitivity: "base",
+      });
     });
   }
 
@@ -171,10 +198,14 @@ export default function MessagesPage() {
       el.usersList.innerHTML = `<div class="users-empty-state"><p>No users available.</p></div>`;
       return;
     }
-    el.usersList.innerHTML = sortUsers(users).map((u) => {
-      const badge = u.unread_count > 0 ? `<span class="unread-badge">${u.unread_count}</span>` : "";
-      const isActive = activeUser && String(activeUser.id) === String(u.id);
-      return `
+    el.usersList.innerHTML = sortUsers(users)
+      .map((u) => {
+        const badge =
+          u.unread_count > 0
+            ? `<span class="unread-badge">${u.unread_count}</span>`
+            : "";
+        const isActive = activeUser && String(activeUser.id) === String(u.id);
+        return `
         <div class="user-row ${u.is_online ? "online" : "offline"} ${isActive ? "active" : ""}" data-id="${u.id}">
           <div class="user-avatar-wrap">
             <img src="../../assets/images/download.jpeg" alt="Avatar" class="user-avatar">
@@ -186,14 +217,21 @@ export default function MessagesPage() {
           </div>
           ${badge}
         </div>`;
-    }).join("");
+      })
+      .join("");
   }
 
   async function fetchUsers() {
     try {
-      const res = await fetch("http://localhost:9090/getallusers", { method: "GET", credentials: "include" });
+      const res = await fetch("http://localhost:9090/getallusers", {
+        method: "GET",
+        credentials: "include",
+      });
       const result = await res.json();
-      if (!res.ok) { Banner(result.error, result.message, "error"); return; }
+      if (!res.ok) {
+        Banner(result.error, result.message, "error");
+        return;
+      }
       users = result.data || [];
       renderUsers();
     } catch {
@@ -209,7 +247,10 @@ export default function MessagesPage() {
         { method: "GET", credentials: "include" },
       );
       const result = await res.json();
-      if (!res.ok) { Banner(result.error, result.message, "error"); return; }
+      if (!res.ok) {
+        Banner(result.error, result.message, "error");
+        return;
+      }
 
       const incoming = result.data?.AllMessages || [];
       if (incoming.length < MSG_LIMIT) allLoaded = true;
@@ -221,7 +262,8 @@ export default function MessagesPage() {
         const prevH = el.chatBody?.scrollHeight || 0;
         allMessages = [...incoming, ...allMessages];
         renderChat();
-        if (el.chatBody) el.chatBody.scrollTop = el.chatBody.scrollHeight - prevH;
+        if (el.chatBody)
+          el.chatBody.scrollTop = el.chatBody.scrollHeight - prevH;
       }
     } catch (err) {
       console.error("Failed fetching chat history:", err);
@@ -230,7 +272,21 @@ export default function MessagesPage() {
       loadingMore = false;
     }
   }
+  function markActiveUserRead(userId) {
+    const u = users.find((x) => String(x.id) === String(userId));
+    if (u) {
+      u.unread_count = 0;
+      u.has_unread = false;
+    }
+    renderUsers();
 
+    fetch("http://localhost:9090/notifications/mark_read", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sender_id: Number(userId) }),
+    }).catch(() => {});
+  }
   function selectUser(user) {
     activeUser = user;
     allMessages = [];
@@ -238,21 +294,15 @@ export default function MessagesPage() {
     allLoaded = false;
     loadingMore = false;
 
-    document.querySelector(".Messages-box")?.classList.toggle("chat-open", !!user);
+    document
+      .querySelector(".Messages-box")
+      ?.classList.toggle("chat-open", !!user);
     updateHeader();
     renderChat();
 
     if (user) {
-      const u = users.find((x) => String(x.id) === String(user.id));
-      if (u) { u.unread_count = 0; u.has_unread = false; }
-      renderUsers();
+      markActiveUserRead(user.id);
       fetchMessages(0);
-      fetch("http://localhost:9090/notifications/mark_read", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sender_id: Number(user.id) }),
-      }).catch(() => {});
     } else {
       renderUsers();
     }
@@ -261,15 +311,24 @@ export default function MessagesPage() {
   function onChatMessage(msg) {
     const sid = String(msg.sender_id ?? "");
     const rid = String(msg.recipient_id ?? "");
-    const nowIso = msg.create_time || msg.creat_time || new Date().toISOString();
-    const otherId = activeUser && String(activeUser.id) === sid ? sid : sid || rid;
+    const nowIso =
+      msg.create_time || msg.creat_time || new Date().toISOString();
+    const otherId =
+      activeUser && String(activeUser.id) === sid ? sid : sid || rid;
     const u = users.find((x) => String(x.id) === otherId);
-    if (u) { u.last_message_at = nowIso; renderUsers(); }
+    if (u) {
+      u.last_message_at = nowIso;
+      renderUsers();
+    }
     if (!activeUser) return;
     const uid = String(activeUser.id);
     if (sid !== uid && rid !== uid) return;
     allMessages.push(msg);
     appendMsg(msg);
+
+    if (sid === uid) {
+      markActiveUserRead(activeUser.id);
+    }
   }
 
   function onNewMessage(notification) {
@@ -293,13 +352,16 @@ export default function MessagesPage() {
 
   function onNewUser(payload) {
     const data = payload.data || payload;
-    if (!data?.id || users.some((x) => String(x.id) === String(data.id))) return;
+    if (!data?.id || users.some((x) => String(x.id) === String(data.id)))
+      return;
     users.push({ ...data, unread_count: data.unread_count || 0 });
     renderUsers();
   }
 
   function onUserOnline(payload) {
-    const id = String(payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "");
+    const id = String(
+      payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
+    );
     if (!id) return;
     const u = users.find((x) => String(x.id) === id);
     if (u) u.is_online = true;
@@ -309,17 +371,27 @@ export default function MessagesPage() {
   }
 
   function onUserOffline(payload) {
-    const id = String(payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "");
+    const id = String(
+      payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
+    );
     if (!id) return;
     const u = users.find((x) => String(x.id) === id);
     if (u) u.is_online = false;
-    if (activeUser && String(activeUser.id) === id) activeUser.is_online = false;
+    if (activeUser && String(activeUser.id) === id)
+      activeUser.is_online = false;
     renderUsers();
     updateHeader();
   }
 
   function handleScroll() {
-    if (!el.chatBody || el.chatBody.scrollTop > 0 || !activeUser || allLoaded || loadingMore) return;
+    if (
+      !el.chatBody ||
+      el.chatBody.scrollTop > 0 ||
+      !activeUser ||
+      allLoaded ||
+      loadingMore
+    )
+      return;
     loadingMore = true;
     offset += MSG_LIMIT;
     fetchMessages(offset);
@@ -335,7 +407,11 @@ export default function MessagesPage() {
   async function handleSend(e) {
     e.preventDefault();
     if (!activeUser) {
-      Banner("Select a user first", "Choose a contact before sending.", "warning");
+      Banner(
+        "Select a user first",
+        "Choose a contact before sending.",
+        "warning",
+      );
       return;
     }
     const text = el.messageInput?.value.trim();
@@ -343,20 +419,36 @@ export default function MessagesPage() {
 
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const nowIso = new Date().toISOString();
-    const payload = { content: text, recipient_id: Number(activeUser.id), temp_id: tempId };
-    const optimisticMsg = { ...payload, sender_id: -1, sender_name: "You", create_time: nowIso };
+    const payload = {
+      content: text,
+      recipient_id: Number(activeUser.id),
+      temp_id: tempId,
+    };
+    const optimisticMsg = {
+      ...payload,
+      sender_id: -1,
+      sender_name: "You",
+      create_time: nowIso,
+    };
 
     allMessages.push(optimisticMsg);
     appendMsg(optimisticMsg);
     el.messageInput.value = "";
 
     const u = users.find((x) => String(x.id) === String(activeUser.id));
-    if (u) { u.last_message_at = nowIso; renderUsers(); }
+    if (u) {
+      u.last_message_at = nowIso;
+      renderUsers();
+    }
 
     if (!(await send(payload))) {
       allMessages = allMessages.filter((m) => m.temp_id !== tempId);
       el.chatBody?.querySelector(`[data-temp-id="${tempId}"]`)?.remove();
-      Banner("Connection Error", "WebSocket connection is closed. Try again.", "error");
+      Banner(
+        "Connection Error",
+        "WebSocket connection is closed. Try again.",
+        "error",
+      );
     }
   }
 

@@ -72,15 +72,27 @@ export default async function CreatePostPage() {
         credentials: "include",
       });
       const res = await req.json();
+      console.log("Create post response:", res);
 
       if (!req.ok || !res.success) {
-        if (res?.data?.title_error || res?.data?.desc_error || res?.data?.cate_error) {
+        if (
+          res?.data?.title_error ||
+          res?.data?.desc_error ||
+          res?.data?.cate_error
+        ) {
           titleErr.innerHTML = res.data.title_error || "";
           descErr.innerHTML = res.data.desc_error || "";
           imgErr.innerHTML = res.data.image_error || "";
           categoryErr.innerHTML = res.data.cate_error || "";
+        } else if (res.error === "auth_err") {
+          Banner("Error", "You must be logged in to create a post.", "error");
+          window.location.href = "#/login";
         } else {
-          Banner("Error", res?.message || "Unable to create post right now.", "error");
+          Banner(
+            "Error",
+            res?.message || "Unable to create post right now.",
+            "error",
+          );
         }
         return;
       }

@@ -88,7 +88,7 @@ func HandleMessages() {
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Cannot send message to yourself."})
 				continue
 			}
-			
+
 			if len(msg.Content) > 100 {
 				log.Println("Message content exceeds 100 characters. Ignoring message.")
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Message content cannot exceed 100 characters."})
@@ -130,7 +130,8 @@ func HandleMessages() {
 				`INSERT INTO notifications (user_id, sender_id, type, snippet, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
 				msg.RecipientID, msg.SenderID, "new_message", msg.Content, 0, time.Now(),
 			)
-			if err != nil {	fmt.Println("Received message from user:", msg.SenderID, "to user:", msg.RecipientID, "Content:", msg.Content)
+			if err != nil {
+				fmt.Println("Received message from user:", msg.SenderID, "to user:", msg.RecipientID, "Content:", msg.Content)
 				log.Println("notification insert err:", err)
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Failed to send notification."})
 			}
@@ -155,6 +156,12 @@ func HandleMessages() {
 
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
+
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		PrintError(w, "Method Not Allowed", "Method Not Allowed", http.StatusUnauthorized)
+		return
+	}
 	userID, err := utils.CheckSession(w, r)
 	if err != nil {
 		PrintError(w, "auth_error", "Authentication required.", http.StatusUnauthorized)

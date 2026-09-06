@@ -96,7 +96,7 @@ export default async function CreatePostPage() {
         }
         return;
       }
-
+      
       Banner("", res.message || "Post created!", "success");
       form.reset();
     } catch (err) {

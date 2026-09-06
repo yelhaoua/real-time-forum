@@ -48,9 +48,12 @@ func ValidateEmail(email string) bool {
 }
 
 func IsValidName(name string) bool {
-
 	trimmed := strings.TrimSpace(name)
 	return len(trimmed) >= 2 && len(trimmed) <= 50 && !strings.ContainsRune(name, '\x00')
+}
+
+func ValidUsername(username string) bool {
+	return regexp.MustCompile(`^[a-zA-Z0-9_]{3,20}$`).MatchString(username)
 }
 
 func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
@@ -67,6 +70,11 @@ func ValidateRegistration(data *RegisterData) (RegisterErrors, bool) {
 	if !IsValidName(data.Nickname) {
 		hasErr = true
 		errs.Nickname = "Nickname must be between 2 and 50 characters"
+	}
+	
+	if !ValidUsername(data.Nickname) {
+		hasErr = true
+		errs.Nickname = "Nickname can only contain letters, numbers, and underscores, and must be between 3 and 20 characters"
 	}
 
 	if !IsValidName(data.FirstName) {

@@ -22,6 +22,15 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie("Form_Token")
 	if err == nil {
+		query := "SELECT user_id FROM sessions WHERE token = ?"
+		row := config.Conn.QueryRow(query, cookie.Value)
+		var userID int
+		err = row.Scan(&userID)
+		if err != nil {
+			PrintError(w, "db_error", "Database Error", http.StatusInternalServerError)
+			return
+		}
+		DisconnectUser(Hub_, userID)
 		_, _ = config.Conn.Exec(
 			"DELETE FROM sessions WHERE token = ?",
 			cookie.Value,

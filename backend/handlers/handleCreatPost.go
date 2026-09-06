@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"real-time-forum/config"
@@ -61,9 +62,9 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 		PrintError(w, "form-error", "File too large. Maximum size is 1MB", http.StatusBadRequest)
 		return
 	}
-	postTitle := r.FormValue("posttitle")
-	postDesc := r.FormValue("postdesc")
-	postCategory := r.FormValue("category")
+	postTitle := strings.TrimSpace(r.FormValue("posttitle"))
+	postDesc := strings.TrimSpace(r.FormValue("postdesc"))
+	postCategory := strings.TrimSpace(r.FormValue("category"))
 	hassErr := false
 	if len(postTitle) > 50 || len(postTitle) < 3 {
 		hassErr = true

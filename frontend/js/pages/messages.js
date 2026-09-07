@@ -21,7 +21,7 @@ export default function MessagesPage(params = {}) {
       <div id="user-chat">
         <div class="mobile-chat-header">
           <button class="mobile-back-btn" type="button">← Back</button>
-          <div class="mobile-chat-title"><h4 class="chat-user-name">Select a user</h4></div>
+          <div class="mobile-chat-title"><h4 class="chat-user-name">Select a user</h4>  <span style="color: #21a05a; font-size: 12px;" class="typing-section-mobile"><span></div>
         </div>
         <main class="main-chat-window">
           <div class="chat-header">
@@ -30,7 +30,7 @@ export default function MessagesPage(params = {}) {
               <div class="chat-avatar"><img src="/assets/images/download.jpeg" alt="Avatar"></div>
               <div class="item-text">
                 <h4 class="chat-user-name">Select a user</h4>
-                <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span></p>
+                <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span>  <span style="color: #21a05a;"  class="typing-section"><span></p>
               </div>
             </div>
           </div>
@@ -62,17 +62,15 @@ export default function MessagesPage(params = {}) {
     messageInput: document.querySelector("#user-chat .message-input"),
     sendButton: document.querySelector("#user-chat .send-message-btn"),
     backButton: document.querySelector("#user-chat .mobile-back-btn"),
+    typingSection: document.querySelector(".typing-section"),
+    typingSectionMobile: document.querySelector(".typing-section-mobile"),
   };
 
   let isTyping = false;
   let typingTimer = null;
 
   async function TypingInProgress() {
-    // if (!activeUser) {
-    console.log(activeUser, "heloo");
-
-    //   return;
-    // }
+    if (!activeUser) return;
 
     if (!isTyping) {
       isTyping = true;
@@ -92,7 +90,7 @@ export default function MessagesPage(params = {}) {
         type: "typing_end",
         recipient_id: Number(activeUser.id),
       });
-    }, 1500);
+    }, 500);
   }
 
   document
@@ -357,13 +355,30 @@ export default function MessagesPage(params = {}) {
     if (preselected) selectUser(preselected);
   });
 
+  function HnadleStartTyping(msg) {
+    let div = document.createElement("div");
+    div.innerHTML = "";
+    el.typingSection.innerHTML = "Is Typing Now";
+    el.typingSectionMobile.innerHTML = "Is Typing Now";
+  }
+
+  function HandleEndTyping(msg) {
+    el.typingSection.innerHTML = "";
+    el.typingSectionMobile.innerHTML = "";
+  }
+
   on("message", onChatMessage);
+  on("typing_start", HnadleStartTyping);
+  on("typing_end", HandleEndTyping);
+
   el.chatBody?.addEventListener("scroll", handleScroll);
   el.chatForm?.addEventListener("submit", handleSend);
   el.backButton?.addEventListener("click", () => selectUser(null));
 
   currentCleanup = () => {
     off("message", onChatMessage);
+    off("typing_start", HnadleStartTyping);
+    off("typing_end", HandleEndTyping);
     usersList.destroy();
     el.chatBody?.removeEventListener("scroll", handleScroll);
     el.chatForm?.removeEventListener("submit", handleSend);

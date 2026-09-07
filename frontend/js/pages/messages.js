@@ -64,6 +64,41 @@ export default function MessagesPage(params = {}) {
     backButton: document.querySelector("#user-chat .mobile-back-btn"),
   };
 
+  let isTyping = false;
+  let typingTimer = null;
+
+  async function TypingInProgress() {
+    // if (!activeUser) {
+    console.log(activeUser, "heloo");
+
+    //   return;
+    // }
+
+    if (!isTyping) {
+      isTyping = true;
+
+      await send({
+        type: "typing_start",
+        recipient_id: Number(activeUser.id),
+      });
+    }
+
+    clearTimeout(typingTimer);
+
+    typingTimer = setTimeout(async () => {
+      isTyping = false;
+
+      await send({
+        type: "typing_end",
+        recipient_id: Number(activeUser.id),
+      });
+    }, 1500);
+  }
+
+  document
+    .querySelector(".message-input")
+    .addEventListener("input", TypingInProgress);
+
   function formatTimestamp(ts) {
     let date;
     try {
@@ -212,6 +247,7 @@ export default function MessagesPage(params = {}) {
   }
   function selectUser(user) {
     activeUser = user;
+
     allMessages = [];
     offset = 0;
     allLoaded = false;
@@ -274,6 +310,7 @@ export default function MessagesPage(params = {}) {
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const nowIso = new Date().toISOString();
     const payload = {
+      type: "message",
       content: text,
       recipient_id: Number(activeUser.id),
       temp_id: tempId,

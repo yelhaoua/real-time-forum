@@ -61,7 +61,7 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 			broadcast <- WSMessage{Type: "user_offline", SenderID: userID}
 			return
 		}
-		msg.Type = "message"
+		// msg.Type = "message"
 		msg.SenderID = userID
 		broadcast <- msg
 	}
@@ -72,7 +72,18 @@ func HandleMessages() {
 		switch msg.Type {
 		case "user_online", "user_offline":
 			BroadcastAll(Hub_, msg)
+		case "typing_start":
+			fmt.Println("Hnaa test")
+			SendToUser(Hub_, msg.RecipientID, WSMessage{
+				Type:     "typing_start",
+				SenderID: msg.SenderID,
+			})
 
+		case "typing_end":
+			SendToUser(Hub_, msg.RecipientID, WSMessage{
+				Type:     "typing_end",
+				SenderID: msg.SenderID,
+			})
 		case "message":
 			var senderName string
 			var recipientName string

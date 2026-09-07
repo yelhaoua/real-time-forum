@@ -6,6 +6,7 @@ import FeedPage from "./js/pages/feed.js";
 import PostPage from "./js/pages/post.js";
 import CreatePostPage from "./js/pages/create.js";
 import MessagesPage from "./js/pages/messages.js";
+import { mountOnlineUsersPanel, unmountOnlineUsersPanel } from "./js/onlineUsersPanel.js";
 
 const ROUTES = {
   "/": { title: "Home", init: FeedPage },
@@ -14,6 +15,7 @@ const ROUTES = {
   "/logout": { title: "Logout", init: LogoutPage },
   "/create-post": { title: "Create Post", init: CreatePostPage },
   "/messages": { title: "Messages", init: MessagesPage },
+  "/messages/:id": { title: "Messages", init: MessagesPage },
   "/post/:id": { title: "Post", init: PostPage },
   404: { title: "Not Found", init: () => {
     document.getElementById("app").innerHTML = `<div class="not-found-page">
@@ -68,7 +70,7 @@ console.log("Current route:", window.location.hash);
 
 on("new_message", (payload) => {
   const path = getPath();
-  if (path === "/messages") return;
+  if (path === "/messages" || path.startsWith("/messages/")) return;
   const data = payload?.data || payload;
   Banner("New message", `${data.sender_name || "Someone"}: ${data.snippet || data.content || ""}`, "info");
 });
@@ -84,6 +86,7 @@ async function urlLocationHandler() {
 
   if (!loggedIn && AUTH_ONLY.some((p) => path === p || (p.length > 1 && path.startsWith(p)))) {
     disconnect();
+    unmountOnlineUsersPanel();
     window.location.hash = "#/login";
     return;
   }
@@ -93,7 +96,12 @@ async function urlLocationHandler() {
     return;
   }
 
-  if (loggedIn) connect();
+  if (loggedIn) {
+    connect();
+    mountOnlineUsersPanel();
+  } else {
+    unmountOnlineUsersPanel();
+  }
 
   const { route, params } = matchRoute(path);
   document.body.classList.remove("auth-page");

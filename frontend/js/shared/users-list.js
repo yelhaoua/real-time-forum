@@ -1,8 +1,5 @@
 import { escapeHtml } from "../ui.js";
-import { on, off } from "../ws.js";
-
-// Ported from the messages page's own (already working) implementation, so
-// both the chat page and the always-visible online-users panel share one copy.
+import { on } from "../ws.js";
 
 export function sortUsers(list) {
   return [...list].sort((a, b) => {
@@ -38,48 +35,61 @@ export function userRowHTML(u, isActive) {
     </div>`;
 }
 
-// options:
-//   container       — element to render the rows into
-//   onSelect(user)  — called when a row is clicked
-//   getActiveId()   — returns the currently-open chat user's id, for highlighting
-//   onPresenceChange(id, isOnline) — called after a user's online status changes
-//   onError(message) — called when the initial /getallusers fetch fails
-export function createUsersList({
-  container,
-  onSelect,
-  getActiveId,
-  onPresenceChange,
-  onError,
-} = {}) {
-  let users = [];
+let users = [];
+let fetchPromise = null;
+let fetchError = null;
+let wsBound = false;
+const views = new Set();
 
-  function renderUsers() {
-    if (!container) return;
-    if (!users.length) {
-      container.innerHTML = `<div class="users-empty-state"><p>No users available.</p></div>`;
-      return;
-    }
-    const activeId = getActiveId ? getActiveId() : null;
-    container.innerHTML = sortUsers(users)
-      .map((u) =>
-        userRowHTML(u, activeId != null && String(activeId) === String(u.id)),
-      )
-      .join("");
+function findUser(id) {
+  return users.find((x) => String(x.id) === String(id));
+}
+
+function renderView(view) {
+  if (!view.container) return;
+  if (!users.length) {
+    view.container.innerHTML = `<div class="users-empty-state"><p>No users available.</p></div>`;
+    return;
   }
+  const activeId = view.getActiveId ? view.getActiveId() : null;
+  view.container.innerHTML = sortUsers(users)
+    .map((u) =>
+      userRowHTML(u, activeId != null && String(activeId) === String(u.id)),
+    )
+    .join("");
+}
 
-  function findUser(id) {
-    return users.find((x) => String(x.id) === String(id));
+function notify() {
+  views.forEach(renderView);
+}
+
+function bumpLastMessage(userId, iso) {
+  const u = findUser(userId);
+  if (u) {
+    u.last_message_at = iso;
+    notify();
   }
+}
 
-  function bumpLastMessage(userId, iso) {
-    const u = findUser(userId);
-    if (u) {
-      u.last_message_at = iso;
-      renderUsers();
-    }
+function markActiveUserRead(userId) {
+  const u = findUser(userId);
+  if (u) {
+    u.unread_count = 0;
+    u.has_unread = false;
   }
+  notify();
 
-  async function fetchUsers() {
+  fetch("http://localhost:9090/notifications/mark_read", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sender_id: Number(userId) }),
+  }).catch(() => {});
+}
+
+function fetchUsers() {
+  if (fetchPromise) return fetchPromise;
+  fetchPromise = (async () => {
     try {
       const res = await fetch("http://localhost:9090/getallusers", {
         method: "GET",
@@ -87,90 +97,110 @@ export function createUsersList({
       });
       const result = await res.json();
       if (!res.ok) {
-        onError?.(result.message || "Unable to load user list.");
+        fetchError = result.message || "Unable to load user list.";
         return;
       }
+      fetchError = null;
       users = result.data || [];
-      renderUsers();
+      notify();
     } catch {
-      onError?.("Unable to load user list.");
+      fetchError = "Unable to load user list.";
     }
-  }
+  })();
+  return fetchPromise;
+}
 
-  function markActiveUserRead(userId) {
-    const u = findUser(userId);
+function isActiveAnywhere(id) {
+  for (const view of views) {
+    if (view.getActiveId && String(view.getActiveId()) === id) return true;
+  }
+  return false;
+}
+
+function onChatMessage(msg) {
+  const sid = String(msg.sender_id ?? "");
+  const rid = String(msg.recipient_id ?? "");
+  const nowIso =
+    msg.create_time || msg.creat_time || new Date().toISOString();
+  const otherId = findUser(sid) ? sid : rid;
+  bumpLastMessage(otherId, nowIso);
+}
+
+function onNewMessage(notification) {
+  try {
+    const data = notification.data || notification;
+    const senderId = String(data.sender_id ?? notification.sender_id ?? "");
+    const nowIso = new Date().toISOString();
+    const u = findUser(senderId);
     if (u) {
-      u.unread_count = 0;
-      u.has_unread = false;
-    }
-    renderUsers();
-
-    fetch("http://localhost:9090/notifications/mark_read", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sender_id: Number(userId) }),
-    }).catch(() => {});
-  }
-
-  function onChatMessage(msg) {
-    const sid = String(msg.sender_id ?? "");
-    const rid = String(msg.recipient_id ?? "");
-    const nowIso = msg.create_time || msg.creat_time || new Date().toISOString();
-    const activeId = getActiveId ? getActiveId() : null;
-    const otherId =
-      activeId != null && String(activeId) === sid ? sid : sid || rid;
-    bumpLastMessage(otherId, nowIso);
-  }
-
-  function onNewMessage(notification) {
-    try {
-      const data = notification.data || notification;
-      const senderId = String(data.sender_id ?? notification.sender_id ?? "");
-      const nowIso = new Date().toISOString();
-      const u = findUser(senderId);
-      if (u) {
-        u.last_message_at = data.create_time || data.creat_time || nowIso;
-        const activeId = getActiveId ? getActiveId() : null;
-        if (activeId == null || String(activeId) !== senderId) {
-          u.unread_count = (u.unread_count || 0) + 1;
-          u.has_unread = true;
-        }
-        renderUsers();
+      u.last_message_at = data.create_time || data.creat_time || nowIso;
+      if (!isActiveAnywhere(senderId)) {
+        u.unread_count = (u.unread_count || 0) + 1;
+        u.has_unread = true;
       }
-    } catch (err) {
-      console.error("new message notification error", err);
+      notify();
     }
+  } catch (err) {
+    console.error("new message notification error", err);
   }
+}
 
-  function onNewUser(payload) {
-    const data = payload.data || payload;
-    if (!data?.id || findUser(data.id)) return;
-    users.push({ ...data, unread_count: data.unread_count || 0 });
-    renderUsers();
-  }
+function onNewUser(payload) {
+  const data = payload.data || payload;
+  if (!data?.id || findUser(data.id)) return;
+  users.push({ ...data, unread_count: data.unread_count || 0 });
+  notify();
+}
 
-  function onUserOnline(payload) {
-    const id = String(
-      payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
-    );
-    if (!id) return;
-    const u = findUser(id);
-    if (u) u.is_online = true;
-    renderUsers();
-    onPresenceChange?.(id, true);
-  }
+function onUserOnline(payload) {
+  const id = String(
+    payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
+  );
+  if (!id) return;
+  const u = findUser(id);
+  if (u) u.is_online = true;
+  notify();
+  views.forEach((v) => v.onPresenceChange?.(id, true));
+}
 
-  function onUserOffline(payload) {
-    const id = String(
-      payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
-    );
-    if (!id) return;
-    const u = findUser(id);
-    if (u) u.is_online = false;
-    renderUsers();
-    onPresenceChange?.(id, false);
-  }
+function onUserOffline(payload) {
+  const id = String(
+    payload.sender_id ?? payload.user_id ?? payload.SenderID ?? "",
+  );
+  if (!id) return;
+  const u = findUser(id);
+  if (u) u.is_online = false;
+  notify();
+  views.forEach((v) => v.onPresenceChange?.(id, false));
+}
+
+function bindWs() {
+  if (wsBound) return;
+  wsBound = true;
+  on("message", onChatMessage);
+  on("new_message", onNewMessage);
+  on("new_user", onNewUser);
+  on("user_online", onUserOnline);
+  on("user_offline", onUserOffline);
+}
+
+export function resetUsersStore() {
+  users = [];
+  fetchPromise = null;
+  fetchError = null;
+}
+
+export function createUsersList({
+  container,
+  onSelect,
+  getActiveId,
+  onPresenceChange,
+  onError,
+} = {}) {
+  bindWs();
+
+  const view = { container, getActiveId, onPresenceChange };
+  views.add(view);
 
   function handleClick(e) {
     const row = e.target.closest(".user-row");
@@ -179,28 +209,22 @@ export function createUsersList({
     if (user && onSelect) onSelect(user);
   }
 
-  on("message", onChatMessage);
-  on("new_message", onNewMessage);
-  on("new_user", onNewUser);
-  on("user_online", onUserOnline);
-  on("user_offline", onUserOffline);
   container?.addEventListener("click", handleClick);
 
-  const ready = fetchUsers();
+  const ready = fetchUsers().then(() => {
+    if (fetchError) onError?.(fetchError);
+    renderView(view);
+  });
 
   return {
     ready,
-    refresh: renderUsers,
+    refresh: () => renderView(view),
     getUsers: () => users,
     findUser,
     markActiveUserRead,
     bumpLastMessage,
     destroy() {
-      off("message", onChatMessage);
-      off("new_message", onNewMessage);
-      off("new_user", onNewUser);
-      off("user_online", onUserOnline);
-      off("user_offline", onUserOffline);
+      views.delete(view);
       container?.removeEventListener("click", handleClick);
     },
   };

@@ -1,4 +1,4 @@
-import { createUsersList } from "./shared/users-list.js";
+import { createUsersList, resetUsersStore } from "./shared/users-list.js";
 
 let instance = null;
 
@@ -64,6 +64,7 @@ export function unmountOnlineUsersPanel() {
   window.removeEventListener("hashchange", onHashChange);
   instance.destroy();
   instance = null;
+  resetUsersStore();
   const root = document.getElementById("online-users-panel");
   if (root) root.innerHTML = "";
 }

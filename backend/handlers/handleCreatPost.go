@@ -43,7 +43,7 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 
 	id, err := utils.CheckSession(w, r)
 	if err != nil {
-		PrintError(w, "auth_err", "you session is invalid pleas log in", http.StatusUnauthorized)
+		// PrintError(w, "auth_err", "you session is invalid pleas log in", http.StatusUnauthorized)
 		return
 	}
 
@@ -58,10 +58,10 @@ func HnadleCreatPost(w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseMultipartForm(MAXUPLOADSIZE)
 	if err != nil {
-
 		PrintError(w, "form-error", "File too large. Maximum size is 1MB", http.StatusBadRequest)
 		return
 	}
+
 	postTitle := strings.TrimSpace(r.FormValue("posttitle"))
 	postDesc := strings.TrimSpace(r.FormValue("postdesc"))
 	postCategory := strings.TrimSpace(r.FormValue("category"))

@@ -89,8 +89,7 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("hnnaaa", allCommentes)
-
+	
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
 		Data:    allCommentes,

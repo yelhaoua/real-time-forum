@@ -100,7 +100,7 @@ export default async function CreatePostPage() {
       Banner("", res.message || "Post created!", "success");
       form.reset();
     } catch (err) {
-      console.error("Failed to create post:", err);
+      window.location.href = "#/login";
       Banner("Error", "Failed to create post. Please try again.", "error");
     } finally {
       form.dataset.submitting = "false";

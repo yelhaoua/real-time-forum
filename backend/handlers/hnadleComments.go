@@ -63,7 +63,7 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 
 	res, err := config.Conn.Query(query, userID, postID)
 	if err != nil {
-		fmt.Println("err1", err)
+		fmt.Println("err", err)
 		PrintError(w, "server_error", "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -83,7 +83,6 @@ func HnadleComments(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		c.CreatedAt = utils.GetDuration(create)
-		fmt.Println("")
 		allCommentes = append(allCommentes, c)
 	}
 	if err != nil {

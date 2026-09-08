@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -39,12 +38,9 @@ func NewHub() *Hub {
 }
 
 func Managehub(hub *Hub) {
-	fmt.Println("hna")
 	for {
 		select {
 		case client := <-hub.Register:
-			fmt.Println(client)
-
 			hub.Mu.Lock()
 
 			if hub.Clients[client.UserID] == nil {
@@ -52,7 +48,6 @@ func Managehub(hub *Hub) {
 			}
 			hub.Clients[client.UserID][client] = true
 			hub.Mu.Unlock()
-			fmt.Println("c", hub.Clients)
 
 		case client := <-hub.Unregister:
 			hub.Mu.Lock()

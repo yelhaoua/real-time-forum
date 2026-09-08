@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -14,7 +13,6 @@ func main() {
 	mux := routes.Routes()
 	config.DbConnect()
 	hub := handler.NewHub()
-	fmt.Println("hub", hub)
 	handler.Hub_ = hub
 	go handler.Managehub(hub)
 	go handler.HandleMessages()
@@ -25,5 +23,6 @@ func main() {
 		"/uploads/",
 		http.StripPrefix("/uploads/", fs),
 	)
+	log.Println("App started : http://localhost:9090")
 	log.Fatal(http.ListenAndServe(":9090", mux))
 }

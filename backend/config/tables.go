@@ -111,5 +111,6 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 	if err != nil {
 		log.Fatal("Error commiting transaction:", err)
 	}
-	log.Println("All Good")
+
+	log.Println("Tables created successfully")
 }

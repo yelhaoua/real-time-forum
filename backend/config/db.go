@@ -3,6 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "modernc.org/sqlite"
 )
@@ -24,5 +25,5 @@ func DbConnect() {
 	}
 
 	_, _ = Conn.Exec("PRAGMA synchronous=NORMAL;")
-	fmt.Println("Connected")
+	log.Println("Database connected successfully")
 }

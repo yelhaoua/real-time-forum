@@ -73,7 +73,6 @@ func HandleMessages() {
 		case "user_online", "user_offline":
 			BroadcastAll(Hub_, msg)
 		case "typing_start":
-			fmt.Println("Hnaa test")
 			SendToUser(Hub_, msg.RecipientID, WSMessage{
 				Type:     "typing_start",
 				SenderID: msg.SenderID,
@@ -88,7 +87,6 @@ func HandleMessages() {
 			var senderName string
 			var recipientName string
 			queryCheck := `SELECT nick_name FROM users WHERE id = ?`
-			fmt.Println("all Data", msg)
 			if err := config.Conn.QueryRow(queryCheck, msg.RecipientID).Scan(&recipientName); err != nil {
 				log.Println("recipient lookup err:", err)
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Recipient not found."})
@@ -142,7 +140,7 @@ func HandleMessages() {
 				msg.RecipientID, msg.SenderID, "new_message", msg.Content, 0, time.Now(),
 			)
 			if err != nil {
-				fmt.Println("Received message from user:", msg.SenderID, "to user:", msg.RecipientID, "Content:", msg.Content)
+				// fmt.Println("Received message from user:", msg.SenderID, "to user:", msg.RecipientID, "Content:", msg.Content)
 				log.Println("notification insert err:", err)
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Failed to send notification."})
 			}

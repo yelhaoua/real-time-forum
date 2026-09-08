@@ -45,7 +45,6 @@ func HnadleGetChatInfo(w http.ResponseWriter, r *http.Request) {
 		PrintError(w, "input_error", "Invalid chat ID", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(userID, ChatID)
 	if userID == numChatID {
 		PrintError(w, "input_error", "You cannot chat with yourself", http.StatusBadRequest)
 		return

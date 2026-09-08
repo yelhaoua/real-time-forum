@@ -14,8 +14,6 @@ import (
 
 func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
-	fmt.Println(r.URL)
-
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
@@ -128,7 +126,6 @@ func HnadlePostDetailes(w http.ResponseWriter, r *http.Request) {
 	}
 
 	post.Createdat = utils.GetDuration(timeCreates)
-	fmt.Println(post)
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
 		Data:    post,

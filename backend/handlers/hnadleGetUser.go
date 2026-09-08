@@ -60,7 +60,6 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("data", data)
 	if data == "" {
 		json.NewEncoder(w).Encode(utils.ResponseApi{
 			Success: true,
@@ -112,7 +111,6 @@ func HnadleGetUser(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Println(users)
 	json.NewEncoder(w).Encode(utils.ResponseApi{
 		Success: true,
 		Data:    users,
@@ -183,7 +181,6 @@ func GetUsersList(w http.ResponseWriter, r *http.Request) {
 		var user utils.UserData
 		err := rows.Scan(&user.Id, &user.UserName, &user.ProfileImage, &user.UnreadCount, &user.LastMessageAt)
 		if err != nil {
-			fmt.Println(user, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(utils.ResponseApi{
 				Success: false,

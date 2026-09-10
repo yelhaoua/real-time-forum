@@ -69,8 +69,12 @@ export default function MessagesPage(params = {}) {
   let isTyping = false;
   let typingTimer = null;
 
+  let currnetUsers = 0;
+
   async function TypingInProgress() {
     if (!activeUser) return;
+
+    currnetUsers = activeUser.id;
 
     if (!isTyping) {
       isTyping = true;
@@ -252,8 +256,15 @@ export default function MessagesPage(params = {}) {
       loadingMore = false;
     }
   }
-  function selectUser(user) {
+  async function selectUser(user) {
     activeUser = user;
+
+    if (currnetUsers) {
+      await send({
+        type: "typing_end",
+        recipient_id: Number(currnetUsers),
+      });
+    }
 
     allMessages = [];
     offset = 0;

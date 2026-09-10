@@ -23,7 +23,7 @@ export default function MessagesPage(params = {}) {
           <button class="mobile-back-btn" type="button">← Back</button>
           <div class="mobile-chat-title"><h4 class="chat-user-name">Select a user</h4>  <span style="color: #21a05a; font-size: 12px;" class="typing-section-mobile"><span></div>
         </div>
-        <main class="main-chat-window">
+        <main class="main-chat-window" style="display: none;">
           <div class="chat-header">
             <div class="active-user-info">
               <a href="#/" class="back-home-btn"><i class="fa-solid fa-angle-left"></i></a>
@@ -92,10 +92,19 @@ export default function MessagesPage(params = {}) {
       });
     }, 500);
   }
+  let chatMain = document.querySelector(".Messages-box");
 
-  document
-    .querySelector(".message-input")
-    .addEventListener("input", TypingInProgress);
+  if (chatMain.classList) {
+    console.log(chatMain.classList);
+
+    document.querySelector(".message-input").addEventListener("input", (e) => {
+      console.log(chatMain.classList);
+
+      if (chatMain.classList.contains("chat-open")) {
+        TypingInProgress();
+      }
+    });
+  }
 
   function formatTimestamp(ts) {
     let date;
@@ -254,6 +263,12 @@ export default function MessagesPage(params = {}) {
     document
       .querySelector(".Messages-box")
       ?.classList.toggle("chat-open", !!user);
+    let chatwindow = document.querySelector(".main-chat-window");
+
+    if (chatwindow) {
+      chatwindow.style.display = "flex";
+    }
+
     updateHeader();
     renderChat();
     usersList.refresh();

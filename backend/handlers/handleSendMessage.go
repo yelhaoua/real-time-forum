@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"real-time-forum/config"
@@ -30,6 +31,11 @@ type WSMessage struct {
 }
 
 var broadcast = make(chan WSMessage, 256)
+
+var (
+	typingUsers   = make(map[int]int) 
+	typingUsersMu sync.Mutex
+)
 
 func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	utils.EnableCors(w)
@@ -58,10 +64,21 @@ func HandleSendMessage(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg WSMessage
 		if err := conn.ReadJSON(&msg); err != nil {
+			typingUsersMu.Lock()
+			recipient, ok := typingUsers[userID]
+			if ok {
+				delete(typingUsers, userID)
+			}
+			typingUsersMu.Unlock()
+			if ok {
+				SendToUser(Hub_, recipient, WSMessage{
+					Type:     "typing_end",
+					SenderID: userID,
+				})
+			}
 			broadcast <- WSMessage{Type: "user_offline", SenderID: userID}
 			return
 		}
-		// msg.Type = "message"
 		msg.SenderID = userID
 		broadcast <- msg
 	}
@@ -73,12 +90,18 @@ func HandleMessages() {
 		case "user_online", "user_offline":
 			BroadcastAll(Hub_, msg)
 		case "typing_start":
+			typingUsersMu.Lock()
+			typingUsers[msg.SenderID] = msg.RecipientID
+			typingUsersMu.Unlock()
 			SendToUser(Hub_, msg.RecipientID, WSMessage{
 				Type:     "typing_start",
 				SenderID: msg.SenderID,
 			})
 
 		case "typing_end":
+			typingUsersMu.Lock()
+			delete(typingUsers, msg.SenderID)
+			typingUsersMu.Unlock()
 			SendToUser(Hub_, msg.RecipientID, WSMessage{
 				Type:     "typing_end",
 				SenderID: msg.SenderID,
@@ -140,7 +163,6 @@ func HandleMessages() {
 				msg.RecipientID, msg.SenderID, "new_message", msg.Content, 0, time.Now(),
 			)
 			if err != nil {
-				// fmt.Println("Received message from user:", msg.SenderID, "to user:", msg.RecipientID, "Content:", msg.Content)
 				log.Println("notification insert err:", err)
 				Notify(Hub_, msg.SenderID, "error", map[string]any{"message": "Failed to send notification."})
 			}

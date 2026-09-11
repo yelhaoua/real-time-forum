@@ -68,32 +68,33 @@ export default function MessagesPage(params = {}) {
 
   let isTyping = false;
   let typingTimer = null;
-
-  let currnetUsers = 0;
+  let currentTypingRecipient = null;
 
   async function TypingInProgress() {
     if (!activeUser) return;
-
-    currnetUsers = activeUser.id;
+    const recipientId = Number(activeUser.id);
 
     if (!isTyping) {
       isTyping = true;
-
-      await send({
-        type: "typing_start",
-        recipient_id: Number(activeUser.id),
-      });
+      currentTypingRecipient = recipientId;
+      await send({ type: "typing_start", recipient_id: recipientId });
+    } else if (currentTypingRecipient !== recipientId) {
+      currentTypingRecipient = recipientId;
+      await send({ type: "typing_start", recipient_id: recipientId });
     }
 
     clearTimeout(typingTimer);
 
     typingTimer = setTimeout(async () => {
+      const endedRecipient = currentTypingRecipient;
       isTyping = false;
-
-      await send({
-        type: "typing_end",
-        recipient_id: Number(activeUser.id),
-      });
+      currentTypingRecipient = null;
+      if (endedRecipient !== null) {
+        await send({
+          type: "typing_end",
+          recipient_id: Number(endedRecipient),
+        });
+      }
     }, 500);
   }
   let chatMain = document.querySelector(".Messages-box");
@@ -259,11 +260,14 @@ export default function MessagesPage(params = {}) {
   async function selectUser(user) {
     activeUser = user;
 
-    if (currnetUsers) {
+    if (currentTypingRecipient) {
+      clearTimeout(typingTimer);
+      isTyping = false;
       await send({
         type: "typing_end",
-        recipient_id: Number(currnetUsers),
+        recipient_id: Number(currentTypingRecipient),
       });
+      currentTypingRecipient = null;
     }
 
     allMessages = [];
@@ -382,13 +386,15 @@ export default function MessagesPage(params = {}) {
   });
 
   function HnadleStartTyping(msg) {
-    let div = document.createElement("div");
-    div.innerHTML = "";
+    if (!activeUser) return;
+    if (Number(msg.sender_id) !== Number(activeUser.id)) return;
     el.typingSection.innerHTML = "Is Typing Now";
     el.typingSectionMobile.innerHTML = "Is Typing Now";
   }
 
   function HandleEndTyping(msg) {
+    if (!activeUser) return;
+    if (Number(msg.sender_id) !== Number(activeUser.id)) return;
     el.typingSection.innerHTML = "";
     el.typingSectionMobile.innerHTML = "";
   }

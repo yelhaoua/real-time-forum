@@ -393,6 +393,7 @@ export default function MessagesPage(params = {}) {
       return res.text();
     });
     el.typingSection.innerHTML = html;
+    el.typingSectionMobile.innerHTML = html;
   }
 
   function HandleEndTyping(msg) {

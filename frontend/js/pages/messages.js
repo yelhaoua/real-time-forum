@@ -21,16 +21,17 @@ export default function MessagesPage(params = {}) {
       <div id="user-chat">
         <div class="mobile-chat-header">
           <button class="mobile-back-btn" type="button">← Back</button>
-          <div class="mobile-chat-title"><h4 class="chat-user-name">Select a user</h4>  <span style="color: #21a05a; font-size: 12px;" class="typing-section-mobile"><span></div>
+          <div class="mobile-chat-title"><h4 class="chat-user-name"></h4>  <span style="color: #21a05a; font-size: 12px;" class="typing-section-mobile"><span></div>
         </div>
         <main class="main-chat-window" style="display: none;">
           <div class="chat-header">
             <div class="active-user-info">
               <a href="#/" class="back-home-btn"><i class="fa-solid fa-angle-left"></i></a>
-              <div class="chat-avatar"><img src="/assets/images/download.jpeg" alt="Avatar"></div>
+              <div class="chat-avatar"><img src="/assets/images/download.jpeg" alt="Avatar"> </div>
               <div class="item-text">
-                <h4 class="chat-user-name">Select a user</h4>
-                <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span>  <span style="color: #21a05a;"  class="typing-section"></span> <span style="color: #21a05a;"  class="typing-section-dots"></span></p>
+              <div class="profilecontainer" > <h4 class="chat-user-name"></h4> <span style="color: #21a05a;"  class="typing-section"></span></div>
+              
+                <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span>  </p>
               </div>
             </div>
           </div>

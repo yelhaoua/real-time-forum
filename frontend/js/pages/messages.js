@@ -30,7 +30,7 @@ export default function MessagesPage(params = {}) {
               <div class="chat-avatar"><img src="/assets/images/download.jpeg" alt="Avatar"></div>
               <div class="item-text">
                 <h4 class="chat-user-name">Select a user</h4>
-                <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span>  <span style="color: #21a05a;"  class="typing-section"><span></p>
+                <p class="status-text"><span class="status-dot"></span><span class="chat-status-text">Choose a contact to begin</span>  <span style="color: #21a05a;"  class="typing-section"></span> <span style="color: #21a05a;"  class="typing-section-dots"></span></p>
               </div>
             </div>
           </div>
@@ -63,6 +63,7 @@ export default function MessagesPage(params = {}) {
     sendButton: document.querySelector("#user-chat .send-message-btn"),
     backButton: document.querySelector("#user-chat .mobile-back-btn"),
     typingSection: document.querySelector(".typing-section"),
+
     typingSectionMobile: document.querySelector(".typing-section-mobile"),
   };
 
@@ -385,11 +386,13 @@ export default function MessagesPage(params = {}) {
     if (preselected) selectUser(preselected);
   });
 
-  function HnadleStartTyping(msg) {
+  async function HnadleStartTyping(msg) {
     if (!activeUser) return;
     if (Number(msg.sender_id) !== Number(activeUser.id)) return;
-    el.typingSection.innerHTML = "Is Typing Now";
-    el.typingSectionMobile.innerHTML = "Is Typing Now";
+    const html = await fetch("../../typing-animation.html").then((res) => {
+      return res.text();
+    });
+    el.typingSection.innerHTML = html;
   }
 
   function HandleEndTyping(msg) {

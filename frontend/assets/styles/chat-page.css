@@ -429,3 +429,41 @@
         padding: 10px 14px;
     }
 }
+
+
+.typing {
+    font-size: 14px;
+    color: rgb(12, 173, 12);
+}
+
+.dots span {
+    display: inline-block;
+    animation: typingDots 1.4s infinite;
+}
+
+.dots .d1 {
+    animation-delay: 0s;
+}
+
+.dots .d2 {
+    animation-delay: 0.2s;
+}
+
+.dots .d3 {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingDots {
+
+    0%,
+    60%,
+    100% {
+        opacity: 0.2;
+        transform: translateY(0);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+}
